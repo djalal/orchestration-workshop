@@ -7,49 +7,51 @@ class: title
 
 ---
 
-## Objectives
+## Objectifs
 
-We have seen simple Dockerfiles to illustrate how Docker build
-container images.
+Nous avons vu des Dockerfiles simples pour illustrer comment Docker
+construit des images de conteneurs.
 
-In this section, we will see more Dockerfile commands.
-
----
-
-## `Dockerfile` usage summary
-
-* `Dockerfile` instructions are executed in order.
-
-* Each instruction creates a new layer in the image.
-
-* Docker maintains a cache with the layers of previous builds.
-
-* When there are no changes in the instructions and files making a layer,
-  the builder re-uses the cached layer, without executing the instruction for that layer.
-
-* The `FROM` instruction MUST be the first non-comment instruction.
-
-* Lines starting with `#` are treated as comments.
-
-* Some instructions (like `CMD` or `ENTRYPOINT`) update a piece of metadata.
-
-  (As a result, each call to these instructions makes the previous one useless.)
+Dans cette section, nous allons voir d'autres commandes
+propres aux Dockerfiles.
 
 ---
 
-## The `RUN` instruction
+## `Dockerfile`, l'essentiel
 
-The `RUN` instruction can be specified in two ways.
+* Les instructions d'un `Dockerfile` sont exécutées dans l'ordre.
 
-With shell wrapping, which runs the specified command inside a shell,
-with `/bin/sh -c`:
+* Chaque instruction ajoute une nouvelle couche à l'image (_layer_).
+
+* Docker gère un cache avec les _layers_ des _builds_ précédents.
+
+* Quand rien ne change dans les instructions ou les fichiers qui définissent
+un _layer_, le _builder_ récupère la version en cache, sans exécuter l'instruction
+de ce _layer_.
+
+* L'instruction `FROM` DOIT être la première instruction (hormis les commentaires).
+
+* Les lignes débutant par `#` sont considérées comme des commentaires.
+
+* Quelques instructions (comme `CMD` et `ENTRYPOINT`) concernent les méta-données.
+(avec pour conséquence que chaque mention de ces instructions rend les précédentes obsolètes)
+
+
+---
+
+## Instruction `RUN`
+
+L'instruction `RUN` peut être utilisée de deux manières.
+
+Via le _shell wrapping_, qui exécute la commande spécifiée dans un _shell_,
+avec `/bin/sh -c`, exemple:
 
 ```dockerfile
 RUN apt-get update
 ```
 
-Or using the `exec` method, which avoids shell string expansion, and
-allows execution in images that don't have `/bin/sh`:
+Ou via la méthode `exec`, qui évite l'expansion de chaine du _shell_, et
+permet l'exécution pour les images qui n'embarquent pas `/bin/sh`, i.e. :
 
 ```dockerfile
 RUN [ "apt-get", "update" ]
@@ -57,33 +59,34 @@ RUN [ "apt-get", "update" ]
 
 ---
 
-## More about the `RUN` instruction
+## `RUN` plus en détail
 
-`RUN` will do the following:
+`RUN` est utile pour:
 
-* Execute a command.
-* Record changes made to the filesystem.
-* Work great to install libraries, packages, and various files.
+* Exécuter une commande.
+* Enregistrer les changements du système de fichiers.
+* Installer efficacement des bibliothèques, paquets et divers fichiers.
 
-`RUN` will NOT do the following:
+`RUN` n'est pas fait pour:
 
-* Record state of *processes*.
-* Automatically start daemons.
+* Enregistrer l'état des *processus*
+* Démarrer automatiquement un process en tache de fond (_daemon_).
 
-If you want to start something automatically when the container runs,
-you should use `CMD` and/or `ENTRYPOINT`.
+Si vous voulez démarrer automatiquement un processus quand le container se lance,
+vous devriez passer par `CMD` et/ou `ENTRYPOINT`.
 
 ---
 
-## Collapsing layers
+## Fusion de _layers_:
 
-It is possible to execute multiple commands in a single step:
+Il est possible d'exécuter plusieurs commandes d'un seul coup:
 
 ```dockerfile
 RUN apt-get update && apt-get install -y wget && apt-get clean
 ```
 
-It is also possible to break a command onto multiple lines:
+Il est aussi possible de répartir une même commande sur plusieurs lignes:
+
 
 ```dockerfile
 RUN apt-get update \
@@ -93,10 +96,10 @@ RUN apt-get update \
 
 ---
 
-## The `EXPOSE` instruction
+## Instruction `EXPOSE`
 
-The `EXPOSE` instruction tells Docker what ports are to be published
-in this image.
+L'instruction `EXPOSE` indique à Docker quels ports doivent être publié
+pour cette image.
 
 ```dockerfile
 EXPOSE 8080
@@ -104,161 +107,158 @@ EXPOSE 80 443
 EXPOSE 53/tcp 53/udp
 ```
 
-* All ports are private by default.
+* Tous les ports sont privés par défaut;
 
-* Declaring a port with `EXPOSE` is not enough to make it public.
+* Déclarer un port avec `EXPOSE` ne suffit  pas à le rendre public;
 
-* The `Dockerfile` doesn't control on which port a service gets exposed.
-
----
-
-## Exposing ports
-
-* When you `docker run -p <port> ...`, that port becomes public.
-
-    (Even if it was not declared with `EXPOSE`.)
-
-* When you `docker run -P ...` (without port number), all ports
-  declared with `EXPOSE` become public.
-
-A *public port* is reachable from other containers and from outside the host.
-
-A *private port* is not reachable from outside.
+* Le `Dockerfile` ne contrôle pas sur quel port un service sera exposé.
 
 ---
 
-## The `COPY` instruction
+## Exposer des ports
 
-The `COPY` instruction adds files and content from your host into the
-image.
+* Quand vous lancez `docker run -p <port> ...`, ce port devient public;
+
+    (Même s'il n'a pas été déclaré via `EXPOSE`.)
+
+* Quand vous lancez `docker run -P...`(sans numéro de port), tous les ports
+déclarés via `EXPOSE` deviennent publics.
+
+Un *port public* est accessible depuis les autres containers et depuis l'extérieur de la machine hôte.
+
+Un *port privé* n'est pas accessible depuis l'extérieur.
+
+---
+
+## Instruction `COPY`
+
+L'instruction `COPY` ajoute des fichiers et du contenu depuis votre machine hôte
+vers l'image.
 
 ```dockerfile
 COPY . /src
 ```
 
-This will add the contents of the *build context* (the directory
-passed as an argument to `docker build`) to the directory `/src`
-in the container.
+Cela va ajouter le contenu du *build context* (le dossier passé en argument
+à la commande `docker build`) au dossier `/src` dans l'image.
 
 ---
 
-## Build context isolation
+## Isolation du *build context*
 
-Note: you can only reference files and directories *inside* the
-build context. Absolute paths are taken as being anchored to
-the build context, so the two following lines are equivalent:
+Note: vous pouvez manipuler uniquement les fichiers et dossier *contenus*
+dans le *build context*. Tout chemin absolu est traité comme ayant pour racine
+le *build context*, i.e que les 2 lignes suivantes sont équivalentes:
 
 ```dockerfile
 COPY . /src
 COPY / /src
 ```
+Toute tentative d'utiliser `..` pour sortir du *build context* sera
+détectée et bloquée par Docker, et le _build_ échouera.
 
-Attempts to use `..` to get out of the build context will be
-detected and blocked with Docker, and the build will fail.
-
-Otherwise, a `Dockerfile` could succeed on host A, but fail on host B.
+Sans cela, un `Dockerfile` pourrait être valide sur une machine A, mais échouer sur une machine B.
 
 ---
 
-## `ADD`
+## Instruction `ADD`
 
-`ADD` works almost like `COPY`, but has a few extra features.
+`ADD` fonctionne presque comme `COPY`, mais avec quelques petits plus.
 
-`ADD` can get remote files:
+`ADD` peut récupérer des fichiers à distance:
 
 ```dockerfile
 ADD http://www.example.com/webapp.jar /opt/
 ```
 
-This would download the `webapp.jar` file and place it in the `/opt`
-directory.
+Cette ligne irait  télécharger le fichier `webapp.jar` pour le placer
+dans le dossier `/opt`.
 
-`ADD` will automatically unpack zip files and tar archives:
+`ADD` va automatiquement décompresser les fichiers zip et tar:
 
 ```dockerfile
 ADD ./assets.zip /var/www/htdocs/assets/
 ```
+Cette ligne décompresse `assets.zip` pour copier son contenu dans `/var/www/htdocs/assets`.
 
-This would unpack `assets.zip` into `/var/www/htdocs/assets`.
-
-*However,* `ADD` will not automatically unpack remote archives.
-
----
-
-## `ADD`, `COPY`, and the build cache
-
-* Before creating a new layer, Docker checks its build cache.
-
-* For most Dockerfile instructions, Docker only looks at the
-  `Dockerfile` content to do the cache lookup.
-
-* For `ADD` and `COPY` instructions, Docker also checks if the files
-  to be added to the container have been changed.
-
-* `ADD` always needs to download the remote file before
-  it can check if it has been changed.
-
-  (It cannot use,
-  e.g., ETags or If-Modified-Since headers.)
+*Néanmoins,*, `ADD` ne décompressera pas automatiquement les fichiers téléchargés à distance.
 
 ---
 
-## `VOLUME`
+## `ADD`, `COPY`, et le cache de _build_
 
-The `VOLUME` instruction tells Docker that a specific directory
-should be a *volume*.
+* Avant d'ajouter un nouveau _layer_, Docker vérifie son cache de *build*.
+
+* Pour la plupart des instructions `Dockerfile`, Docker examine simplement le contenu
+du Dockerfile pour la vérification du cache.
+
+* Pour les instructions`ADD` et `COPY`, Docker vérifie aussi si les fichiers
+à ajouter à l'image ont été modifiés.
+
+* `ADD` doit toujours télécharger tout fichier distant avant de vérifier
+s'il a changé.
+
+  (Il ne sait pas utiliser par ex. les en-têtes ETags ou If-Modified-Since)
+
+
+---
+
+## Instruction `VOLUME`
+
+L'instruction `VOLUME` indique à Docker qu'un dossier spécifique devrait
+être un *volume*.
 
 ```dockerfile
 VOLUME /var/lib/mysql
 ```
 
-Filesystem access in volumes bypasses the copy-on-write layer,
-offering native performance to I/O done in those directories.
+Les accès _filesystem_ dans les volumes contournent la couche _copy-on-write_,
+offrant une performance native dans les I/O de ses dossiers.
 
-Volumes can be attached to multiple containers, allowing to
-"port" data over from a container to another, e.g. to
-upgrade a database to a newer version.
+Les volumes peuvent être attachés à plusieurs containers, permettant
+de "transporter" les données d'un container à un autre, dans le cas par ex.
+d'une mise à jour de base de données vers une version plus récente.
 
-It is possible to start a container in "read-only" mode.
-The container filesystem will be made read-only, but volumes
-can still have read/write access if necessary.
+Il est possible de démarrer un container en mode "lecture seule".
+Le _filesystem_ du container sera restreint en mode "lecture seule", mais
+tout volume restera en lecture/écriture si nécessaire.
 
 ---
 
-## The `WORKDIR` instruction
+## Instruction `WORKDIR`
 
-The `WORKDIR` instruction sets the working directory for subsequent
-instructions.
+L'instruction `WORKDIR` change le dossier en cours pour les instructions suivantes.
 
-It also affects `CMD` and `ENTRYPOINT`, since it sets the working
-directory used when starting the container.
-   
+Cela affecte aussi `CMD` et `ENTRYPOINT`, puisque cela modifie le dossier de démarrage
+quand un container se lance.
+
 ```dockerfile
 WORKDIR /src
 ```
 
-You can specify `WORKDIR` again to change the working directory for
-further operations.
+Vous pouvez spécifier plusieurs `WORKDIR` pour changer de dossier au cours
+des différentes opérations.
+
 
 ---
 
-## The `ENV` instruction
+## Instruction `ENV`
 
-The `ENV` instruction specifies environment variables that should be
-set in any container launched from the image.
+L'instruction `ENV` déclare des variables d'environnement qui devraient être
+affectées dans tout _container_ lancé depuis cette image.
 
 ```dockerfile
 ENV WEBAPP_PORT 8080
 ```
 
-This will result in an environment variable being created in any
-containers created from this image of
+Ceci a pour résultat de créer une variable d'environnement dans tout
+container provenant de cette image.
 
 ```bash
 WEBAPP_PORT=8080
 ```
 
-You can also specify environment variables when you use `docker run`.
+Vous pouvez aussi spécifier des variables d'environnement via `docker run.`
 
 ```bash
 $ docker run -e WEBAPP_PORT=8000 -e WEBAPP_HOST=www.example.com ...
@@ -266,34 +266,35 @@ $ docker run -e WEBAPP_PORT=8000 -e WEBAPP_HOST=www.example.com ...
 
 ---
 
-## The `USER` instruction
+## Instruction `USER`
 
-The `USER` instruction sets the user name or UID to use when running
-the image.
+L'instruction `USER` change l'utilisateur ou l'UID à utiliser pour la suite des opérations,
+mais aussi l'utilisateur au lancement du _container_.
 
-It can be used multiple times to change back to root or to another user.
+Comme `WORKDIR`, elle peut être utilisée plusieurs fois, par ex. pour repasser à `root`
+ou un autre utilisateur.
 
 ---
 
-## The `CMD` instruction
+## Instruction `CMD`
 
-The `CMD` instruction is a default command run when a container is
-launched from the image.
+L'instruction `CMD` est la commande par défaut qui se lance quand un
+container est instancié à partir d'une image.
 
 ```dockerfile
 CMD [ "nginx", "-g", "daemon off;" ]
 ```
 
-Means we don't need to specify `nginx -g "daemon off;"` when running the
-container.
+Ceci signifie que nous n'avons pas besoin de spécifier `nginx -g "daemon off;"`
+lors du lancement de notre container.
 
-Instead of:
+Au lieu de:
 
 ```bash
 $ docker run <dockerhubUsername>/web_image nginx -g "daemon off;"
 ```
 
-We can just do:
+Nous pouvons juste écrire:
 
 ```bash
 $ docker run <dockerhubUsername>/web_image
@@ -301,16 +302,17 @@ $ docker run <dockerhubUsername>/web_image
 
 ---
 
-## More about the `CMD` instruction
+## `CMD` plus en détail
 
-Just like `RUN`, the `CMD` instruction comes in two forms.
-The first executes in a shell:
+Tout comme `RUN`, l'instruction `CMD` existe sous deux formes.
+
+La première lance un *shell*:
 
 ```dockerfile
 CMD nginx -g "daemon off;"
 ```
 
-The second executes directly, without shell processing:
+La seconde s'exécute directement, sans passer par un *shell*:
 
 ```dockerfile
 CMD [ "nginx", "-g", "daemon off;" ]
@@ -320,45 +322,44 @@ CMD [ "nginx", "-g", "daemon off;" ]
 
 class: extra-details
 
-## Overriding the `CMD` instruction
+## Surcharger l'instruction `CMD`
 
-The `CMD` can be overridden when you run a container.
+`CMD` peut être forcé au lancement d'un container.
 
 ```bash
 $ docker run -it <dockerhubUsername>/web_image bash
 ```
 
-Will run `bash` instead of `nginx -g "daemon off;"`.
+Ceci lancera `bash` au lieu de `nginx -g "daemon off;"`.
 
 ---
 
-## The `ENTRYPOINT` instruction
+## Instruction `ENTRYPOINT`
 
-The `ENTRYPOINT` instruction is like the `CMD` instruction,
-but arguments given on the command line are *appended* to the
-entry point.
+L'instruction `ENTRYPOINT` ressemble à l'instruction `CMD`, sauf
+que les arguments passés en ligne de commande sont *ajoutés* au point d'entrée.
 
-Note: you have to use the "exec" syntax (`[ "..." ]`).
+Note: vous devez utiliser pour cela la syntaxe "exec" (`["..."]`).
 
 ```dockerfile
 ENTRYPOINT [ "/bin/ls" ]
 ```
 
-If we were to run:
+Avec ceci, si nous lançons la commande:
 
 ```bash
 $ docker run training/ls -l
 ```
 
-Instead of trying to run `-l`, the container will run `/bin/ls -l`.
+Au lieu d'essayer de lancer `-l`, le container va exécuter `/bin/ls -l`
 
 ---
 
 class: extra-details
 
-## Overriding the `ENTRYPOINT` instruction
+## Surcharger l'instruction the `ENTRYPOINT`
 
-The entry point can be overridden as well.
+Le point d'entrée peut aussi être redéfini.
 
 ```bash
 $ docker run -it training/ls
@@ -370,53 +371,52 @@ root@d902fb7b1fc7:/#
 
 ---
 
-## How `CMD` and `ENTRYPOINT` interact
+## Comment `CMD` et `ENTRYPOINT` interagissent
 
-The `CMD` and `ENTRYPOINT` instructions work best when used
-together.
+Les instructions `CMD` et `ENTRYPOINT` fonctionnent mieux
+quand elles sont définies ensemble.
 
 ```dockerfile
 ENTRYPOINT [ "nginx" ]
 CMD [ "-g", "daemon off;" ]
 ```
 
-The `ENTRYPOINT` specifies the command to be run and the `CMD`
-specifies its options. On the command line we can then potentially
-override the options when needed.
+La ligne `ENTRYPOINT` spécifie la command à lancer et la ligne `CMD`
+spécifie ses options. En ligne de commande, nous pourrons donc
+potentiellement surcharger les options le cas échéant.
 
 ```bash
 $ docker run -d <dockerhubUsername>/web_image -t
 ```
 
-This will override the options `CMD` provided with new flags.
+Cela surchargera les options `CMD` avec de nouvelles valeurs.
 
 ---
 
-## Advanced Dockerfile instructions
+## Instructions Dockerfile avancées
 
-* `ONBUILD` lets you stash instructions that will be executed
-  when this image is used as a base for another one.
-* `LABEL` adds arbitrary metadata to the image.
-* `ARG` defines build-time variables (optional or mandatory).
-* `STOPSIGNAL` sets the signal for `docker stop` (`TERM` by default).
-* `HEALTHCHECK` defines a command assessing the status of the container.
-* `SHELL` sets the default program to use for string-syntax RUN, CMD, etc.
+* `ONBUILD` vous permet de cacher des commandes qui ne seront
+ executées que quand cette image servira de base à une autre.
+* `LABEL` ajoute des meta-datas libres à l'image.
+* `ARG` déclare des variables de _build_ (optionelles ou obligatoires).
+* `STOPSIGNAL` indique le signal à envoyer lors d'un `docker stop` (`TERM` par défault).
+* `HEALTHCHECK` définit une commande de test vérifiant le statut d'un container.
+* `SHELL` choisit le programme par défaut pour la forme _string_ de RUN, CMD, etc.
 
 ---
 
 class: extra-details
 
-## The `ONBUILD` instruction
+## Instruction `ONBUILD`
 
-The `ONBUILD` instruction is a trigger. It sets instructions that will
-be executed when another image is built from the image being build.
+L'instruction `ONBUILD` est un déclencheur. Elle indique les commandes à
+exécuter quand une image se base sur l'image en cours de _build_.
 
-This is useful for building images which will be used as a base
-to build other images.
+Ceci est utile pour construire des images qui seront une base pour d'autres images.
 
 ```dockerfile
 ONBUILD COPY . /src
 ```
 
-* You can't chain `ONBUILD` instructions with `ONBUILD`.
-* `ONBUILD` can't be used to trigger `FROM` instructions.
+* Vous ne pouvez pas chainer des instructions `ONBUILD`.
+* `ONBUILD` ne peut être utilisé pour déclencher des instructions `FROM`
