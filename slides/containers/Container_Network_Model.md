@@ -1,35 +1,35 @@
 
 class: title
 
-# The Container Network Model
+# Le _Container Network Model_
 
 ![A denser graph network](images/title-the-container-network-model.jpg)
 
 ---
 
-## Objectives
+## Objectifs
 
-We will learn about the CNM (Container Network Model).
+Nous aborderons le CNM (Modèle de Réseau pour Container)
 
-At the end of this lesson, you will be able to:
+A la fin de la leçon, vous serez capable de:
 
-* Create a private network for a group of containers.
+* Créer un réseau privé pour un groupe de _containers_;
 
-* Use container naming to connect services together.
+* Utiliser le nommage de _container_ pour connecter les services ensemble;
 
-* Dynamically connect and disconnect containers to networks.
+* Connecter et déconnecter dynamiquement des containers à des réseaux;
 
-* Set the IP address of a container.
+* Affecter l'adresse IP à un container.
 
-We will also explain the principle of overlay networks and network plugins.
+Nous expliquerons aussi le principe des réseaux _overlay_ et des plugins de réseau.
 
 ---
 
-## The Container Network Model
+## Le _Container Network Model_
 
-The CNM was introduced in Engine 1.9.0 (November 2015).
+Le CNM a été introduit dans Engine 1.9.0 (Novembre 2015).
 
-The CNM adds the notion of a *network*, and a new top-level command to manipulate and see those networks: `docker network`.
+Le CNM ajoute la notion de *network*, et une commande principale pour manipuler et inspecter ces réseaux: `docker network`.
 
 ```bash
 $ docker network ls
@@ -43,63 +43,60 @@ eb0eeab782f4        host                host
 
 ---
 
-## What's in a network?
+## Qu'est-ce qu'il y a dans un réseau?
 
-* Conceptually, a network is a virtual switch.
+* Dans le concept, un réseau est un switch virtuel;
 
-* It can be local (to a single Engine) or global (spanning multiple hosts).
+* Il peut être local (dans un Engine simple) ou global (transversal à plusieurs hôtes);
 
-* A network has an IP subnet associated to it.
+* Un réseau possède un sous-réseau IP associé;
 
-* Docker will allocate IP addresses to the containers connected to a network.
+* Docker va affecter de nouvelles adresses IP aux _containers_ connectés à ce réseau;
 
-* Containers can be connected to multiple networks.
+* Des _containers_ peuvent être connectés à plusieurs réseaux;
 
-* Containers can be given per-network names and aliases.
+* Des _containers_ peuvent se voir affectés des noms et alias par réseau;
 
-* The names and aliases can be resolved via an embedded DNS server.
+* Les noms et alias sont résolus via un serveur DNS embarqué.
 
 ---
 
-## Network implementation details
+## Détails d'implémentation de réseau
 
-* A network is managed by a *driver*.
+* Un réseau est géré par un _driver_.
 
-* The built-in drivers include:
+* Les *drivers* inclus par défaut:
 
-  * `bridge` (default)
-
+  * `bridge` (par défaut)
   * `none`
-
   * `host`
-
   * `macvlan`
 
-* A multi-host driver, *overlay*, is available out of the box (for Swarm clusters).
+* Un *driver* multi-hôte, *overlay*, est inclus sans installation supplémentaire (pour les clusters Swarm).
 
-* More drivers can be provided by plugins (OVS, VLAN...)
+* Des *drivers* supplémentaires sont disponibles sous forme de _plugins_ (OVS, VLAN, etc)
 
-* A network can have a custom IPAM (IP allocator).
+* Un réseau peut avoir son propre IPAM (allocation d'IP)
 
 ---
 
 class: extra-details
 
-## Differences with the CNI
+## Différences avec le CNI
 
 * CNI = Container Network Interface
 
-* CNI is used notably by Kubernetes
+* CNI est utilisé en particulier par Kubernetes
 
-* With CNI, all the nodes and containers are on a single IP network
+* Dans CNI, toutes les _nodes_ et _containers_ sont sur un seul et même réseau IP
 
-* Both CNI and CNM offer the same functionality, but with very different methods
+* CNI et CNM offrent les mêmes fonctions, mais via des méthodes très différentes
 
 ---
 
 class: pic
 
-## Single container in a Docker network
+## _Container_ simple dans un réseau Docker
 
 ![bridge0](images/bridge1.png)
 
@@ -107,7 +104,7 @@ class: pic
 
 class: pic
 
-## Two containers on a single Docker network
+## Deux _containers_ sur un seul réseau Docker
 
 ![bridge2](images/bridge2.png)
 
@@ -115,22 +112,22 @@ class: pic
 
 class: pic
 
-## Two containers on two Docker networks
+## Deux _containers_ sur deux réseaux Docker
 
 ![bridge3](images/bridge3.png)
 
 ---
 
-## Creating a network
+## Créer un réseau
 
-Let's create a network called `dev`.
+Essayons de déclarer un nouveau réseau appelé `dev`.
 
 ```bash
 $ docker network create dev
 4c1ff84d6d3f1733d3e233ee039cac276f425a9d5228a4355d54878293a889ba
 ```
 
-The network is now visible with the `network ls` command:
+Le réseau est maintenant visible avec la commande `network ls`;
 
 ```bash
 $ docker network ls
@@ -143,11 +140,11 @@ eb0eeab782f4        host                host
 
 ---
 
-## Placing containers on a network
+## Placer des _containers_ sur un réseau
 
-We will create a *named* container on this network.
+Nous allons créer un *container* nommé sur ce réseau.
 
-It will be reachable with its name, `es`.
+Il sera disponible via son nom, `es`.
 
 ```bash
 $ docker run -d --name es --net dev elasticsearch:2
@@ -156,9 +153,9 @@ $ docker run -d --name es --net dev elasticsearch:2
 
 ---
 
-## Communication between containers
+## Communication entre _containers_
 
-Now, create another container on this network.
+Et maintenant, ajoutons un autre _container_ sur ce réseau.
 
 .small[
 ```bash
@@ -167,7 +164,7 @@ root@0ecccdfa45ef:/#
 ```
 ]
 
-From this new container, we can resolve and ping the other one, using its assigned name:
+Depuis ce nouveau _container_, nous pouvons résoudre et ping l'autre, en utilisant son nom:
 
 .small[
 ```bash
@@ -188,10 +185,9 @@ root@0ecccdfa45ef:/#
 
 class: extra-details
 
-## Resolving container addresses
+## Résoudre des adresses de *container*
 
-In Docker Engine 1.9, name resolution is implemented with `/etc/hosts`, and
-updating it each time containers are added/removed.
+Dans le Docker Engine 1.9, la résolution de nom est implémentée avec `/etc/hosts`, et mise à jour chaque fois que les containers sont ajoutés/supprimés.
 
 .small[
 ```bash
@@ -208,37 +204,38 @@ ff02::2 ip6-allrouters
 ```
 ]
 
-In Docker Engine 1.10, this has been replaced by a dynamic resolver.
+Dans le Docker Engine 1.10, ceci a été remplacé par une résolution dynamique.
 
-(This avoids race conditions when updating `/etc/hosts`.)
-
----
-
-# Service discovery with containers
-
-* Let's try to run an application that requires two containers.
-
-* The first container is a web server.
-
-* The other one is a redis data store.
-
-* We will place them both on the `dev` network created before.
+(Cela résoud les _race conditions_ lors de la mise à jour de `/etc/hosts`)
 
 ---
 
-## Running the web server
+# _Service discovery_ avec les _containers_
 
-* The application is provided by the container image `jpetazzo/trainingwheels`.
+* Essayons de lancer une application reposant sur deux _containers_;
 
-* We don't know much about it so we will try to run it and see what happens!
+* Le premier _container_ est un serveur web;
 
-Start the container, exposing all its ports:
+* L'autre est une base de données redis;
+
+* Nous les placerons tous deux sur le réseau `dev` créé auparavant;
+
+
+---
+
+## Lancer le serveur web
+
+* L'application est fournie par l'image `jpetazzo/trainingwheels`.
+
+* Nous en savons peu sur elle, donc nous la lançons et on verra ce qui arrivera!
+
+Démarrer le _container_, en publiant tous ses ports:
 
 ```bash
 $ docker run --net dev -d -P jpetazzo/trainingwheels
 ```
 
-Check the port that has been allocated to it:
+Vérifier quel port lui a été alloué:
 
 ```bash
 $ docker ps -l
@@ -246,28 +243,30 @@ $ docker ps -l
 
 ---
 
-## Test the web server
+## Tester le serveur web
 
-* If we connect to the application now, we will see an error page:
+* Si nous ouvrons l'application à ce stage, nous verrons une page d'erreur:
 
 ![Trainingwheels error](images/trainingwheels-error.png)
 
-* This is because the Redis service is not running.
-* This container tries to resolve the name `redis`.
+* C'est parce que le service Redis n'est pas lancé.
 
-Note: we're not using a FQDN or an IP address here; just `redis`.
+* Ce *container* essaie de résoudre le nom `redis`.
+
+
+Note: nous n'utilisons pas de FQDN ou une adresse IP ici; juste `redis`.
 
 ---
 
-## Start the data store
+## Démarrer la base de données
 
-* We need to start a Redis container.
+* Nous devons démarrer un _container_ Redis.
 
-* That container must be on the same network as the web server.
+* Ce *container* doit être sur le même réseau que le serveur web.
 
-* It must have the right name (`redis`) so the application can find it.
+* Il doit porter le nom correct (`redis`) pour que l'application le trouve.
 
-Start the container:
+Démarrer le _container_;
 
 ```bash
 $ docker run --net dev --name redis -d redis
@@ -275,94 +274,95 @@ $ docker run --net dev --name redis -d redis
 
 ---
 
-## Test the web server again
+## Tester à nouveau le serveur web
 
-* If we connect to the application now, we should see that the app is working correctly:
+* Si nous ouvrons l'application à présent, nous devrions voir que l'appli fonctionne correctement:
 
 ![Trainingwheels OK](images/trainingwheels-ok.png)
 
-* When the app tries to resolve `redis`, instead of getting a DNS error, it gets the IP address of our Redis container.
+* Quand l'appli essaie de résoudre `redis`, au lieu d'avoir une erreur DNS, on récupère l'adresse IP de notre _container_ Redis.
+
 
 ---
 
-## A few words on *scope*
+## A propos du _scope_
 
-* What if we want to run multiple copies of our application?
+* Et si nous voulions lancer plusieurs clones de notre application?
 
-* Since names are unique, there can be only one container named `redis` at a time.
+* Puisque les noms sont uniques, il ne peut y avoir qu'un seul _container_ nommé `redis`.
 
-* However, we can specify the network name of our container with `--net-alias`.
+* Toutefois, nous pouvons forcer un nom de réseau de notre _container_ avec `--net-alias`.
 
-* `--net-alias` is scoped per network, and independent from the container name.
+* `--net-alias` a une portée par réseau, et indépendant du nom de _container_ d'origine.
 
 ---
 
 class: extra-details
 
-## Using a network alias instead of a name
+## Utiliser un alias de réseau au lieu d'un nom
 
-Let's remove the `redis` container:
+Supprimons le _container_ `redis`:
 
 ```bash
 $ docker rm -f redis
 ```
 
-And create one that doesn't block the `redis` name:
+Et ajoutons un nouveau qui ne bloque pas le nom `redis`:
 
 ```bash
 $ docker run --net dev --net-alias redis -d redis
 ```
 
-Check that the app still works (but the counter is back to 1,
-since we wiped out the old Redis container).
+Vérifier que l'appli fonctionne toujours (mais le compteur est revenu à 1,
+car on a dégagé l'ancien _container_ Redis).
 
 ---
 
 class: extra-details
 
-## Names are *local* to each network
+## Tout nom est *spécifique* à un seul réseau
 
-Let's try to ping our `es` container from another container, when that other container is *not* on the `dev` network.
+Essayons de _ping_ notre _container_ `es` depuis un autre _container_, dans le cas où l'autre _container_ n'est *pas* sur le réseau `dev`
 
 ```bash
 $ docker run --rm alpine ping es
 ping: bad address 'es'
 ```
 
-Names can be resolved only when containers are on the same network.
+Un nom est résolu uniquement quand les _containers_ sont sur le même réseau.
 
-Containers can contact each other only when they are on the same network (you can try to ping using the IP address to verify).
-
----
-
-class: extra-details
-
-## Network aliases
-
-We would like to have another network, `prod`, with its own `es` container. But there can be only one container named `es`!
-
-We will use *network aliases*.
-
-A container can have multiple network aliases.
-
-Network aliases are *local* to a given network (only exist in this network).
-
-Multiple containers can have the same network alias (even on the same network). In Docker Engine 1.11, resolving a network alias yields the IP addresses of all containers holding this alias.
+Les containers peuvent se contacter les uns les autres seulement quand ils sont sur le même réseau (vous pouvez essayer de _ping_ avec l'adresse IP pour vérifier).
 
 ---
 
 class: extra-details
 
-## Creating containers on another network
+## Alias de réseau
 
-Create the `prod` network.
+Nous aimerions avoir un autre réseau, `prod` avec son propre _container_ `es`. Mais il ne peut y avoir qu'un seul _container_ nommé `es`!
+
+Nous utiliserons les *alias de réseau*.
+
+Un _container_ peut avoir plusieurs alias de réseau.
+
+Les alias de réseau sont *locaux* à un réseau donné (qui existent juste sur ce réseau).
+
+Plusieurs _containers_ peuvent avoir le même alias de réseau (y compris sur le même réseau). Dans Docker Engine 1.11, la résolution d'un alias de réseau renvoie l'adresse IP de tous les _containers_ disposant de cet alias.
+
+---
+
+class: extra-details
+
+## Créer des _containers_ sur un autre réseau
+
+Créez un réseau `prod`.
 
 ```bash
 $ docker network create prod
 5a41562fecf2d8f115bedc16865f7336232a04268bdf2bd816aecca01b68d50c
 ```
 
-We can now create multiple containers with the `es` alias on the new `prod` network.
+Nous pouvons maintenant créer plusieurs _containers_ avec un alias `es` sur le nouveau réseau `prod`.
 
 ```bash
 $ docker run -d --name prod-es-1 --net-alias es --net prod elasticsearch:2
@@ -375,9 +375,10 @@ $ docker run -d --name prod-es-2 --net-alias es --net prod elasticsearch:2
 
 class: extra-details
 
-## Resolving network aliases
+## Résoudre les alias de réseau
 
-Let's try DNS resolution first, using the `nslookup` tool that ships with the `alpine` image.
+Essayons la résolution DNS, en utilisant l'outil `nslookup` livré dans l'image `alpine`.
+
 
 ```bash
 $ docker run --net prod --rm alpine nslookup es
@@ -386,17 +387,17 @@ Address 1: 172.23.0.3 prod-es-2.prod
 Address 2: 172.23.0.2 prod-es-1.prod
 ```
 
-(You can ignore the `can't resolve '(null)'` errors.)
+(On peut ignorer les erreurs `can't resolve '(null)'`)
 
 ---
 
 class: extra-details
 
-## Connecting to aliased containers
+## Se connecter aux _containers_ avec alias
 
-Each ElasticSearch instance has a name (generated when it is started). This name can be seen when we issue a simple HTTP request on the ElasticSearch API endpoint.
+Chaque instance ElasticSearch a un nom (généré au démarrage). Ce nom est visible quand on lance une simple requête HTTP sur le point d'accès de l'API ElasticSearch.
 
-Try the following command a few times:
+Essayons de lancer la commande suivante plusieurs fois:
 
 .small[
 ```bash
@@ -408,7 +409,7 @@ $ docker run --rm --net dev centos curl -s es:9200
 ```
 ]
 
-Then try it a few times by replacing `--net dev` with `--net prod`:
+Puis essayons la à nouveau plusierus fois en remplaçant `--net dev` par `--net prod`:
 
 .small[
 ```bash
@@ -422,70 +423,74 @@ $ docker run --rm --net prod centos curl -s es:9200
 
 ---
 
-## Good to know ...
+## Bon à savoir...
 
-* Docker will not create network names and aliases on the default `bridge` network.
+* Docker ne peut créer des noms de réseau et alias sur le réseau par défaut `bridge`.
 
-* Therefore, if you want to use those features, you have to create a custom network first.
+* Sachant ceci, pour utiliser ces fonctions, vous devez créer un réseau spécifique d'abord.
 
-* Network aliases are *not* unique on a given network.
+* Les alias de réseau ne sont *pas* uniques au sein d'un réseau donné.
 
-* i.e., multiple containers can have the same alias on the same network.
+* i.e plusieurs _containers_ peuvent porter le même alias sur le même réseau.
 
-* In that scenario, the Docker DNS server will return multiple records.
+* Dans ce scénario, le serveur DNS Docker retournera plusieurs enregistrements.
   <br/>
-  (i.e. you will get DNS round robin out of the box.)
+  (i.e, vous aurez un "DNS round robin" prêt à l'emploi)
 
-* Enabling *Swarm Mode* gives access to clustering and load balancing with IPVS.
+* Activer le *Mode Swarm* donne accès au traitement distribué (_clustering_) et la répartition de charge (_load balancing_) via IPVS.
 
-* Creation of networks and network aliases is generally automated with tools like Compose.
-
----
-
-class: extra-details
-
-## A few words about round robin DNS
-
-Don't rely exclusively on round robin DNS to achieve load balancing.
-
-Many factors can affect DNS resolution, and you might see:
-
-- all traffic going to a single instance;
-- traffic being split (unevenly) between some instances;
-- different behavior depending on your application language;
-- different behavior depending on your base distro;
-- different behavior depending on other factors (sic).
-
-It's OK to use DNS to discover available endpoints, but remember that you have to re-resolve every now and then to discover new endpoints.
+* Créer les réseaux et les alias de réseau est en général automatisé par des outils comme Compose.
 
 ---
 
 class: extra-details
 
-## Custom networks
+## Quelques mots à propos du DNS round robin
+
+Ne comptez pas exclusivement sur le DNS round robin pour de la répartition de charge.
+
+Plusieurs facteurs peuvent affecter la réolution DNS, et vous pourriez avoir:
+
+- tout le trafic dirigé vers une seule instance;
+- le trafic réparti inégalement entre quelques instances;
+- comportement différent selon le langage de votre application;
+- comportement différent selon votre distribution de base;
+- comportement différent selon d'autres facteurs (sic).
+
+
+Aucun problème à utiliser le DNS pour explorer les points d'accès disponibles, mais prenez bien soin de les re-résoudre de temps à autre pour trouver les nouveaux points d'accès.
+
+
+---
+
+class: extra-details
+
+## Réseaux spécifiques
+
+Lors de la création de réseaux, plusieurs options peuvent être fournies:
 
 When creating a network, extra options can be provided.
 
-* `--internal` disables outbound traffic (the network won't have a default gateway).
+* `--internal` désactive tout trafic sortant (le réseau n'aura pas de passerelle par défaut).
 
-* `--gateway` indicates which address to use for the gateway (when outbound traffic is allowed).
+* `--gateway` indique quelle adresse utiliser pour la passerelle (quand le trafic sortant est autorisé).
 
-* `--subnet` (in CIDR notation) indicates the subnet to use.
+* `--subnet` (en notation CIDR) indique le sous-réseau à utiliser.
 
-* `--ip-range` (in CIDR notation) indicates the subnet to allocate from.
+* `--ip-range` (en notation CIDR) indique le sous-réseau pour l'allocation.
 
-* `--aux-address` allows to specify a list of reserved addresses (which won't be allocated to containers).
+* `--aux-address` permet de spécifier une liste d'adresse réservées (qui ne seront jamais affectées aux _containers_).
 
 ---
 
 class: extra-details
 
-## Setting containers' IP address
+## Choisir l'adresse IP des _containers_
 
-* It is possible to set a container's address with `--ip`.
-* The IP address has to be within the subnet used for the container.
+* Il est possible de forcer l'addrese IP du _container_ avec `--ip`.
+* L'adresse IP doit respecter le sous-réseau utilisé par le _container_
 
-A full example would look like this.
+Voici ci-dessous un exemple complet.
 
 ```bash
 $ docker network create --subnet 10.66.0.0/16 pubnet
@@ -494,107 +499,105 @@ $ docker run --net pubnet --ip 10.66.66.66 -d nginx
 b2887adeb5578a01fd9c55c435cad56bbbe802350711d2743691f95743680b09
 ```
 
-*Note: don't hard code container IP addresses in your code!*
+*Note: ne forcez pas d'adresse IP explicite de _container_ dans votre code!*
 
-*I repeat: don't hard code container IP addresses in your code!*
+*Je répète: ne forcez pas d'adresse IP de _container_  dans votre code!*
 
 ---
 
-## Overlay networks
+## Réseaux superposés
 
-* The features we've seen so far only work when all containers are on a single host.
+* Les caractéristiques vues jusqu'ici fonctionnent uniquement quand les _containers_ sont sur un seul hôte.
 
-* If containers span multiple hosts, we need an *overlay* network to connect them together.
+* Si les _containers_ sont répartis sur plusieurs hôtes, nous aurons besoin d'un réseau *overlay* pour les connecter ensemble.
 
-* Docker ships with a default network plugin, `overlay`, implementing an overlay network leveraging
-  VXLAN, *enabled with Swarm Mode*.
+* Docker est livré avec un plugin de réseau par défaut, `overlay`, qui implémente un réseau superposé exploitant le concept de VXLAN, *qui s'active via le Mode Swarm*.
 
-* Other plugins (Weave, Calico...) can provide overlay networks as well.
+* D'autres plugins (Weave, Calico...) peuvent aussi fournir des réseaux superposés.
 
-* Once you have an overlay network, *all the features that we've used in this chapter work identically
-  across multiple hosts.*
+* Une fois que vous avez un réseau superposé, *toutes les fonctions utilisées dans ce chapitre fonctionne de la même manière à travers plusieurs hôtes*.
 
 ---
 
 class: extra-details
 
-## Multi-host networking (overlay)
+## Réseau multi-hôtes (_overlay_)
 
-Out of the scope for this intro-level workshop!
+Hors-sujet pour cet atelier d'introduction!
 
-Very short instructions:
-
-- enable Swarm Mode (`docker swarm init` then `docker swarm join` on other nodes)
+Instructions très rapides:
+- activer le Mode Swarm (`docker swarm init` puis `docker swarm join` sur les autres noeuds)
 - `docker network create mynet --driver overlay`
 - `docker service create --network mynet myimage`
 
-See http://jpetazzo.github.io/container.training for all the deets about clustering!
+Voir https://jpetazzo.github.io/container.training  pour tous les détails sur les _clusters_!
 
 ---
 
 class: extra-details
 
-## Multi-host networking (plugins)
+## Réseau multi-hôtes (_plugins_)
 
-Out of the scope for this intro-level workshop!
+Hors-sujet pour cet atelier d'introduction!
 
-General idea:
+Idée générale:
 
-- install the plugin (they often ship within containers)
+- installer le _plugin_ (souvent livré dans des _containers_)
 
-- run the plugin (if it's in a container, it will often require extra parameters; don't just `docker run` it blindly!)
+- lancer le _plugin_ ( si c'est dans un _container_, il y a souvent besoin de paramètres supplémentaires; n'allez pas `docker run` à l'aveugle!)
 
-- some plugins require configuration or activation (creating a special file that tells Docker "use the plugin whose control socket is at the following location")
+- certains _plugins_ exigent une configuration ou une activation (en créant un fichier spécial qui dit à Docker "utilise le _plugin_ dont la _socket_ est au chemin suivant)
 
-- you can then `docker network create --driver pluginname`
+- vous pouvez ensuite `docker network create --driver plugingname`
 
 ---
 
-## Connecting and disconnecting dynamically
+## Connexion et déconnexion dynamique
 
-* So far, we have specified which network to use when starting the container.
+* Jusqu'ici, nous avons choisi quel réseau utiliser au démarrage du _container_.
 
-* The Docker Engine also allows to connect and disconnect while the container runs.
+* Le Docker Engine permets aussi de la connexion/déconnexion pendant que le container tourne.
 
-* This feature is exposed through the Docker API, and through two Docker CLI commands:
+* Cette fonction est exposée via l'API Docker, et à travers deux commandes:
 
   * `docker network connect <network> <container>`
 
   * `docker network disconnect <network> <container>`
 
+
 ---
 
-## Dynamically connecting to a network
+## Connexion dynamique à un réseau
 
-* We have a container named `es` connected to a network named `dev`.
+* Nous avons un _container_ nommé `es` connecté à un réseau nommé `dev`.
 
-* Let's start a simple alpine container on the default network:
+* Démarrons un simple _container_ alpine sur le réseau par défaut:
 
   ```bash
   $ docker run -ti alpine sh
   / #
   ```
 
-* In this container, try to ping the `es` container:
+* Dans ce _container_, essayons de _ping_ le _container_ `es`:
 
   ```bash
   / # ping es
   ping: bad address 'es'
   ```
 
-  This doesn't work, but we will change that by connecting the container.
+Cela ne fonctionne pas, mais nous allons corriger cela en connectant le _container_.
 
 ---
 
-## Finding the container ID and connecting it
+## Trouver l'ID du _container_ et le connecter
 
-* Figure out the ID of our alpine container; here are two methods:
+* Extraire l'ID de notre _container_ alpine; voici deux méthodes:
 
-  * looking at `/etc/hostname` in the container,
+  * jeter un oeil à `/etc/hostname` dans le _container_,
 
-  * running `docker ps -lq` on the host.
+  * exécuter sur le hôte `docker ps -lq`.
 
-* Run the following command on the host:
+* Lancer la commande suivant sur l'hôte:
 
   ```bash
   $ docker network connect dev `<container_id>`
@@ -602,11 +605,12 @@ General idea:
 
 ---
 
-## Checking what we did
+## Vérifier nos actions
 
-* Try again to `ping es` from the container.
 
-* It should now work correctly:
+* Essoayez encore `ping es` depuis le _container_.
+
+* Cela devrait fonctionner correctement normalement:
 
   ```bash
   / # ping es
@@ -616,13 +620,13 @@ General idea:
   ^C
   ```
 
-* Interrupt it with Ctrl-C.
+* Stoppez-le avec Ctrl-C.
 
 ---
 
-## Looking at the network setup in the container
+## Examen du réseau dans le _container_
 
-We can look at the list of network interfaces with `ifconfig`, `ip a`, or `ip l`:
+Nous pouvons lister les interfaces réseau avec `ifconfig`, `ip a`, ou `ip l`:
 
 .small[
 ```bash
@@ -643,29 +647,35 @@ We can look at the list of network interfaces with `ifconfig`, `ip a`, or `ip l`
 ```
 ]
 
-Each network connection is materialized with a virtual network interface.
+Chaque connexion réseau est matérialisée via une interface réseau virtuelle.
 
-As we can see, we can be connected to multiple networks at the same time.
+Comme nous pouvons le voir, nous pouvons être connecté à plusieurs réseaux en même temps.
 
 ---
 
 ## Disconnecting from a network
+## Se déconnecter d'un réseau
 
-* Let's try the symmetrical command to disconnect the container:
+* Essayons ce que donne la commande symétrique pour déconnecter le _container_:
+
   ```bash
   $ docker network disconnect dev <container_id>
   ```
 
-* From now on, if we try to ping `es`, it will not resolve:
+
+* A partir de maintenant, si on cherche à _ping_ `es`, ce ne sera pas résolu:
+
   ```bash
   / # ping es
   ping: bad address 'es'
   ```
 
-* Trying to ping the IP address directly won't work either:
+
+* Si on essaie de _ping_ l'adresse IP directement, cela ne fonctionne plus non plus:
+
   ```bash
   / # ping 172.20.0.3
-  ... (nothing happens until we interrupt it with Ctrl-C)
+  ... (rien ne se passe jusqu'à ce qu'on tape Ctrl-C)
   ```
 
 ---
@@ -673,35 +683,35 @@ As we can see, we can be connected to multiple networks at the same time.
 class: extra-details
 
 ## Network aliases are scoped per network
+## Visibilité des alias de réseau par réseau
 
-* Each network has its own set of network aliases.
 
-* We saw this earlier: `es` resolves to different addresses in `dev` and `prod`.
+* Chaque réseau possède sa propre liste d'alias réseau.
 
-* If we are connected to multiple networks, the resolver looks up names in each of them
-  (as of Docker Engine 18.03, it is the connection order) and stops as soon as the name
-  is found.
+* Comme vu précédemment: `es` est résolu avec différentes adresses selon les réseaux `dev` et `prod`.
 
-* Therefore, if we are connected to both `dev` and `prod`, resolving `es` will **not**
-  give us the addresses of all the `es` services; but only the ones in `dev` or `prod`.
+* Si nous sommes connectés à plusieurs réseaux, la résolution passe les noms en revue dans chaque réseau (dans Docker Engine 18.03, par ordre de connexion), et arrête dès que le nom a été trouvé.
 
-* However, we can lookup `es.dev` or `es.prod` if we need to.
+* Par conséquent, en étant connecté aux réseaux `dev` et `prod`, la résolution de `es` ne nous donnera **pas** tous les noms des services `es`, mais seulement ceux dans `dev` ou `prod`.
+
+* Toutefois, on peut interroger `es.dev` ou `es.prod` si on a besoin.
+
 
 ---
 
 class: extra-details
 
-## Finding out about our networks and names
+## En apprendre plus sur nos réseaux et noms
 
-* We can do reverse DNS lookups on containers' IP addresses.
+* Nous pouvons lancer des requêtes DNS inverses sur les adresses IP des _containers_.
 
-* If the IP address belongs to a network (other than the default bridge), the result will be:
+* Si l'adresse IP appartient à un réseau (autre que le _bridge_ par défaut), le résultat sera:
 
   ```
-  name-or-first-alias-or-container-id.network-name
+  nom-du-premier-alias-ou-id-container.nom-reseau
   ```
 
-* Example:
+* Exemple:
 
 .small[
 ```bash

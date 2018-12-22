@@ -1,32 +1,32 @@
 
 class: title
 
-# Background containers
+# Containers en tâche de fond
 
 ![Background containers](images/title-background-containers.jpg)
 
 ---
 
-## Objectives
+## Objectifs
 
-Our first containers were *interactive*.
+Nos premiers conteneurs étaient *interactifs*.
 
-We will now see how to:
+Nous allons maintenant voir comment:
 
-* Run a non-interactive container.
-* Run a container in the background.
-* List running containers.
-* Check the logs of a container.
-* Stop a container.
-* List stopped containers.
+* Lancer un conteneur non-interactif
+* Lancer un conteneur en tâche de fond.
+* Lister les conteneurs en cours d'exécution.
+* Vérifier les logs d'un conteneur.
+* Arrêter un conteneur.
+* Lister les conteneurs à l'arrêt.
 
 ---
 
-## A non-interactive container
+## Un conteneur non-interactif
 
-We will run a small custom container.
+Nous allons lancer un petit conteneur spécial.
 
-This container just displays the time every second.
+Ce conteneur ne fait qu'afficher l'heure à chaque seconde.
 
 ```bash
 $ docker run jpetazzo/clock
@@ -36,34 +36,34 @@ Fri Feb 20 00:28:55 UTC 2015
 ...
 ```
 
-* This container will run forever.
-* To stop it, press `^C`.
-* Docker has automatically downloaded the image `jpetazzo/clock`.
-* This image is a user image, created by `jpetazzo`.
-* We will hear more about user images (and other types of images) later.
+* Ce conteneur va tourner indéfiniment.
+* Pour l'arrêter, appuyer sur `^C`.
+* Docker a automatiquement téléchargé l'image `jpettazz/clock`.
+* Cette image est une image utilisateur, créée par `jpetazzo`.
+* Nous en apprendrons plus sur les images utilisateur (et autres types d'images) plus tard.
 
 ---
 
-## Run a container in the background
+## Lancer un conteneur en tâche de fond
 
-Containers can be started in the background, with the `-d` flag (daemon mode):
+Les conteneurs peuvent être démarrés en tâche de fond, avec l'option `-d` (mode _daemon_)
 
 ```bash
 $ docker run -d jpetazzo/clock
 47d677dcfba4277c6cc68fcaa51f932b544cab1a187c853b7d0caf4e8debe5ad
 ```
 
-* We don't see the output of the container.
-* But don't worry: Docker collects that output and logs it!
-* Docker gives us the ID of the container.
+* Nous ne voyons pas l'affichage du conteneur.
+* Mais pas de souci: Docker collecte tout affichage et l'écrit dans un log!
+* Docker nous retourne un identifiant (ID) du conteneur.
 
 ---
 
-## List running containers
+## Lister les conteneurs en cours d'exécution
 
-How can we check that our container is still running?
+Comment vérifier que notre conteneur est encore lancé?
 
-With `docker ps`, just like the UNIX `ps` command, lists running processes.
+Avec `docker ps`, tout comme la commande `ps` d'UNIX, qui liste les processus qui tournent.
 
 ```bash
 $ docker ps
@@ -71,18 +71,18 @@ CONTAINER ID  IMAGE           ...  CREATED        STATUS        ...
 47d677dcfba4  jpetazzo/clock  ...  2 minutes ago  Up 2 minutes  ...
 ```
 
-Docker tells us:
+Docker nous indique:
 
-* The (truncated) ID of our container.
-* The image used to start the container.
-* That our container has been running (`Up`) for a couple of minutes.
-* Other information (COMMAND, PORTS, NAMES) that we will explain later.
+* l'ID (tronqué) de notre conteneur;
+* l'image utilisée pour démarrer le conteneur;
+* que notre conteneur est lancé (`Up`) depuis quelques minutes;
+* d'autres informations (COMMAND, PORTS, NAME) que nous verrons plus tard.
 
 ---
 
-## Starting more containers
+## Lancer plus de conteneurs
 
-Let's start two more containers.
+Démarrons deux autres conteneurs.
 
 ```bash
 $ docker run -d jpetazzo/clock
@@ -94,16 +94,16 @@ $ docker run -d jpetazzo/clock
 068cc994ffd0190bbe025ba74e4c0771a5d8f14734af772ddee8dc1aaf20567d
 ```
 
-Check that `docker ps` correctly reports all 3 containers.
+Vérifiez que `docker ps` mentionne correctement tous les 3 conteneurs.
 
 ---
 
-## Viewing only the last container started
+## Afficher uniquement le dernier conteneur démarré
 
-When many containers are already running, it can be useful to
-see only the last container that was started.
+Quand de nombreux conteneurs tournent déjà, il peut être utile
+de limiter l'affichage au dernier conteneur démarré.
 
-This can be achieved with the `-l` ("Last") flag:
+C'est à ça que sert l'option `-l` ("Last"):
 
 ```bash
 $ docker ps -l
@@ -113,13 +113,12 @@ CONTAINER ID  IMAGE           ...  CREATED        STATUS        ...
 
 ---
 
-## View only the IDs of the containers
+## Voir uniquement les IDs des conteneurs
 
-Many Docker commands will work on container IDs: `docker stop`, `docker rm`...
+Plusieurs commandes Docker sont basées sur des IDs de conteneurs: `dockoer stop`, `docker rm`, etc.
 
-If we want to list only the IDs of our containers (without the other columns
-or the header line),
-we can use the `-q` ("Quiet", "Quick") flag:
+Si nous voulons lister uniquement les IDs de nos conteneurs (sans les autres colonnes ni en-tête),
+nous pouvons utiliser l'option `-q` ("Quiet", "Quick"):
 
 ```bash
 $ docker ps -q
@@ -130,19 +129,19 @@ $ docker ps -q
 
 ---
 
-## Combining flags
+## Combinaison d'options
 
-We can combine `-l` and `-q` to see only the ID of the last container started:
+Nous pouvons combiner `-l` et `-q` pour uniquement voir l'ID du dernier conteneur démarré:
 
 ```bash
 $ docker ps -lq
 068cc994ffd0
 ```
 
-At a first glance, it looks like this would be particularly useful in scripts.
+A première vue, cela parait vraiment utile dans le cadre de scripts.
 
-However, if we want to start a container and get its ID in a reliable way,
-it is better to use `docker run -d`, which we will cover in a bit.
+Toutefois, si nous voulons démarrer un conteneur et récupérer son ID de manière sécurisée,
+il est plus conseillé d'utiliser `docker run -d`, ce que nous aborderons dans un instant.
 
 (Using `docker ps -lq` is prone to race conditions: what happens if someone
 else, or another program or script, starts another container just before
@@ -150,11 +149,11 @@ we run `docker ps -lq`?)
 
 ---
 
-## View the logs of a container
+## Voir les logs d'un conteneur
 
-We told you that Docker was logging the container output.
+On vous a dit que Docker enregistrait l'affichage d'un conteneur.
 
-Let's see that now.
+C'est le moment d'en parler.
 
 ```bash
 $ docker logs 068
@@ -163,17 +162,17 @@ Fri Feb 20 00:39:53 UTC 2015
 ...
 ```
 
-* We specified a *prefix* of the full container ID.
-* You can, of course, specify the full ID.
-* The `logs` command will output the *entire* logs of the container.
-  <br/>(Sometimes, that will be too much. Let's see how to address that.)
+* Nous avons spécifié un *préfixe* de l'ID d'un conteneur.
+* On peut, bien sûr, utiliser l'ID complet.
+* La commande `logs` va afficher les logs *complets* du conteneur.
+ <br/>(Parfois, c'est bien trop. Voyons comment gérer ça.)
 
 ---
 
-## View only the tail of the logs
+## Afficher uniquement la fin des logs
 
-To avoid being spammed with eleventy pages of output,
-we can use the `--tail` option:
+Pour éviter de se faire spammer avec des dizaines de pages d'infos,
+on peut utiliser l'option `--tail`:
 
 ```bash
 $ docker logs --tail 3 068
@@ -182,14 +181,14 @@ Fri Feb 20 00:55:36 UTC 2015
 Fri Feb 20 00:55:37 UTC 2015
 ```
 
-* The parameter is the number of lines that we want to see.
+* Le paramètre est le nombre de lignes que nous voulons afficher.
 
 ---
 
-## Follow the logs in real time
+## Suivre les logs en temps réel
 
-Just like with the standard UNIX command `tail -f`, we can
-follow the logs of our container:
+Tout comme la commande UNIX standard `tail -f`, on peut
+suivre les logs de notre conteneur:
 
 ```bash
 $ docker logs --tail 1 --follow 068
@@ -198,55 +197,55 @@ Fri Feb 20 00:57:13 UTC 2015
 ^C
 ```
 
-* This will display the last line in the log file.
-* Then, it will continue to display the logs in real time.
-* Use `^C` to exit.
+* Cela affichera la dernière ligne du fichier log
+* Puis, l'affichage continuera de se mettre à jour en temps réel.
+* Pour sortir, appuyer sur `^C`.
 
 ---
 
-## Stop our container
+## Arrêter notre conteneur
 
-There are two ways we can terminate our detached container.
+Il y a deux façons de stopper notre conteneur détaché;
 
-* Killing it using the `docker kill` command.
-* Stopping it using the `docker stop` command.
+* Le tuer via la commmande `docker kill`.
+* Le stopper via la commande `docker stop`.
 
-The first one stops the container immediately, by using the
-`KILL` signal.
+La première arrête le conteneur immédiatement, en utilisant
+le signal `KILL`.
 
-The second one is more graceful. It sends a `TERM` signal,
-and after 10 seconds, if the container has not stopped, it
-sends `KILL.`
+La seconde est plus douce. Elle envoit un signal `TERM`, et
+après 10 secondes, si le conteneur n'est pas arrêté,
+il envoit `KILL`.
 
-Reminder: the `KILL` signal cannot be intercepted, and will
-forcibly terminate the container.
+Rappel: le signal `KILL` ne peut être intercepté, et terminera
+le conteneur de force.
 
 ---
 
-## Stopping our containers
+## Arrêter nos conteneurs
 
-Let's stop one of those containers:
+Essayons d'arrêter un de ces conteneurs:
 
 ```bash
 $ docker stop 47d6
 47d6
 ```
 
-This will take 10 seconds:
+Cela va prendre 10 secondes:
 
-* Docker sends the TERM signal;
-* the container doesn't react to this signal
-  (it's a simple Shell script with no special
-  signal handling);
-* 10 seconds later, since the container is still
-  running, Docker sends the KILL signal;
-* this terminates the container.
+* Docker envoit le signal TERM;
+* le conteneur ne réagit pas à ce signal
+  (c'est un simple script Shell sans gestion
+  de signal spécifique);
+* 10 secondes plus tard, puisque le conteneur est
+toujours actif, Docker envoit le signal KILL;
+* ceci neutralise le conteneur.
 
 ---
 
-## Killing the remaining containers
+## Supprimer le reste des conteneurs
 
-Let's be less patient with the two other containers:
+Soyons moins patient avec les deux autres conteneurs:
 
 ```bash
 $ docker kill 068 57ad
@@ -254,12 +253,11 @@ $ docker kill 068 57ad
 57ad
 ```
 
-The `stop` and `kill` commands can take multiple container IDs.
+Les commandes `stop` et `kill` acceptent plusieurs IDs de conteneurs.
 
-Those containers will be terminated immediately (without
-the 10 seconds delay).
+Ces conteneurs seront supprimés immédiatement (sans le délai de 10 secondes).
 
-Let's check that our containers don't show up anymore:
+Vérifions que nos conteneurs ne s'affichent plus:
 
 ```bash
 $ docker ps
@@ -267,9 +265,9 @@ $ docker ps
 
 ---
 
-## List stopped containers
+## Lister les conteneurs arrêtés
 
-We can also see stopped containers, with the `-a` (`--all`) option.
+Nous pouvons aussi afficher les conteneurs stoppés, avec l'option `-a` (`--all`).
 
 ```bash
 $ docker ps -a

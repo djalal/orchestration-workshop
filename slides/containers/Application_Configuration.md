@@ -1,201 +1,198 @@
-# Application Configuration
+# Configuration d'applications
 
-There are many ways to provide configuration to containerized applications.
+Il y a de nombreuses façon de passer une configuration aux applications containerisées.
 
-There is no "best way" — it depends on factors like:
+Il n'y a pas de "bonne manière", cela dépend de plusieurs facteurs, tels que:
 
-* configuration size,
+* la taille de la configuration;
 
-* mandatory and optional parameters,
+* les paramètres obligatoires et optionnels;
 
-* scope of configuration (per container, per app, per customer, per site, etc),
+* la visibilité de la configuration (par container, par app, par client, par site, etc.);
 
-* frequency of changes in the configuration.
+* la fréquence de changement de configuration.
 
 ---
 
-## Command-line parameters
+## Paramètres en ligne de commande
 
 ```bash
 docker run jpetazzo/hamba 80 www1:80 www2:80
 ```
 
-* Configuration is provided through command-line parameters.
+* La configuration est fournie via des paramètres en ligne de commande.
 
-* In the above example, the `ENTRYPOINT` is a script that will:
+* Dans l'exemple ci-dessus, `ENTRYPOINT` pointe sur un script qui va:
+  - parser les paramètres,
 
-  - parse the parameters,
+  - générer un fichier de configuration,
 
-  - generate a configuration file,
-
-  - start the actual service.
-
----
-
-## Command-line parameters pros and cons
-
-* Appropriate for mandatory parameters (without which the service cannot start).
-
-* Convenient for "toolbelt" services instantiated many times.
-
-  (Because there is no extra step: just run it!)
-
-* Not great for dynamic configurations or bigger configurations.
-
-  (These things are still possible, but more cumbersome.)
+  - démarrer le service réel.
 
 ---
 
-## Environment variables
+## Pour et contre des paramètres en ligne de commande
+
+* Convient pour les paramètres obligatoires (sans lesquels le service ne peut pas démarrer);
+
+* Utile pour les services "boîte à outils" qui se lancent à de nombreuses reprises.
+
+  (Parce qu'il n'y a pas d'autres étapes: juste à le lancer!)
+
+* Pas terrible pour les configurations dynamiques ou plus conséquentes.
+
+  (Toujours possible à réaliser, mais plus encombrant)
+
+---
+
+## Variables d'environnement
 
 ```bash
 docker run -e ELASTICSEARCH_URL=http://es42:9201/ kibana
 ```
 
-* Configuration is provided through environment variables.
+* Configuration fournie à travers des variables d'environnement.
 
-* The environment variable can be used straight by the program,
-  <br/>or by a script generating a configuration file.
-
----
-
-## Environment variables pros and cons
-
-* Appropriate for optional parameters (since the image can provide default values).
-
-* Also convenient for services instantiated many times.
-
-  (It's as easy as command-line parameters.)
-
-* Great for services with lots of parameters, but you only want to specify a few.
-
-  (And use default values for everything else.)
-
-* Ability to introspect possible parameters and their default values.
-
-* Not great for dynamic configurations.
+* La variable d'environnement peut être utilisée directement par le programme,
+<br/> ou par un script générant un fichier de configuration.
 
 ---
 
-## Baked-in configuration
+## Pour et contre des variables d'environnement
 
-```
+* Pertinent pour des paramètres optionnels (puisque l'image peut fournir des valeurs par défault)
+
+* Aussi pratique pour des services se lançant de nombreuses fois.
+
+  (C'est aussi simple que les paramètres en ligne de commande.)
+
+* Super pour des services avec beaucoup de paramètres, mais vous voulez juste en changer quelques-uns.
+
+  (Et garder les valeurs par défaut pour tout le reste.)
+
+* Capacité à examiner les paramètres disponibles et leurs valeurs par défaut.
+
+* Pas terrible pour les configurations dynamiques.
+
+---
+
+## Configuration incluse
+
+```dockerfile
 FROM prometheus
 COPY prometheus.conf /etc
 ```
 
-* The configuration is added to the image.
+* La configuration est ajoutée à l'image.
 
-* The image may have a default configuration; the new configuration can:
-
-  - replace the default configuration,
-
-  - extend it (if the code can read multiple configuration files).
+* L'image peut avoir une configuration par défaut; la nouvelle config peut:
+  - remplacer la configuration par défaut;
+  - étendre celle-ci (si le code sait lire plusieurs fichiers de configuration)
 
 ---
 
-## Baked-in configuration pros and cons
+## Pour et contre des configurations intégrées
 
-* Allows arbitrary customization and complex configuration files.
+* Permet une personnalisation avancée, et des fichiers de configuration complexes;
 
-* Requires to write a configuration file. (Obviously!)
+* Exige d'écrire un fichier de configuration (bien sûr!)
 
-* Requires to build an image to start the service.
+* Exige de générer une image pour démarrer le service
 
-* Requires to rebuild the image to reconfigure the service.
+* Exige de générer une image pour reconfigurer le service
 
-* Requires to rebuild the image to upgrade the service.
+* Exige de générer une image pour mettre à jour le service
 
-* Configured images can be stored in registries.
+* Toute image pré-configurée peut-être stockée dans une Registry.
 
-  (Which is great, but requires a registry.)
+  (ce qui est super, mais nécessite une Registry)
 
 ---
 
-## Configuration volume
+## Configuration par volume
 
 ```bash
 docker run -v appconfig:/etc/appconfig myapp
 ```
 
-* The configuration is stored in a volume.
+* La configuration est stockée dans un volume;
 
-* The volume is attached to the container.
+* Le volume est attaché au _container_;
 
-* The image may have a default configuration.
+* L'image peut avoir une configuration par défaut.
 
-  (But this results in a less "obvious" setup, that needs more documentation.)
-
----
-
-## Configuration volume pros and cons
-
-* Allows arbitrary customization and complex configuration files.
-
-* Requires to create a volume for each different configuration.
-
-* Services with identical configurations can use the same volume.
-
-* Doesn't require to build / rebuild an image when upgrading / reconfiguring.
-
-* Configuration can be generated or edited through another container.
+   (Mais cela demande un réglage non trivial, via plus de documentation.)
 
 ---
 
-## Dynamic configuration volume
+## Pour et contre des configurations par volume
 
-* This is a powerful pattern for dynamic, complex configurations.
+* Permet une personnalisation avancée, et des fichiers de configuration complexes;
 
-* The configuration is stored in a volume.
+* Exige de déclarer un nouveau volume pour chaque différente configuration;
 
-* The configuration is generated / updated by a special container.
+* Les services avec des configurations identiques peuvent ré-utiliser le même volume;
 
-* The application container detects when the configuration is changed.
+* Ne force pas à générer/regénérer une image lors des mises à jour ou reconfiguration;
 
-  (And automatically reloads the configuration when necessary.)
-
-* The configuration can be shared between multiple services if needed.
+* Une configuration peut être générée ou modifiée via un _container_ tiers.
 
 ---
 
-## Dynamic configuration volume example
+## Configuration dynamique par volume
 
-In a first terminal, start a load balancer with an initial configuration:
+* C'est une technique puissante pour des configurations dynamiques et complexes;
+
+* La configuration est stockée dans un volume;
+
+* La configuration est générée/mise à jour depuis un _container_ spécial;
+
+* L'application du _container_ détecte quand la configuration a changé;
+
+  (et recharge automatiquement la configuration quand nécessaire.)
+
+* La configuration peut être partagée entre service si besoin.
+
+---
+
+## Exemple de configuration dynamique par volume
+
+Dans un premier terminal, démarrer un _load balancer_ avec une configuration initiale:
 
 ```bash
 $ docker run --name loadbalancer jpetazzo/hamba \
   80 goo.gl:80
 ```
 
-In another terminal, reconfigure that load balancer:
+Dans un autre terminal, reconfigurer ce _load balancer_:
 
 ```bash
 $ docker run --rm --volumes-from loadbalancer jpetazzo/hamba reconfigure \
   80 google.com:80
 ```
 
-The configuration could also be updated through e.g. a REST API.
+La configuration pourrait aussi mise à jour via une API REST.
 
-(The REST API being itself served from another container.)
+(L'API REST tournant elle-même depuis un autre _container_.)
 
 ---
 
-## Keeping secrets
+# Stockage des secrets
 
-.warning[Ideally, you should not put secrets (passwords, tokens...) in:]
+.warning[Idéalement, vous ne devriez pas transmettre de secrets (mot de passe, tokens, etc.) via:]
 
-* command-line or environment variables (anyone with Docker API access can get them),
+* la ligne de commande ou des variables d'environnement (quiconque avec un accès à l'API Docker peut les récupérer)
 
-* images, especially stored in a registry.
+* des images, surtout celles stockées dans une Registry.
 
-Secrets management is better handled with an orchestrator (like Swarm or Kubernetes).
+La gestion des secrets est mieux prise en charge avec un orchestrateur (comme Swarm ou Kubernetes).
 
-Orchestrators will allow to pass secrets in a "one-way" manner.
+Les orchestrateurs autorisent la transmission de secrets en "sens-unique".
 
-Managing secrets securely without an orchestrator can be contrived.
+Gérer les secrets de manière sécurisée sans orchestrateur peut se révéler "contrived" (TRAD).
 
-E.g.:
+Par ex.:
 
-- read the secret on stdin when the service starts,
+- lire le contenu du secret via _stdin_ quand le service démarre;
 
-- pass the secret using an API endpoint.
+- passer le secret via un endpoint d'une API
