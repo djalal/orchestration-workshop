@@ -1,56 +1,56 @@
 
 class: title
 
-# Building Docker images with a Dockerfile
+# Construire des images Docker avec un Dockerfile
 
 ![Construction site with containers](images/title-building-docker-images-with-a-dockerfile.jpg)
 
 ---
 
-## Objectives
+## Objectifs
 
-We will build a container image automatically, with a `Dockerfile`.
+Nous allons construire une image de conteneur automatiquement, grâce au `Dockerfile`.
 
-At the end of this lesson, you will be able to:
+A la fin de cette leçon, vous saurez comment:
 
-* Write a `Dockerfile`.
+* Ecrire un `Dockerfile`.
 
-* Build an image from a `Dockerfile`.
-
----
-
-## `Dockerfile` overview
-
-* A `Dockerfile` is a build recipe for a Docker image.
-
-* It contains a series of instructions telling Docker how an image is constructed.
-
-* The `docker build` command builds an image from a `Dockerfile`.
+* Générer une image (_build_) via un `Dockerfile`.
 
 ---
 
-## Writing our first `Dockerfile`
+## Aperçu d'un `Dockerfile`
 
-Our Dockerfile must be in a **new, empty directory**.
+* Un `Dockerfile`est une recette de construction pour une image Docker.
 
-1. Create a directory to hold our `Dockerfile`.
+* Il contient une série d'instructions indiquant à Docker comment l'image est construite.
+
+* La commande `docker build` génère une image à partir d'un `Dockerfile`.
+
+---
+
+## Ecrire notre premier `Dockerfile`
+
+Notre Dockerfile doit être dans un **dossier nouveau et vide**.
+
+1. Ajouter un nouveau dossier pour accueillir notre `Dockerfile`.
 
 ```bash
 $ mkdir myimage
 ```
 
-2. Create a `Dockerfile` inside this directory.
+2. Créer un fichier `Dockerfile` à l'intérieur de ce nouveau dossier.
 
 ```bash
 $ cd myimage
 $ vim Dockerfile
 ```
 
-Of course, you can use any other editor of your choice.
+Bien sûr, vous pouvez utiliser n'importe quel éditeur de votre choix.
 
 ---
 
-## Type this into our Dockerfile...
+## Entrez ces lignes dans notre Dockerfile...
 
 ```dockerfile
 FROM ubuntu
@@ -58,38 +58,38 @@ RUN apt-get update
 RUN apt-get install figlet
 ```
 
-* `FROM` indicates the base image for our build.
+* `FROM` indique notre image de base pour notre _build_.
 
-* Each `RUN` line will be executed by Docker during the build.
+* Chaque ligne `RUN` sera exécutée par Docker pendant le _build_.
 
-* Our `RUN` commands **must be non-interactive.**
-  <br/>(No input can be provided to Docker during the build.)
+* Nos commandes `RUN` *doivent être non-interactive*.
+  <br/>(Aucune entrée ne peut être fournie à Docker pendant le _build_).
 
-* In many cases, we will add the `-y` flag to `apt-get`.
+* Dans bien des cas, nous ajouterons l'option `-y` à `apt-get`.
 
 ---
 
-## Build it!
+## Construisons-la!
 
-Save our file, then execute:
+Enregistrez notre fichier, et lancez:
 
 ```bash
 $ docker build -t figlet .
 ```
 
-* `-t` indicates the tag to apply to the image.
+* `-t` indique le _tag_ à appliquer à l'image.
 
-* `.` indicates the location of the *build context*.
+* `.` indique la localisation du *build context*.
 
-We will talk more about the build context later.
+Nous parlerons en détails du _build context_ plus tard.
 
-To keep things simple for now: this is the directory where our Dockerfile is located.
+Pour garder les choses simples: c'est le dossier où se trouve notre `Dockerfile`.
 
 ---
 
-## What happens when we build the image?
+## Que se passe-t-il quand nous générons l'image?
 
-The output of `docker build` looks like this:
+L'affichage de `docker build` ressemble à ceci:
 
 .small[
 ```bash
@@ -112,28 +112,28 @@ Successfully tagged figlet:latest
 ```
 ]
 
-* The output of the `RUN` commands has been omitted.
-* Let's explain what this output means.
+* L'affichage des commandes `RUN`a été omis.
+* Voyons voir en quoi consiste cette affichage.
 
 ---
 
-## Sending the build context to Docker
+## Envoi du _build context_ à Docker
 
 ```bash
 Sending build context to Docker daemon 2.048 kB
 ```
 
-* The build context is the `.` directory given to `docker build`.
+* Le _build context_ est le dossier `.` donné à `docker build`.
 
-* It is sent (as an archive) by the Docker client to the Docker daemon.
+* Il est envoyé (sous forme d'archive) par le client Docker au _daemon_ Docker.
 
-* This allows to use a remote machine to build using local files.
+* Cela permet d'utiliser un serveur distant pour le _build_ utilisant des fichiers locaux.
 
-* Be careful (or patient) if that directory is big and your link is slow.
+* Soyez attentifs (ou patient) si ce dossier est lourd et votre connexion est lente.
 
 ---
 
-## Executing each step
+## Exécution de chaque étape
 
 ```bash
 Step 2/3 : RUN apt-get update
@@ -143,41 +143,40 @@ Removing intermediate container e01b294dbffd
  ---> eb8d9b561b37
 ```
 
-* A container (`e01b294dbffd`) is created from the base image.
+* Un container (`e01b294dbffd`) est créé à partir de l'image de base.
 
-* The `RUN` command is executed in this container.
+* La commande `RUN` se lance dans ce container.
 
-* The container is committed into an image (`eb8d9b561b37`).
+* Le conteneur est sauvé dans une nouvelle image (`eb8d9b561b37`)
 
-* The build container (`e01b294dbffd`) is removed.
+* Le conteneur de _build_ (`e01b294dbffd`) est supprimé.
 
-* The output of this step will be the base image for the next one.
+* Le résultat de cette étape sera l'image de base pour la prochaine commande.
 
 ---
 
-## The caching system
+## Le système de cache
 
-If you run the same build again, it will be instantaneous. Why?
+Si vous lancez le même _build_ de nouveau, ce sera instantané. Pourquoi?
 
-* After each build step, Docker takes a snapshot of the resulting image.
+* Après chaque étape de _build_, Docker prend un _snapshot_ de l'image résultante.
 
-* Before executing a step, Docker checks if it has already built the same sequence.
+* Avant chaque nouvelle étape, Docker vérifie si la même séquence a été générée.
 
-* Docker uses the exact strings defined in your Dockerfile, so:
+* Docker utilise les chaines de caractères exactes définies dans votre `Dockerfile`, donc:
 
-  * `RUN apt-get install figlet cowsay ` 
-    <br/> is different from
+  * `RUN apt-get install figlet cowsay `
+    <br/> est différent de
     <br/> `RUN apt-get install cowsay figlet`
-  
-  * `RUN apt-get update` is not re-executed when the mirrors are updated
+  * `RUN apt-get update` n'est pas exécuté, quand les miroirs sont mis à jour.
 
-You can force a rebuild with `docker build --no-cache ...`.
+Vous pouvez forcer un nouveau _build_ avec `docker build --no-cache...`.
 
 ---
 
-## Running the image
+## Lancer l'image
 
-The resulting image is not different from the one produced manually.
+L'image résultante n'est pas différente de celle définie manuellement.
 
 ```bash
 $ docker run -ti figlet
@@ -190,18 +189,17 @@ root@91f3c974c9a1:/# figlet hello
 ```
 
 
-Yay! .emoji[🎉]
+Youpi! .emoji[🎉]
 
 ---
 
-## Using image and viewing history
+## Utiliser l'image et afficher l'historique
 
-The `history` command lists all the layers composing an image.
+La commande `history` liste toutes les couches composant une image.
 
-For each layer, it shows its creation time, size, and creation command.
+Pour chaque couche (_layer_), on voit la date de création, sa taille et la commande utilisée.
 
-When an image was built with a Dockerfile, each layer corresponds to
-a line of the Dockerfile.
+Quand une image est générée via un `Dockerfile`, chaque _layer_ correspond à une ligne du `Dockerfile`.
 
 ```bash
 $ docker history figlet
@@ -216,23 +214,23 @@ f9e8f1642759  About an hour ago  /bin/sh -c apt-get install fi  1.627 MB
 
 ---
 
-## Introducing JSON syntax
+## Introduction à la syntaxe JSON
 
-Most Dockerfile arguments can be passed in two forms:
+La plupart des arguments de `Dockerfile` peuvent être passés sous deux formes:
 
-* plain string:
+* chaine simple:
   <br/>`RUN apt-get install figlet`
 
-* JSON list:
+* liste JSON:
   <br/>`RUN ["apt-get", "install", "figlet"]`
 
 We are going to change our Dockerfile to see how it affects the resulting image.
 
 ---
 
-## Using JSON syntax in our Dockerfile
+## Usage de la syntaxe JSON dans notre Dockerfile
 
-Let's change our Dockerfile as follows!
+Changeons notre Dockerfile comme suit:
 
 ```dockerfile
 FROM ubuntu
@@ -240,7 +238,7 @@ RUN apt-get update
 RUN ["apt-get", "install", "figlet"]
 ```
 
-Then build the new Dockerfile.
+Puis relançons un _build_ du nouveau Dockerfile.
 
 ```bash
 $ docker build -t figlet .
@@ -248,9 +246,9 @@ $ docker build -t figlet .
 
 ---
 
-## JSON syntax vs string syntax
+## Syntaxe JSON vs syntaxe simple
 
-Compare the new history:
+Comparons le nouvel historique:
 
 ```bash
 $ docker history figlet
@@ -263,24 +261,24 @@ IMAGE         CREATED            CREATED BY                     SIZE
 <missing>     4 days ago         /bin/sh -c #(nop) ADD file:b   187.8 MB
 ```
 
-* JSON syntax specifies an *exact* command to execute.
+* La syntaxe JSON spécifie une commande *exact* à exécuter.
 
-* String syntax specifies a command to be wrapped within `/bin/sh -c "..."`.
+* La syntaxe simple spécifie une commande à être encapsulée dans `/bin/sh -c "..."`.
 
 ---
 
-## When to use JSON syntax and string syntax
+## Quand utiliser la syntaxe JSON et la syntaxe simple
 
-* String syntax:
+* La syntaxe simple:
 
-  * is easier to write
-  * interpolates environment variables and other shell expressions
-  * creates an extra process (`/bin/sh -c ...`) to parse the string
-  * requires `/bin/sh` to exist in the container
+  * est plus facile à écrire
+  * extrapole les variables d'environnement et d'autres expressions de shell
+  * créé un processus supplémentaire (`/bin/sh -c ...`) pour interpréter la commande
+  * exige l'existence de `/bin/sh` dans le conteneur
 
-* JSON syntax:
+* La syntaxe JSON:
 
-  * is harder to write (and read!)
-  * passes all arguments without extra processing
-  * doesn't create an extra process
-  * doesn't require `/bin/sh` to exist in the container
+  * est plus longue à écrire (et à lire!)
+  * passe tous les arguments sans interprétation
+  * n'ajoute pas de processus supplémentaire
+  * ne requière pas l'existence de `/bin/sh` dans le conteneur

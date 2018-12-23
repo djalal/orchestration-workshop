@@ -1,61 +1,62 @@
-# Building images interactively
+# Construire des images en mode interactif
 
-In this section, we will create our first container image.
+Dans cette section, nous allons créer notre première image de conteneur.
 
-It will be a basic distribution image, but we will pre-install
-the package `figlet`.
+Cela sera une image de distribution basique, mais nous pré-installerons
+le paquet `figlet`.
 
-We will: 
+Nous allons:
 
-* Create a container from a base image.
+* Créer un conteneur à partir d'une image de base.
 
-* Install software manually in the container, and turn it
-  into a new image.
+* Installer un logiciel à la main dans le conteneur, et en
+faire une nouvelle image
 
-* Learn about new commands: `docker commit`, `docker tag`, and `docker diff`.
-
----
-
-## The plan
-
-1. Create a container (with `docker run`) using our base distro of choice.
-
-2. Run a bunch of commands to install and set up our software in the container.
-
-3. (Optionally) review changes in the container with `docker diff`.
-
-4. Turn the container into a new image with `docker commit`.
-
-5. (Optionally) add tags to the image with `docker tag`.
+* Apprendre de nouvelles commandes: `docker commit`, `docker tag` et `docker diff`.
 
 ---
 
-## Setting up our container
+## Le plan
 
-Start an Ubuntu container:
+1. Lancer un conteneur (avec `docker run`) avec notre distro Linux de choix.
+
+2. Lancer un tas de commandes pour installer et configurer notre logiciel depuis
+l'intérieur du conteneur.
+
+3. (Optionnel) examiner les changements dans le conteneur via `docker diff`.
+
+4. Transformer le conteneur en une nouvelle image avec `docker commit`.
+
+5. (Optionnel) ajouter un _tag_ à l'image avec `docker tag`.
+
+---
+
+## Préparer notre conteneur
+
+Démarrez un conteneur Ubuntu:
 
 ```bash
 $ docker run -it ubuntu
 root@<yourContainerId>:#/
 ```
 
-Run the command `apt-get update` to refresh the list of packages available to install.
+Lancez la commande `apt-get update` pour rafraîchir la liste des paquets disponibles à l'installation.
 
-Then run the command `apt-get install figlet` to install the program we are interested in.
+Puis lancez la commande `apt-get install figlet` pour installer le programme qui nous intéresse.
 
 ```bash
 root@<yourContainerId>:#/ apt-get update && apt-get install figlet
-.... OUTPUT OF APT-GET COMMANDS ....
+.... AFFICHAGE DES COMMANDES APT-GET ....
 ```
 
 ---
 
-## Inspect the changes
+## Inspecter les changements
 
-Type `exit` at the container prompt to leave the interactive session.
+Taper `exit` dans le terminal du conteneur pour quitter le mode interactif.
 
-Now let's run `docker diff` to see the difference between the base image
-and our container.
+Maintenant lançons `docker diff` pour afficher les différences entre l'image de base
+et notre conteneur.
 
 ```bash
 $ docker diff <yourContainerId>
@@ -72,54 +73,53 @@ A /usr/bin/figlet
 
 class: x-extra-details
 
-## Docker tracks filesystem changes
+## Docker trace les changements du système de fichier
 
-As explained before:
+Comme expliqué auparavant:
 
-* An image is read-only.
+* Une image est en lecture seule uniquement.
 
-* When we make changes, they happen in a copy of the image.
+* Quand on opère des changements, cela se passe sur une copie de l'image.
 
-* Docker can show the difference between the image, and its copy.
+* Docker peut afficher les différences entre l'image et sa copie.
 
-* For performance, Docker uses copy-on-write systems.
-  <br/>(i.e. starting a container based on a big image
-  doesn't incur a huge copy.)
+* Pour cause de performance, Docker utilise le système _copy-on-write_.
+  <br/>(i.e. démarrer un conteneur basé sur une grosse image
+  ne provoque pas une énorme copie de fichier.)
 
 ---
 
-## Copy-on-write security benefits
+## Bénéfices sur la sécurité du _Copy-on-write_
 
-* `docker diff` gives us an easy way to audit changes
+* `docker diff` nous offre une vue simple des changements à auditer.
 
   (à la Tripwire)
 
-* Containers can also be started in read-only mode
-
-  (their root filesystem will be read-only, but they can still have read-write data volumes)
-
+* Les conteneurs peuvent aussi être démarrés en mode lecture-seule.
+  (leur système de fichier racine sera en lecture seule, mais ils pourront quand même
+   disposer de volumes de données en lecture/écriture)
 
 ---
 
-## Commit our changes into a new image
+## Figer nos changements dans une nouvelle image
 
-The `docker commit` command will create a new layer with those changes,
-and a new image using this new layer.
+La commande `docker commit` va créer une nouvelle couche avec nos changements,
+and et une nouvelle image utilisant cette nouvelle couche.
 
 ```bash
 $ docker commit <yourContainerId>
 <newImageId>
 ```
 
-The output of the `docker commit` command will be the ID for your newly created image.
+Le retour de la commande `docker commit` sera l'ID de la nouvelle image créée.
 
-We can use it as an argument to `docker run`.
+Nous pourrons l'utiliser comme argument à `docker run`.
 
 ---
 
-## Testing our new image
+## Tester notre nouvelle image
 
-Let's run this image:
+Lançons cette image:
 
 ```bash
 $ docker run -it <newImageId>
@@ -131,27 +131,27 @@ root@fcfb62f0bfde:/# figlet hello
 |_| |_|\___|_|_|\___/ 
 ```
 
-It works! .emoji[🎉]
+Ça marche! .emoji[🎉]
 
 ---
 
-## Tagging images
+## _Tagger_ des images
 
-Referring to an image by its ID is not convenient. Let's tag it instead.
+Se référer à une image par son ID n'est pas pratique. Utilisons un _tag_ à la place.
 
-We can use the `tag` command:
+Nous pouvons passer par la commande `tag`:
 
 ```bash
 $ docker tag <newImageId> figlet
 ```
 
-But we can also specify the tag as an extra argument to `commit`:
+Mais nous pouvons aussi spécifier le _tag_ comme un argument de `commit`:
 
 ```bash
 $ docker commit <containerId> figlet
 ```
 
-And then run it using its tag:
+Et ensuite l'exécuter via son _tag_:
 
 ```bash
 $ docker run -it figlet
@@ -159,11 +159,11 @@ $ docker run -it figlet
 
 ---
 
-## What's next?
+## Et après?
 
-Manual process = bad.
+Méthode manuelle = pas bien.
 
-Automated process = good.
+Méthode automatisée = bien.
 
-In the next chapter, we will learn how to automate the build
-process by writing a `Dockerfile`.
+Dans le prochain chapitre, nous apprendrons comment automatiser
+ le processus de construction en écrivant un `Dockerfile`.

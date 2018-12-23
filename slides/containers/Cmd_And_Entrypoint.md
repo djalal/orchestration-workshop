@@ -1,43 +1,43 @@
 
 class: title
 
-# `CMD` and `ENTRYPOINT`
+# `CMD` et `ENTRYPOINT`
 
 ![Container entry doors](images/entrypoint.jpg)
 
 ---
 
-## Objectives
+## Objectifs
 
-In this lesson, we will learn about two important
-Dockerfile commands:
+Dans cette leçon, nous verrons deux instructions
+importantes du `Dockerfile`:
 
-`CMD` and `ENTRYPOINT`.
+`CMD` et `ENTRYPOINT`.
 
-These commands allow us to set the default command
-to run in a container.
+Ces instructions nous permettent de déclarer la
+commande par défaut à lancer dans un conteneur.
 
 ---
 
-## Defining a default command
+## Définir une commande par défaut
 
-When people run our container, we want to greet them with a nice hello message, and using a custom font.
+Quand quelqu'un lancera notre conteneur, nous voulons le saluer avec un sympathique bonjour, et une fonte spéciale.
 
-For that, we will execute:
+Pour ça, nous allons lancer:
 
 ```bash
 figlet -f script hello
 ```
 
-* `-f script` tells figlet to use a fancy font.
+* `-f script` dit à figlet d'utiliser une fonte spécifique.
 
-* `hello` is the message that we want it to display.
+* `hello` est le message que nous voulons afficher.
 
 ---
 
-## Adding `CMD` to our Dockerfile
+## Ajouter `CMD` à notre Dockerfile
 
-Our new Dockerfile will look like this:
+Notre nouveau `Dockerfile` aura cet aspect:
 
 ```dockerfile
 FROM ubuntu
@@ -46,19 +46,19 @@ RUN ["apt-get", "install", "figlet"]
 CMD figlet -f script hello
 ```
 
-* `CMD` defines a default command to run when none is given.
+* `CMD` définit une commande par défaut à lancer quand aucune n'est précisée.
 
-* It can appear at any point in the file.
+* Elle peut apparaître n'importe où dans le fichier.
 
-* Each `CMD` will replace and override the previous one.
+* Chaque `CMD` annulera et remplacera la précédente.
 
-* As a result, while you can have multiple `CMD` lines, it is useless.
+* Par conséquent, même si vous pouvez utiliser plusieurs fois `CMD`, c'est inutile au final.
 
 ---
 
-## Build and test our image
+## Générer et tester notre image
 
-Let's build it:
+Essayons de lancer un _build_:
 
 ```bash
 $ docker build -t figlet .
@@ -67,7 +67,7 @@ Successfully built 042dff3b4a8d
 Successfully tagged figlet:latest
 ```
 
-And run it:
+Et de le lancer:
 
 ```bash
 $ docker run figlet
@@ -80,28 +80,28 @@ $ docker run figlet
 
 ---
 
-## Overriding `CMD`
+## Surcharger `CMD`
 
-If we want to get a shell into our container (instead of running
-`figlet`), we just have to specify a different program to run:
+Si nous voulons ouvrir un _shell_ dans notre conteneur (au lieu de
+lancer `figlet`), il suffit de spécifier un autre programme à lancer:
 
 ```bash
 $ docker run -it figlet bash
 root@7ac86a641116:/# 
 ```
 
-* We specified `bash`.
+* On a indiqué `bash`
 
-* It replaced the value of `CMD`.
+* Il a remplacé la valeur de `CMD`
 
 ---
 
-## Using `ENTRYPOINT`
+## Utiliser `ENTRYPOINT`
 
-We want to be able to specify a different message on the command line,
-while retaining `figlet` and some default parameters.
+Nous voulons être capable de spécifier un message différent en ligne de commande,
+tout en gardant `figlet` et quelques paramètres par défaut.
 
-In other words, we would like to be able to do this:
+Autrement dit, on aimerait taper quelque chose comme:
 
 ```bash
 $ docker run figlet salut
@@ -112,14 +112,13 @@ $ docker run figlet salut
  \/ \_/|_/|__/ \_/|_/|_/
 ```
 
-
-We will use the `ENTRYPOINT` verb in Dockerfile.
+Nous utiliserons pour ça l'instruction `ENTRYPOINT` du Dockerfile.
 
 ---
 
-## Adding `ENTRYPOINT` to our Dockerfile
+## Ajouter `ENTRYPOINT` à notre Dockerfile
 
-Our new Dockerfile will look like this:
+Notre nouveau Dockerfile aura cet aspect:
 
 ```dockerfile
 FROM ubuntu
@@ -128,29 +127,29 @@ RUN ["apt-get", "install", "figlet"]
 ENTRYPOINT ["figlet", "-f", "script"]
 ```
 
-* `ENTRYPOINT` defines a base command (and its parameters) for the container.
+* `ENTRYPOINT` définit une commande de base (et ses paramètres) pour le conteneur.
 
-* The command line arguments are appended to those parameters.
+* Les arguments en ligne de commande sont ajoutés aux paramètres ci-dessus.
 
-* Like `CMD`, `ENTRYPOINT` can appear anywhere, and replaces the previous value.
+* Tout comme `CMD`, `ENTRYPOINT` peut apparaître n'importe où, et remplacera la valeur précédente.
 
-Why did we use JSON syntax for our `ENTRYPOINT`?
+Pourquoi avoir utilisé la syntaxe JSON pour notre `ENTRYPOINT`?
 
 ---
 
-## Implications of JSON vs string syntax
+## Implications des syntaxes JSON vs simple
 
-* When CMD or ENTRYPOINT use string syntax, they get wrapped in `sh -c`.
+* Quand CMD ou ENTRYPOINT utilisent la syntaxe simple, ils sont encapsulés dans `sh -c`
 
-* To avoid this wrapping, we can use JSON syntax.
+* Pour éviter ce comportement, on peut utiliser la syntaxe JSON.
 
-What if we used `ENTRYPOINT` with string syntax?
+Et qu'est-ce qu'il se passerait avec une syntaxe simple dans `ENTRYPOINT`?
 
 ```bash
 $ docker run figlet salut
 ```
 
-This would run the following command in the `figlet` image:
+On obtiendrait la commande suivante dans l'image `figlet`:
 
 ```bash
 sh -c "figlet -f script" salut
@@ -158,9 +157,9 @@ sh -c "figlet -f script" salut
 
 ---
 
-## Build and test our image
+## Générer et tester notre image
 
-Let's build it:
+Lançons un _build_:
 
 ```bash
 $ docker build -t figlet .
@@ -169,7 +168,7 @@ Successfully built 36f588918d73
 Successfully tagged figlet:latest
 ```
 
-And run it:
+Exécutons là:
 
 ```bash
 $ docker run figlet salut
@@ -182,23 +181,23 @@ $ docker run figlet salut
 
 ---
 
-## Using `CMD` and `ENTRYPOINT` together
+## Usage conjoint de `CMD` et `ENTRYPOINT`
 
-What if we want to define a default message for our container?
+Et si nous voulions définir un message par défaut pour notre conteneur?
 
-Then we will use `ENTRYPOINT` and `CMD` together.
+Alors nous utiliserons `ENTRYPOINT` et `CMD` ensemble.
 
-* `ENTRYPOINT` will define the base command for our container.
+* `ENTRYPOINT` va définir la commade de base pour notre conteneur.
 
-* `CMD` will define the default parameter(s) for this command.
+* `CMD`définira les paramètres par défaut pour cette commande.
 
-* They *both* have to use JSON syntax.
+Ils doivent *tous les deux* utiliser la syntaxe JSON.
 
 ---
 
-## `CMD` and `ENTRYPOINT` together
+## `CMD` et `ENTRYPOINT` ensemble
 
-Our new Dockerfile will look like this:
+Notre nouveau Dockerfile a cette tête:
 
 ```dockerfile
 FROM ubuntu
@@ -208,18 +207,19 @@ ENTRYPOINT ["figlet", "-f", "script"]
 CMD ["hello world"]
 ```
 
-* `ENTRYPOINT` defines a base command (and its parameters) for the container.
+* `ENTRYPOINT` définit une commande de base (et ses paramètres) pour le conteneur.
 
-* If we don't specify extra command-line arguments when starting the container,
-  the value of `CMD` is appended.
+* Si nous ne spécifions aucun argument supplémentaire au lancement du conteneur,
+la valeur de `CMD` y est ajoutée.
 
-* Otherwise, our extra command-line arguments are used instead of `CMD`.
+* Autrement, nos arguments supplémentaires de ligne de commande remplacent `CMD`.
 
 ---
 
-## Build and test our image
+## Générer et tester notre image
 
-Let's build it:
+
+Lançons un _build_:
 
 ```bash
 $ docker build -t figlet .
@@ -228,7 +228,7 @@ Successfully built 6e0b6a048a07
 Successfully tagged figlet:latest
 ```
 
-Run it without parameters:
+Exécutons-là sans paramètres:
 
 ```bash
 $ docker run figlet
@@ -241,9 +241,9 @@ $ docker run figlet
 
 ---
 
-## Overriding the image default parameters
+## Surcharger les paramètres par défaut de l'image
 
-Now let's pass extra arguments to the image.
+Maintenant, passons des arguments supplémentaires à l'image.
 
 ```bash
 $ docker run figlet hola mundo
@@ -254,18 +254,18 @@ $ docker run figlet hola mundo
 |   |_/\__/ |__/\_/|_/    |  |  |_/ \_/|_/  |  |_/\_/|_/\__/ 
 ```
 
-We overrode `CMD` but still used `ENTRYPOINT`.
+Nous avons surchargé `CMD` tout en gardant `ENTRYPOINT`.
 
 ---
 
-## Overriding `ENTRYPOINT`
+## Surcharger `ENTRYPOINT`
 
-What if we want to run a shell in our container?
+Et si nous voulons lancer un _shell_ dans notre conteneur?
 
-We cannot just do `docker run figlet bash` because
-that would just tell figlet to display the word "bash."
+On ne peut pas juste taper `docker run figlet bash` car
+ça dirait juste à figlet d'afficher le mot "bash".
 
-We use the `--entrypoint` parameter:
+On utilise donc le paramètre `--entrypoint`:
 
 ```bash
 $ docker run -it --entrypoint bash figlet
