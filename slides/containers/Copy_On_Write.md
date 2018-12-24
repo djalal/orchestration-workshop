@@ -1,121 +1,123 @@
-# Copy-on-write filesystems
+# Système de fichiers "Copy-on-write"
 
-Container engines rely on copy-on-write to be able
-to start containers quickly, regardless of their size.
+Les moteurs de conteneurs s'appuient sur _copy-on-write_
+pour pouvoir lancer des conteneurs rapidement,
+peut importe leur taille.
 
-We will explain how that works, and review some of
-the copy-on-write storage systems available on Linux.
-
----
-
-## What is copy-on-write?
-
-- Copy-on-write is a mechanism allowing to share data.
-
-- The data appears to be a copy, but is only
-  a link (or reference) to the original data.
-
-- The actual copy happens only when someone
-  tries to change the shared data.
-
-- Whoever changes the shared data ends up
-  using their own copy instead of the shared data.
+Nous allons expliquer comment cela fonctionne, et
+passer en revue quelques systèmes de stockage _copy-on-write_
+disponibles sur Linux.
 
 ---
 
-## A few metaphors
+## Qu'est-ce que _copy-on-write_?
+
+
+- _Copy-on-write_ est un mécanisme permettant le partage de données.
+
+- Les données semblent être une copie, mais sont juste en réalité un lien
+(ou référence) à l'original.
+
+- La copie véritable se fait uniquement quand
+quelqu'un/quelque chose change les données partagées.
+
+- Quiconque change les données partagées ne fait que
+mettre à jour son propre exemplaire des données partagées.
+
+---
+
+## Quelques métaphores
+--
+
+- Première métaphore:
+  <br/>tableau blanc et papier calque
 
 --
 
-- First metaphor:
-  <br/>white board and tracing paper
+- Deuxième métaphore:
+  <br/>livres de magie et pages secrètes
 
 --
 
-- Second metaphor:
-  <br/>magic books with shadowy pages
-
---
-
-- Third metaphor:
-  <br/>just-in-time house building
+- Troisième métaphore:
+  <br/>construction de maison en flux tendu (_just-in-time_)
 
 ---
 
-## Copy-on-write is *everywhere*
+## _Copy-on-write_ est **partout**
 
-- Process creation with `fork()`.
+- Création de processus avec `fork()`.
 
-- Consistent disk snapshots.
+- _Snapshot_ de disque cohérent.
 
-- Efficient VM provisioning.
+- Génération de VM efficace
 
-- And, of course, containers.
-
----
-
-## Copy-on-write and containers
-
-Copy-on-write is essential to give us "convenient" containers.
-
-- Creating a new container (from an existing image) is "free".
-
-  (Otherwise, we would have to copy the image first.)
-
-- Customizing a container (by tweaking a few files) is cheap.
-
-  (Adding a 1 KB configuration file to a 1 GB container takes 1 KB, not 1 GB.)
-
-- We can take snapshots, i.e. have "checkpoints" or "save points"
-  when building images.
+- Et, bien sûr, les conteneurs.
 
 ---
 
-## AUFS overview
+## _Copy-on-write_ et conteneurs
 
-- The original (legacy) copy-on-write filesystem used by first versions of Docker.
+_Copy-on-write_ est essentiel pour rendre "pratiques" les conteneurs.
 
-- Combine multiple *branches* in a specific order.
+- Créer un nouveau conteneur (d'une image existante) est "gratuit".
 
-- Each branch is just a normal directory.
+  (Sans cela, nous devrions d'abord copier l'image en entier.)
 
-- You generally have:
+- Mettre à jour un conteneur (en modifiant quelques fichiers) est bon marché.
 
-  - at least one read-only branch (at the bottom),
+  (Ajouter une configuration de 1Ko à un conteneur de 1Go prend 1Ko, pas 1Go.)
 
-  - exactly one read-write branch (at the top).
-
-  (But other fun combinations are possible too!)
+- On peut prendre des _snapshots_, i.e avoir des points de restauration, lors
+de la génération d'images.
 
 ---
 
-## AUFS operations: opening a file
+## Aperçu d'AUFS
 
-- With `O_RDONLY` - read-only access:
+- C'est le système originel (legacy) du _copy-on-write_ utilisé dans les premières versions de Docker.
 
-  - look it up in each branch, starting from the top
+- Il combine plusieurs *branches* dans un ordre spécifique.
 
-  - open the first one we find
+- Chaque branche est juste un dossier normal.
 
-- With `O_WRONLY` or `O_RDWR` - write access:
+- On a généralement:
 
-  - if the file exists on the top branch: open it
+  - au moins une branche en lecture seule (tout en bas);
 
-  - if the file exists on another branch: "copy up"
+  - exactement une seule branche en lecture/écriture (tout en haut).
+
+ (Mais d'autres combinaisons sympa sont aussi possibles!)
+
+---
+
+## Opérations sur AUFS: ouvrir un fichier
+
+- Avec `O_RDONLY` - accès lecture seule:
+
+  - parcourir chaque branche, partan du haut
+
+  - ouvrir la première occurence trouvée
+
+- Avec `O_WRONLY` ou `O_RDWR` - accès écriture :
+
+  - si le fichier existe dans la branche supérieure: l'ouvrir
+
+  - si le fichier existe dans une autre branche: _"copy up"_
     <br/>
-    (i.e. copy the file to the top branch and open the copy)
+    (i.e. copier le fichier dans la branche supérieure et ouvrir la copie)
 
-  - if the file doesn't exist on any branch: create it on the top branch
+  - si le fichier n'existe dans aucune branche: le créer dans la branche supérieure
 
-That "copy-up" operation can take a while if the file is big!
+Cette opération de _copy-up_ peut prendre un moment si le fichier est énorme!
 
 ---
 
-## AUFS operations: deleting a file
+## Opérations sur AUFS: supprimer un fichier
 
-- A *whiteout* file is created.
+- Un fichier *Tipp-Ex* est créé.
 
-- This is similar to the concept of "tombstones" used in some data systems.
+- Ceci est similaire au concept de "pierres tombales" utilisées dans certains systèmes de données.
 
 ```
  # docker run ubuntu rm /etc/shadow
@@ -129,156 +131,149 @@ That "copy-up" operation can take a while if the file is big!
 
 ---
 
-## AUFS performance
+## AUFS et performance
 
-- AUFS `mount()` is fast, so creation of containers is quick.
 
-- Read/write access has native speeds.
+- `mount()` en AUFS est rapide, donc la création de conteneurs est rapide.
 
-- But initial `open()` is expensive in two scenarios:
+- Les accès en lecture/écriture ont une vitesse native.
 
-  - when writing big files (log files, databases ...),
+- Mais les opérations `open()` sont coûteuses dans deux scénarii:
 
-  - when searching many directories (PATH, classpath, etc.) over many layers.
+  - quand on écrit de gros fichiers (fichier logs, bases de données, etc.),
 
-- Protip: when we built dotCloud, we ended up putting
-  all important data on *volumes*.
+  - quand on cherche dans de nombreux dossier (PATH, classpath, etc.) à travers plusieurs couches.
 
-- When starting the same container multiple times:
+- Astuce: quand on a lancé dotCloud, on a fini par mettre toutes les données
+importantes dans des *volumes*.
 
-  - the data is loaded only once from disk, and cached only once in memory;
+- En lançant le même conteneur plusieurs fois:
 
-  - but `dentries` will be duplicated.
+  - la donnée est chargée une seule fois depuis le disque, et mise en cache une seul fois en mémoire;
+  - mais les `dentries` seront dupliquées
 
 ---
 
 ## Device Mapper
 
-Device Mapper is a rich subsystem with many features.
 
-It can be used for: RAID, encrypted devices, snapshots, and more.
+_Device Mapper_ est un sous-système riche en fonctionnalités variées.
 
-In the context of containers (and Docker in particular), "Device Mapper"
-means:
+Il peut être utilisé pour: RAID, appareils cryptés, snapshots, et plus.
 
-"the Device Mapper system + its *thin provisioning target*"
+Dans le contexte de conteneurs (et Docker en particulier), "Device Mapper"
+signifie:
 
-If you see the abbreviation "thinp" it stands for "thin provisioning".
+"le système Device Mapper + son *thin provisioning target*"
 
----
-
-## Device Mapper principles
-
-- Copy-on-write happens on the *block* level
-  (instead of the *file* level).
-
-- Each container and each image get their own block device.
-
-- At any given time, it is possible to take a snapshot:
-
-  - of an existing container (to create a frozen image),
-
-  - of an existing image (to create a container from it).
-
-- If a block has never been written to:
-
-  - it's assumed to be all zeros,
-
-  - it's not allocated on disk.
-
-(That last property is the reason for the name "thin" provisioning.)
+Si vous voyez l'abréviation "thinp", il faut lire "thin provisioning".
 
 ---
 
-## Device Mapper operational details
+## Principes de Device Mapper
 
-- Two storage areas are needed:
-  one for *data*, another for *metadata*.
+- Copy-on-write agit au niveau du *bloc*, contrairement au niveau *fichier*
 
-- "data" is also called the "pool"; it's just a big pool of blocks.
+- Chaque conteneur et chaque image dispose de son propre descripteur de bloc.
 
-  (Docker uses the smallest possible block size, 64 KB.)
+- A tout moment, il est possible de prendre un _snapshot_:
 
-- "metadata" contains the mappings between virtual offsets (in the
-  snapshots) and physical offsets (in the pool).
+  - d'un conteneur existant (pour créer une image)
 
-- Each time a new block (or a copy-on-write block) is written,
-  a block is allocated from the pool.
+  - d'une image existante (comme base d'un nouveau conteneur)
 
-- When there are no more blocks in the pool, attempts to write
-  will stall until the pool is increased (or the write operation
-  aborted).
+- Si un bloc n'a jamais reçu d'écriture:
 
-- In other words: when running out of space, containers are
-  frozen, but operations will resume as soon as space is available.
+  - on suppose qu'il est à zéro.
+
+  - il n'est pas alloué sur le disque.
+
+(Cette dernière propriété est l'explication du nom _"thin" provisioning_.)
 
 ---
 
-## Device Mapper performance
+## Détails opérationnels de Device Mapper
 
-- By default, Docker puts data and metadata on a loop device
-  backed by a sparse file.
+- Deux zones de stockage sont nécessaires:
+  une pour la *donnée*, l'autre pour les *méta-données*.
 
-- This is great from a usability point of view,
-  since zero configuration is needed.
+- la "donnée", aussi appelée _"pool"_; qui est en fait un gros ensemble de blocs.
 
-- But it is terrible from a performance point of view:
+  (Docker utilise la plus petite taille de bloc possible, 64 Ko.)
 
-  - each time a container writes to a new block,
-  - a block has to be allocated from the pool,
-  - and when it's written to,
-  - a block has to be allocated from the sparse file,
-  - and sparse file performance isn't great anyway.
+- les "méta-données" contiennent le mappage entre l'adressage virtuel (dans les _snapshots_) et l'adressage physique (dans le _pool_).
 
-- If you use Device Mapper, make sure to put data (and metadata)
-  on devices!
+- chaque fois qu'un nouveau bloc (ou un block _copy-on-write_) est écrit, un bloc
+provenant du _pool_ lui est alloué.
 
----
+- quand il n'y a plus aucun bloc dans le _pool_, les tentatives d'écriture vont
+être suspendues jusqu'à ce que la taille du  _pool_ augmente (ou que l'opération d'écriture soit annulée).
 
-## BTRFS principles
-
-- BTRFS is a filesystem (like EXT4, XFS, NTFS...) with built-in snapshots.
-
-- The "copy-on-write" happens at the filesystem level.
-
-- BTRFS integrates the snapshot and block pool management features
-  at the filesystem level.
-
-  (Instead of the block level for Device Mapper.)
-
-- In practice, we create a "subvolume" and 
-  later take a "snapshot" of that subvolume.
-
-  Imagine: `mkdir` with Super Powers and `cp -a` with Super Powers.
-
-- These operations can be executed with the `btrfs` CLI tool.
+- En d'autres termes: sans espace de stockage, les conteneurs sont gelés, mais
+les opérations repartent dès que l'espace est à nouveau disponible.
 
 ---
 
-## BTRFS in practice with Docker
+## Device Mapper et performance
 
-- Docker can use BTRFS and its snapshotting features to store container images.
+- Par défaut, Docker place les données et méta-données dans un *loop device*, stocké sur un *sparse file*.
 
-- The only requirement is that `/var/lib/docker` is on a BTRFS filesystem.
+- C'est super du point de vue utilisabilité, car ça demande zero configuration.
 
-  (Or, the directory specified with the `--data-root` flag when starting the engine.)
+- Mais c'est moche du point de vue performance:
+
+  - chaque fois qu'un conteneur écrit dans un nouveau bloc,
+  - un bloc doit être alloué depuis le _pool_,
+  - et quand on écrit dedans,
+  - un bloc dans être alloué depuis le *sparse file*,
+  - et la performance d'un *sparse file* n'est pas terrible du tout.
+
+- Si vous utilisez Device Mapper, assurez-vous de placer les données (et méta-données) sur un périphérique (*device*)!
+
+---
+
+## Principes de BTRFS
+
+- BTRFS est un système de fichiers (comme ext4, xfs, NTFS, etc.) avec un support natif des _snapshots_.
+
+- Le "copy-on-write" est pris en charge au niveau du système de fichiers.
+
+- BTRFS intègre les fonctions de _snapshot_ et gestion de _pool_ de blocs au niveau du système de fichiers.
+
+  (au lieu du niveau de block pour Device Mapper)
+
+- En pratique, on déclare un "sous-volume" et on en prend un _snapshot_ plus tard.
+
+  Imaginez: `mkdir` avec des Super Pouvoirs et `cp -a` avec des Super Pouvoirs.
+
+- Ces opérations peuvent être réalisées avec l'outil en ligne de commande `btrfs`
+
+---
+
+## BTRFS en pratique avec Docker
+
+- Docker peut utiliser BTRFS et ses fonctions de _snapshot_ pour stocker les images de conteneur.
+
+- Le seul pré-requis est que `/var/lib/docker` soit sur un système de fichiers BTRFS.
+
+  (ou, le dossier spécifié avec l'option `--data-root` au démarrage du moteur Docker)
 
 ---
 
 class: extra-details
 
-## BTRFS quirks
+## BTRFS et pièges
 
-- BTRFS works by dividing its storage in *chunks*.
+- BTRFS fonctionne en partagean sont stockage en fragments (*chunk*).
 
-- A chunk can contain data or metadata.
+- Un fragment peut contenir soit des données ou des méta-données.
 
-- You can run out of chunks (and get `No space left on device`)
-  even though `df` shows space available.
-  
-  (Because chunks are only partially allocated.)
+- On peut être à court de fragments (et avoir un `No space left on device`)
+ même si `df` affiche de l'espace disponible.
 
-- Quick fix:
+ (Car les fragments sont partiellement alloués)
+
+- Correctif:
 
 ```
  # btrfs filesys balance start -dusage=1 /var/lib/docker
@@ -288,52 +283,51 @@ class: extra-details
 
 ## Overlay2
 
-- Overlay2 is very similar to AUFS.
+- Overlay2 est très similaire à AUFS.
 
-- However, it has been merged in "upstream" kernel.
+- Sauf qu'il a été inclus dans le noyau Linux de référence (_upstream_).
 
-- It is therefore available on all modern kernels.
+- Il est donc disponible dans tous les noyaux modernes.
 
-  (AUFS was available on Debian and Ubuntu, but required custom kernels on other distros.)
+  (AUFS était disponible sur Debian et Ubuntu, mais exigeait des noyaux spécifiques sur d'autres distributions.)
 
-- It is simpler than AUFS (it can only have two branches, called "layers").
+- Il est plus simple qu'AUFS (il ne peut y avoir que deux branches, appelés "layers").
 
-- The container engine abstracts this detail, so this is not a concern.
+- Le moteur de conteneur cache ce détail d'implémentation, ce n'est donc pas un souci.
 
-- Overlay2 storage drivers generally use hard links between layers.
+- Les pilotes de stockage Overlay2 utilisent généralement des liens durs entre couches.
 
-- This improves `stat()` and `open()` performance, at the expense of inode usage.
+- Cela améliore la performance de `stat()` et `open()`, au prix de l'usage d'inodes.
 
 ---
 
 ## ZFS
 
-- ZFS is similar to BTRFS (at least from a container user's perspective).
+- ZFS est similaire à BTRFS (au moins du point de vue d'un utilisateur de conteneur).
 
-- Pros:
+- Avantages:
 
-  - high performance
-  - high reliability (with e.g. data checksums)
-  - optional data compression and deduplication
+  - haute performnce
+  - haute résilience (grâce entre autres au _checksum_ sur les données)
+  - avec en options: compression et déduplication de la donnée
 
-- Cons:
+- Inconvénients:
 
-  - high memory usage
-  - not in upstream kernel
+  - usage mémoire supérieur
+  - non disponible dans le noyau Linux de référence (_upstream_)
 
-- It is available as a kernel module or through FUSE.
+- Il est disponible sous forme de module de noyau ou via FUSE.
 
 ---
 
-## Which one is the best?
+## Quel est le meilleur?
 
-- Eventually, overlay2 should be the best option.
+- Finalement, overlay2 devrait être la meilleure option.
 
-- It is available on all modern systems.
+- Il est disponible sur tous les systèmes modernes.
 
-- Its memory usage is better than Device Mapper, BTRFS, or ZFS.
+- Son usage mémoire est meilleur que Device Mapper, BTRFS ou ZFS.
 
-- The remarks about *write performance* shouldn't bother you:
+- Les réserves sur la *performance d'écriture* ne devraient pas vous freiner:
   <br/>
-  data should always be stored in volumes anyway!
-
+  les données devraient toujours être stockées dans des volumes de toute façon!

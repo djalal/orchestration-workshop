@@ -1,3 +1,3 @@
-# Building containers from scratch
+# Construire des conteneurs de zéro
 
-(This is a "bonus section" done if time permits.)
+(C'est une "section bonus" à voir si le temps le permet)

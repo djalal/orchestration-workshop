@@ -1,51 +1,51 @@
 
 class: title
 
-# Container networking basics
+# Bases du réseau pour conteneur
 
 ![A dense graph network](images/title-container-networking-basics.jpg)
 
 ---
 
-## Objectives
+## Objectifs
 
-We will now run network services (accepting requests) in containers.
+Nous allons maintenant lancer des services connectés (acceptant des requêtes) dans des conteneurs.
 
-At the end of this section, you will be able to:
+À la fin de cette section, vous serez capable de:
 
-* Run a network service in a container.
+* Lancer un service connecté dans un conteneur;
 
-* Manipulate container networking basics.
+* Manipuler les bases du réseau pour conteneur;
 
-* Find a container's IP address.
+* Trouver l'adresse IP d'un conteneur.
 
-We will also explain the different network models used by Docker.
+Nous expliquerons aussi les différents modèles de réseau usités par Docker.
 
 ---
 
-## A simple, static web server
+## Un serveur web simple, statique
 
-Run the Docker Hub image `nginx`, which contains a basic web server:
+Lancer l'image `nginx` du Docker Hub, qui contient un serveur web basique:
 
 ```bash
 $ docker run -d -P nginx
 66b1ce719198711292c8f34f84a7b68c3876cf9f67015e752b94e189d35a204e
 ```
 
-* Docker will download the image from the Docker Hub.
+* Docker va télécharger l'image depuis le Docker Hub.
 
-* `-d` tells Docker to run the image in the background.
+* `-d` dit à Docker de lancer une image en tâche de fond.
 
-* `-P` tells Docker to make this service reachable from other computers.
-  <br/>(`-P` is the short version of `--publish-all`.)
+* `-P` dit à Docker de rendre se service disponible depuis d'autres serveurs.
+  <br/>(`-P` est la version courte de `--publish-all`/)
 
-But, how do we connect to our web server now?
+Mais, comment on se connecte à notre serveur web maintenant?
 
 ---
 
-## Finding our web server port
+## Trouver le port de notre serveur web
 
-We will use `docker ps`:
+Nous allons utiliser `docker ps`:
 
 ```bash
 $ docker ps
@@ -53,32 +53,31 @@ CONTAINER ID  IMAGE  ...  PORTS                  ...
 e40ffb406c9e  nginx  ...  0.0.0.0:32768->80/tcp  ...
 ```
 
+* Le serveur web tourne sur le port 80 à l'intérieur du conteneur.
 
-* The web server is running on port 80 inside the container.
+* Ce port correspond au port 32768 sur notre hôte Docker.
 
-* This port is mapped to port 32768 on our Docker host.
+Nous expliquerons les pourquoi et comment de ce mappage.
 
-We will explain the whys and hows of this port mapping.
-
-But first, let's make sure that everything works properly.
+Mais d'abord, assurons-nous que tout fonctionne correctement.
 
 ---
 
-## Connecting to our web server (GUI)
+## Connexion à notre serveur web (IHM)
 
-Point your browser to the IP address of your Docker host, on the port
-shown by `docker ps` for container port 80.
+Pointer votre navigateur à l'adresse IP de votre hôte Docker, sur le port
+affiché par `docker ps`, correspondant au port 80 du conteneur.
 
 ![Screenshot](images/welcome-to-nginx.png)
 
 ---
 
-## Connecting to our web server (CLI)
+## Connexion à notre serveur web (CLI)
 
-You can also use `curl` directly from the Docker host.
+Vous pouvez aussi utiliser `curl` directement depuis le hôte Docker.
 
-Make sure to use the right port number if it is different
-from the example below:
+Assurez-vous d'utiliser le bon numéro de port s'il est différent
+de notre exemple ci-dessous:
 
 ```bash
 $ curl localhost:32768
@@ -91,20 +90,20 @@ $ curl localhost:32768
 
 ---
 
-## How does Docker know which port to map?
+## Comment Docker sait quel port associer?
 
-* There is metadata in the image telling "this image has something on port 80".
+* Il y a des meta-données dans l'image indiquant "cette image fait tourner quelque chose sur le port 80"
 
-* We can see that metadata with `docker inspect`:
+* On peut examiner ces meta-donnéees avec `docker inspect`:
 
 ```bash
 $ docker inspect --format '{{.Config.ExposedPorts}}' nginx
 map[80/tcp:{}]
 ```
 
-* This metadata was set in the Dockerfile, with the `EXPOSE` keyword.
+* Cette méta-donnée a pour origine le Dockerfile, via le mot-clé `EXPOSE`.
 
-* We can see that with `docker history`:
+* On peut le constater avec `docker history`:
 
 ```bash
 $ docker history nginx
@@ -116,25 +115,25 @@ IMAGE               CREATED             CREATED BY
 
 ---
 
-## Why are we mapping ports?
+## Pourquoi le mappage de ports?
 
-* We are out of IPv4 addresses.
+* Nous n'avons plus d'adresses IPv4.
 
-* Containers cannot have public IPv4 addresses.
+* Les conteneurs ne peuvent pas avoir d'adresse IPv4 publiques.
 
-* They have private addresses.
+* Ils possèdent des adresses privées.
 
-* Services have to be exposed port by port.
+* Les services doivent être exposés port par port.
 
-* Ports have to be mapped to avoid conflicts.
+* Le mappage de ports est obligatoire pour éviter les conflits.
 
 ---
 
-## Finding the web server port in a script
+## Trouver le port du serveur web via un script
 
-Parsing the output of `docker ps` would be painful.
+Manipuler la sortie de `docker ps` serait fastidieux.
 
-There is a command to help us:
+Il y a une commande pour nous aider:
 
 ```bash
 $ docker port <containerID> 80
@@ -143,9 +142,9 @@ $ docker port <containerID> 80
 
 ---
 
-## Manual allocation of port numbers
+## Affectation manuelle des numéros de port
 
-If you want to set port numbers yourself, no problem:
+Si vous voulez allouer vous-même les numéros de port, aucun souci:
 
 ```bash
 $ docker run -d -p 80:80 nginx
@@ -153,57 +152,56 @@ $ docker run -d -p 8000:80 nginx
 $ docker run -d -p 8080:80 -p 8888:80 nginx
 ```
 
-* We are running three NGINX web servers.
-* The first one is exposed on port 80.
-* The second one is exposed on port 8000.
-* The third one is exposed on ports 8080 and 8888.
+* Trois serveurs web NGINX tournent.
+* Le premier est exposé sur le port 80.
+* Le deuxième est exposé sur le port 8000.
+* Le troisième est exposé sur les ports 8080 et 8888.
 
-Note: the convention is `port-on-host:port-on-container`.
-
----
-
-## Plumbing containers into your infrastructure
-
-There are many ways to integrate containers in your network.
-
-* Start the container, letting Docker allocate a public port for it.
-  <br/>Then retrieve that port number and feed it to your configuration.
-
-* Pick a fixed port number in advance, when you generate your configuration.
-  <br/>Then start your container by setting the port numbers manually.
-
-* Use a network plugin, connecting your containers with e.g. VLANs, tunnels...
-
-* Enable *Swarm Mode* to deploy across a cluster.
-  <br/>The container will then be reachable through any node of the cluster.
-
-When using Docker through an extra management layer like Mesos or Kubernetes,
-these will usually provide their own mechanism to expose containers.
+Note: la convention est `port-sur-hôte:port-sur-conteneur`.
 
 ---
 
-## Finding the container's IP address
+## Intégrer les conteneurs dans votre infrastructure
 
-We can use the `docker inspect` command to find the IP address of the
-container.
+On peut intégrer les conteneurs au réseau de bien des manières.
+
+* Démarrer le conteneur, pour laisser Docker lui allouer un port public.
+  <br/>Puis lire le port affecté et l'injecter dans votre configuration.
+
+* Choisir un numéro de port à l'avance, au moment de générer votre configuration.
+  <br/>Puis démarrer votre conteneur en forçant les ports à la main.
+
+* Utiliser un _plugin_ de réseau, pour brancher vos conteneurs sur des VLANs, tunnels, etc.
+
+* Activer le *Mode Swarm* pour un déploiement à traver un _cluster_.
+  <br/>Le conteneur sera accessible depuis n'importe quel noeud du _cluster_.
+
+En utilisant Docker à travers une couche de gestion supplémentaire comme Mesos ou Kubernetes, ils fournissent en général leur propre mécanismes d'exposition de conteneurs.
+
+---
+
+## Trouver l'adresse IP du conteneur
+
+Nous pouvons utiliser la commande `docker inspect` pour trouver l'adresse IP
+de notre conteneur.
 
 ```bash
 $ docker inspect --format '{{ .NetworkSettings.IPAddress }}' <yourContainerID>
 172.17.0.3
 ```
 
-* `docker inspect` is an advanced command, that can retrieve a ton
-  of information about our containers.
+* `docker inspect` est une commande avancée, qui peut retourner une tonne
+d'informations à propos des conteneurs.
 
-* Here, we provide it with a format string to extract exactly the
-  private IP address of the container.
+* Ici, nous lui fournissons une chaîne pour extraire exactement l'adresse IP
+du conteneur.
 
 ---
 
-## Pinging our container
+## Interroger notre conteneur
 
-We can test connectivity to the container using the IP address we've
-just discovered. Let's see this now by using the `ping` tool.
+Nous pouvons tester la connectivité du conteneur via l'adresse IP
+déterminée précédemment. Voyons ceci avec l'outil `ping`.
 
 ```bash
 $ ping <ipAddress>
@@ -214,15 +212,15 @@ $ ping <ipAddress>
 
 ---
 
-## Section summary
+## Résumé du chapitre
 
-We've learned how to:
+Nous avons appris comment:
 
-* Expose a network port.
+* Exposer un port sur le réseau;
 
-* Manipulate container networking basics.
+* Manipuler les bases du réseau pour conteneur;
 
-* Find a container's IP address.
+* Trouver une adresse IP de conteneur.
 
-In the next chapter, we will see how to connect
-containers together without exposing their ports.
+Dans le chapitre suivant, nous verrons comment connecter
+les conteneurs entre eux, sans publier leurs ports.
