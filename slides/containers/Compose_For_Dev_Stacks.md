@@ -1,15 +1,15 @@
-# Compose for development stacks
+# Compose pour les développeurs
 
-Dockerfiles are great to build container images.
+Utiliser des Dockerfiles est super pour générer des images de conteneurs.
 
-But what if we work with a complex stack made of multiple containers?
+Et si nous voulions travailler avec une suite complexe composée de plusieurs conteneurs?
 
-Eventually, we will want to write some custom scripts and automation to build, run, and connect
-our containers together.
+Au final, on voudra disposer de scripts spécifique et automatisés pour construire, lancer
+et connecter notre conteneurs entre eux.
 
-There is a better way: using Docker Compose.
+Il y a une meilleure méthode: utiliser Docker Compose.
 
-In this section, you will use Compose to bootstrap a development environment.
+Dans ce chapitre, nous utiliserons Compose pour démarrer un environnement de développement.
 
 ---
 

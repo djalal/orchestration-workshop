@@ -1,62 +1,63 @@
-# Docker 30,000ft overview
+# Docker vu d'hélicoptère
 
-In this lesson, we will learn about:
+Dans cette leçon, nous apprendrons:
 
-* Why containers (non-technical elevator pitch)
+* Pourquoi les conteneurs (_pitch_ d'ascenseur non-technique)
 
-* Why containers (technical elevator pitch)
+* Pourquoi les conteneurs (version technique du _pitch_ d'ascenseur)
 
-* How Docker helps us to build, ship, and run
+* Comment Docker nous aide à les construire, transporter et lancer
 
-* The history of containers
+* L'Histoire des conteneurs
 
-We won't actually run Docker or containers in this chapter (yet!).
+On ne va pas (encore!) lancer Docker ou des conteneurs dans ce chapitre.
 
-Don't worry, we will get to that fast enough!
-
----
-
-## Elevator pitch
-
-### (for your manager, your boss...)
+Pas de souci, nous y arriverons assez tôt!
 
 ---
 
-## OK... Why the buzz around containers?
+## _Pitch_ d'ascenseur
 
-* The software industry has changed
+### (pour votre manager, votre patron...)
 
-* Before:
-  * monolithic applications
-  * long development cycles
-  * single environment
-  * slowly scaling up
+---
 
-* Now:
-  * decoupled services
-  * fast, iterative improvements
-  * multiple environments
-  * quickly scaling out
+## OK... Pourquoi ce buzz autour des conteneurs?
+
+* L'industrie logicielle a changé
+
+* Avant:
+  * applications monolitiques
+  * longs cycles de développements
+  * environnement unique
+  * montée en charge lente
+
+* Maintenant:
+  * services découplés
+  * améliorations rapides, itératives
+  * environnements multiples
+  * montée en charge rapide
 
 ---
 
 ## Deployment becomes very complex
+## Déployer devient très compliqué
 
-* Many different stacks:
-  * languages
+* Nombreuses technos différentes:
+  * langages
   * frameworks
-  * databases
+  * bases de données
 
-* Many different targets:
-  * individual development environments
+* Nombreux environnements différents:
+  * espaces de développement individuels
   * pre-production, QA, staging...
-  * production: on prem, cloud, hybrid
+  * production: on-prem, cloud, hybride
 
 ---
 
 class: pic
 
-## The deployment problem
+## Le problème du déploiement
 
 ![problem](images/shipping-software-problem.png)
 
@@ -64,7 +65,7 @@ class: pic
 
 class: pic
 
-## The matrix from hell
+## La matrice infernale
 
 ![matrix](images/shipping-matrix-from-hell.png)
 
@@ -72,7 +73,7 @@ class: pic
 
 class: pic
 
-## The parallel with the shipping industry
+## Parallèle avec l'industrie du transport
 
 ![history](images/shipping-industry-problem.png)
 
@@ -80,7 +81,7 @@ class: pic
 
 class: pic
 
-## Intermodal shipping containers
+## Conteneurs pour transport intermodal
 
 ![shipping](images/shipping-industry-solution.png)
 
@@ -88,7 +89,7 @@ class: pic
 
 class: pic
 
-## A new shipping ecosystem
+## Un nouvel écosystème de transport
 
 ![shipeco](images/shipping-indsutry-results.png)
 
@@ -96,7 +97,7 @@ class: pic
 
 class: pic
 
-## A shipping container system for applications
+## Un système de transport par conteneur pour les applications
 
 ![shipapp](images/shipping-software-solution.png)
 
@@ -104,213 +105,215 @@ class: pic
 
 class: pic
 
-## Eliminate the matrix from hell
+## Fin de la matrice infernale
 
 ![elimatrix](images/shipping-matrix-solved.png)
 
 ---
 
-## Results
+## Résultats
 
-* [Dev-to-prod reduced from 9 months to 15 minutes (ING)](
+* [Passage "Dev à Prod" réduit de 9 mois à 15 minutes (ING)](
   https://www.docker.com/sites/default/files/CS_ING_01.25.2015_1.pdf)
 
-* [Continuous integration job time reduced by more than 60% (BBC)](
+* [Durée des traitements d'intégration continue réduite de 60% (BBC)](
   https://www.docker.com/sites/default/files/CS_BBCNews_01.25.2015_1.pdf)
 
-* [Deploy 100 times a day instead of once a week (GILT)](
+* [Déployer 100 fois par jour au lieu d'une fois par semaine (GILT)](
   https://www.docker.com/sites/default/files/CS_Gilt%20Groupe_03.18.2015_0.pdf)
 
-* [70% infrastructure consolidation (MetLife)](
+* [70% de consolidation d'infrastructure (MetLife)](
   https://www.docker.com/customers/metlife-transforms-customer-experience-legacy-and-microservices-mashup)
 
-* [60% infrastructure consolidation (Intesa Sanpaolo)](
+* [60% de consolidation d'infrastructure (Intesa Sanpaolo)](
   https://blog.docker.com/2017/11/intesa-sanpaolo-builds-resilient-foundation-banking-docker-enterprise-edition/)
 
-* [14x application density; 60% of legacy datacenter migrated in 4 months (GE Appliances)](
+* [Densité d'application 14x supérieure; 60% du datacenter legacy migré en 4 mois (GE Appliances)](
   https://www.docker.com/customers/ge-uses-docker-enable-self-service-their-developers)
 
 * etc.
 
 ---
 
-## Elevator pitch
+## _Pitch_ d'ascenseur
 
-### (for your fellow devs and ops)
-
----
-
-## Escape dependency hell
-
-1. Write installation instructions into an `INSTALL.txt` file
-
-2. Using this file, write an `install.sh` script that works *for you*
-
-3. Turn this file into a `Dockerfile`, test it on your machine
-
-4. If the Dockerfile builds on your machine, it will build *anywhere*
-
-5. Rejoice as you escape dependency hell and "works on my machine"
-
-Never again "worked in dev - ops problem now!"
+### (pour vos collègues développeurs et admin. système)
 
 ---
 
-## On-board developers and contributors rapidly
+## Echapper à l'enfer des dépendances
 
-1. Write Dockerfiles for your application components
+1. Ecrire les instructions d'installation dans un fichier `INSTALL.txt`
 
-2. Use pre-made images from the Docker Hub (mysql, redis...)
+2. Avec ce fichier, écrire un script `install.sh` qui va marcher *pour vous*
 
-3. Describe your stack with a Compose file
+3. Traduire ce fichier en `Dockerfile`, le tester sur votre machine
 
-4. On-board somebody with two commands:
+4. Si le Dockerfile passe sur votre machine, il passera *n'importe où*
+
+5. Réjouissez-vous, car vous êtes sauvé de l'enfer des dépendances et du "ça marche sur ma machine"
+
+Plus jamais de "ça marchait en dev - c'est le problème des admins maintenant!"
+
+---
+
+## Intégrez des développeurs et contributeurs rapidement
+
+1. Ecrire les Dockerfiles pour les composants applicatifs
+
+2. Utiliser des images pré-générées du Docker Hub (mysql, redis, etc.)
+
+3. Décrire votre suite logicielle avec un fichier Compose
+
+4. Intégrer quelqu'un avec deux commandes:
 
 ```bash
 git clone ...
 docker-compose up
 ```
 
-With this, you can create development, integration, QA environments in minutes!
+Avec ça, vous pouvez monter des environnements de développement, intégration ou QA en quelques minutes!
 
 ---
 
 class: extra-details
 
-## Implement reliable CI easily
+## Implémenter facilement une CI stable
 
-1. Build test environment with a Dockerfile or Compose file
+1. Montez un environnemen de test avec un Dockerfile ou un fichier Compose
 
-2. For each test run, stage up a new container or stack
+2. Pour chaque lancement de test, montez un nouveau conteneur (ou une suite complète)
 
-3. Each run is now in a clean environment
+3. Chaque test est lancé dans un environnement propre.
 
-4. No pollution from previous tests
+4. Aucune pollution des précédents tests
 
-Way faster and cheaper than creating VMs each time!
+Bien plus rapide et économique que de monter des VMs à chaque fois!
 
 ---
 
 class: extra-details
 
 ## Use container images as build artefacts
+## Utiliser des images de conteneurs comme artefacts de _build_
 
-1. Build your app from Dockerfiles
+1. Générez votre appli à partir de Dockerfiles
 
-2. Store the resulting images in a registry
+2. Stockez les images résultantes dans un dépôt
 
-3. Keep them forever (or as long as necessary)
+3. Stockez les pour toujours (ou aussi longtemps que nécessaire)
 
-4. Test those images in QA, CI, integration...
+4. Testez ces image en QA, CI ou intégration...
 
-5. Run the same images in production
+5. Lancez les mêmes images en production
 
-6. Something goes wrong? Rollback to previous image
+6. Quelque chose est cassé? Repassez à l'image précédente.
 
-7. Investigating old regression? Old image has your back!
+7. Diagnostic d'une ancienne régression? Une ancienne image est toujours là pour vous!
 
-Images contain all the libraries, dependencies, etc. needed to run the app.
-
----
-
-class: extra-details
-
-## Decouple "plumbing" from application logic
-
-1. Write your code to connect to named services ("db", "api"...)
-
-2. Use Compose to start your stack
-
-3. Docker will setup per-container DNS resolver for those names
-
-4. You can now scale, add load balancers, replication ... without changing your code
-
-Note: this is not covered in this intro level workshop!
+Les images contiennent toutes les bibliothèques, dépendances, etc. nécessaire au lancement de l'appli.
 
 ---
 
 class: extra-details
 
-## What did Docker bring to the table?
+## Découplez la "plomberie" de la logique applicative
 
-### Docker before/after
+1. Ecrivez votre code pour qu'il se connecte à des services nommés ("db", "api", etc.)
+
+2. Utilisez Compose pour démarrer votre suite
+
+3. Docker va fournir un DNS pour conteneur pour résoudre ces noms de services
+
+4. Vous pouvez maintenant monter en charge, ajouter des répartiteurs de charge, de la réplication... sans changer votre code.
+
+Note: ce n'est pas couvert dans cet atelier d'introduction!
+
+---
+
+class: extra-details
+
+## Qu'a apporté Docker à la table?
+
+### Docker avant/après
 
 ---
 
 class: extra-details
 
 ## Formats and APIs, before Docker
+## Formats et APIs, avant Docker
 
-* No standardized exchange format.
-  <br/>(No, a rootfs tarball is *not* a format!)
+* Aucun format d'échange standard.
+  <br/>(Non, un fichier _tarball_ n'est pas un format!)
 
-* Containers are hard to use for developers.
-  <br/>(Where's the equivalent of `docker run debian`?)
+* Difficile d'utiliser des conteneurs pour les développeurs.
+  <br/>(Quel est l'équivalent d'un `docker run debian`?)
 
-* As a result, they are *hidden* from the end users.
+* En conséquence, ils restent *cachés* des utilisateurs finaux.
 
-* No re-usable components, APIs, tools.
-  <br/>(At best: VM abstractions, e.g. libvirt.)
+* Aucun composant réutilisable, APIs ou outils.
+  <br/>(Au mieux, abstractions de VMs, e.g libvirt)
 
-Analogy: 
+Analogie:
 
-* Shipping containers are not just steel boxes.
-* They are steel boxes that are a standard size, with the same hooks and holes.
-
----
-
-class: extra-details
-
-## Formats and APIs, after Docker
-
-* Standardize the container format, because containers were not portable.
-
-* Make containers easy to use for developers.
-
-* Emphasis on re-usable components, APIs, ecosystem of standard tools.
-
-* Improvement over ad-hoc, in-house, specific tools.
+* Transporter des conteneurs n'est pas une question de boîte d'acier.
+* Ce sont des boîtes d'acier de taille standard, avec les mêmes crochets et trous.
 
 ---
 
 class: extra-details
 
-## Shipping, before Docker
+## Formats et APIs, après Docker
 
-* Ship packages: deb, rpm, gem, jar, homebrew...
+* Standardiser le format de conteneur, parce que les conteneurs n'étaient pas portables.
 
-* Dependency hell.
+* Rendre les conteneurs facile à utiliser pour les développeurs.
 
-* "Works on my machine."
+* Focus sur les composants réutilisable, APIs et l'écosystème d'outils standard.
 
-* Base deployment often done from scratch (debootstrap...) and unreliable.
-
----
-
-class: extra-details
-
-## Shipping, after Docker
-
-* Ship container images with all their dependencies.
-
-* Images are bigger, but they are broken down into layers.
-
-* Only ship layers that have changed.
-
-* Save disk, network, memory usage.
+* Amélioration par rapport aux outils ad-hoc, interne et spécifique.
 
 ---
 
 class: extra-details
 
-## Example
+## Livraison, avant Docker
 
-Layers:
+* Déploiement par paquets: deb, rpm, gem, jar, homebrew...
+
+* Enfer des dépendances
+
+* "Ça marche chez moi."
+
+* Base de livraison souvent réalisée de zéro (debootstrap...) et fragile.
+
+---
+
+class: extra-details
+
+## Livraison, après Docker
+
+* Livrez des images de conteneurs avec toutes leurs dépendances.
+
+* De plus grosses images, mais sous-découpées en couches.
+
+* Ne livre que les couches qui ont changé.
+
+* Économise du disque, du réseau et de la mémoire.
+
+---
+
+class: extra-details
+
+## Exemple
+
+Couches (_Layers_):
 
 * CentOS
 * JRE
 * Tomcat
-* Dependencies
+* Dépendances
 * Application JAR
 * Configuration
 
@@ -318,39 +321,37 @@ Layers:
 
 class: extra-details
 
-## Devs vs Ops, before Docker
+## Devs vs Ops, avant Docker
 
-* Drop a tarball (or a commit hash) with instructions.
+* On va livrer un fichier _tarball_ (ou un hash de commit) avec ses instructions.
 
-* Dev environment very different from production.
+* Avec un environnement de dev très différent de la production.
 
-* Ops don't always have a dev environment themselves ...
+* Sauf que les admin. système n'ont pas toujours un environnement de test eux-mêmes...
 
-* ... and when they do, it can differ from the devs'.
+* ... et quand ils l'ont, il peut différer de celui des devs.
 
-* Ops have to sort out differences and make it work ...
+* Donc les admin. système doivent déterminer les différences, et faire en sorte que ça marche...
 
-* ... or bounce it back to devs.
+* ... ou le renvoyer aux développeurs.
 
-* Shipping code causes frictions and delays.
+* Déployer du code est cause de friction et de délais.
 
 ---
 
 class: extra-details
 
-## Devs vs Ops, after Docker
+## Devs vs Ops, après Docker
 
-* Drop a container image or a Compose file.
+* On va livrer une image de conteneur ou un fichier Compose.
 
-* Ops can always run that container image.
+* Un admin. système pourra toujours lancer cette image de conteneur.
 
-* Ops can always run that Compose file.
+* Un admin. système pourra toujours lancer ce fichier Compose.
 
-* Ops still have to adapt to prod environment,
-  but at least they have a reference point.
+* Les admin. doivent toujours adapter la configuration à l'environnement de prod,
+mais ils ont au moins un point de référence.
 
-* Ops have tools allowing to use the same image
-  in dev and prod.
+* L'outillage des admin. système permet d'utiliser la même image en dev et prod.
 
-* Devs can be empowered to make releases themselves
-  more easily.
+* Les développeurs pourront plus facilement être mis en position de lancer les déploiements eux-mêmes.
