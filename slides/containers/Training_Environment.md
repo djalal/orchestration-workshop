@@ -1,91 +1,93 @@
 
 class: title
 
-# Our training environment
+# Notre environnement de formation
 
 ![SSH terminal](images/title-our-training-environment.jpg)
 
 ---
 
-## Our training environment
+## Notre environnement de formation
 
-- If you are attending a tutorial or workshop:
+- Si vous assistez à un atelier ou un tutoriel:
 
-  - a VM has been provisioned for each student
+  - une VM a été provisionnée pour chaque apprenant
 
-- If you are doing or re-doing this course on your own, you can:
+- Si vous suivez ou révisez ce cours tout seul, vous pouvez:
 
-  - install Docker locally (as explained in the chapter "Installing Docker")
+  - installer Docker en local (comme expliqué dans le chapitre "Installer Docker")
 
-  - install Docker on e.g. a cloud VM
+  - installer Docker sur une VM dans le cloud (par ex.)
 
-  - use http://www.play-with-docker.com/ to instantly get a training environment
+  - utiliser https://www.play-with-docker.com/ pour lancer en un instant un environnement de formation
 
 ---
 
 ## Our Docker VM
+## Notre VM Docker
 
-*This section assumes that you are following this course as part of
-a tutorial, training or workshop, where each student is given an
-individual Docker VM.*
+*Cette section suppose que vous suivez ce cours dans le cadre d'un
+tutoriel, une atelier ou une formation, où chaque apprenant reçoit
+une VM Docker individuelle.*
 
-- The VM is created just before the training.
+- La VM est créée juste avant la formation.
 
-- It will stay up during the whole training.
+- Elle restera allumée pendant toute la durée de la formation.
 
-- It will be destroyed shortly after the training.
+- Elle sera détruite peu de temps après la formation.
 
-- It comes pre-loaded with Docker and some other useful tools.
-
----
-
-## What *is* Docker?
-
-- "Installing Docker" really means "Installing the Docker Engine and CLI".
-
-- The Docker Engine is a daemon (a service running in the background).
-
-- This daemon manages containers, the same way that an hypervisor manages VMs.
-
-- We interact with the Docker Engine by using the Docker CLI.
-
-- The Docker CLI and the Docker Engine communicate through an API.
-
-- There are many other programs, and many client libraries, to use that API.
+- Elle est fournie avec Docker et quelques autres outils utiles.
 
 ---
 
-## Why don't we run Docker locally?
+## C'est *quoi* Docker?
 
-- We are going to download container images and distribution packages.
 
-- This could put a bit of stress on the local WiFi and slow us down.
+- "Installer Docker" signifie en vrai "Installer le *Docker Engine* et le client en ligne de commande".
 
-- Instead, we use a remote VM that has a good connectivity
+- Le Docker Engine est un *daemon* (un service tournant en tâche de fond).
 
-- In some rare cases, installing Docker locally is challenging:
+- Ce *daemon* gère les conteneurs, à la manière d'un hyperviseur qui gère ses VMs.
 
-  - no administrator/root access (computer managed by strict corp IT)
+- Nous dialoguons avec le Docker Engine par la Docker CLI (ligne de commande).
 
-  - 32-bit CPU or OS
+- Docker CLI et Docker Engine communiquent via une API.
 
-  - old OS version (e.g. CentOS 6, OSX pre-Yosemite, Windows 7)
-
-- It's better to spend time learning containers than fiddling with the installer!
+- Il existe de nombreux autres programmes, et de composants client, pour exploiter cette API.
 
 ---
 
-## Connecting to your Virtual Machine
+## Pourquoi on ne lance pas Docker en local?
 
-You need an SSH client.
+- On va télécharger des images de conteneur et des paquets de distribution.
 
-* On OS X, Linux, and other UNIX systems, just use `ssh`:
+- Cela pourrait quelque peu stresser la connexion WiFi locale, et nous ralentir.
+
+- Au lieu de ça, on préfère passer par une VM distante qui a une meilleure connectivité.
+
+- Dans de rares cas, installer Docker en local peut s'avérer tortueux:
+
+  - pas d'accès au compte admin/root (poste géré par une DSI stricte)
+
+  - CPU ou système d'exploitation 32 bits.
+
+  - vieille version de l'OS (par ex. CentOS 6, OSX pré-Yosemite, Windows 7)
+
+- Il est meilleur de passer du temps à apprendre les conteneurs qu'à trifouiller l'installateur!
+
+---
+
+## Se connecter à votre Machine Virtuelle
+
+Vous avez besoin d'un client SSH.
+
+ * Sur OS X, Linux et autres systèmes UNIX, `ssh` suffit:
 
 ```bash
 $ ssh <login>@<ip-address>
 ```
 
-* On Windows, if you don't have an SSH client, you can download:
+* Sur Windows, si vous n'avez pas de client SSH, vous pouvez télécharger:
 
   * Putty (www.putty.org)
 
@@ -95,9 +97,9 @@ $ ssh <login>@<ip-address>
 
 ---
 
-## Checking your Virtual Machine
+## Vérifier votre Machine Virtuelle
 
-Once logged in, make sure that you can run a basic Docker command:
+Une fois connecté(e), assurez-vous que la commande Docker de base fonctionne:
 
 .small[
 ```bash
@@ -124,4 +126,4 @@ Server:
 ```
 ]
 
-If this doesn't work, raise your hand so that an instructor can assist you!
+Si ça ne marche pas, levez la main et un assistant viendra vous aider!

@@ -1,8 +1,8 @@
-# History of containers ... and Docker
+# Histoire des conteneurs ... et de Docker
 
 ---
 
-## First experimentations
+## Premières expérimentations
 
 * [IBM VM/370 (1972)](https://en.wikipedia.org/wiki/VM_%28operating_system%29)
 
@@ -12,132 +12,134 @@
 
 * [FreeBSD jails (1999-2000)](https://www.freebsd.org/cgi/man.cgi?query=jail&sektion=8&manpath=FreeBSD+4.0-RELEASE)
 
-Containers have been around for a *very long time* indeed.
+Cela fait *très longtemps* que les conteneurs existent.
 
-(See [this excellent blog post by Serge Hallyn](https://s3hh.wordpress.com/2018/03/22/history-of-containers/) for more historic details.)
+(Voir [cet excellent billet par Serge Hallyn](https://s3hh.wordpress.com/2018/03/22/history-of-containers/) pour plus de détails historiques.)
 
 ---
 
 class: pic
 
-## The VPS age (until 2007-2008)
+## L'Âge du VPS (jusqu'à 2007-2008)
 
 ![lightcont](images/containers-as-lightweight-vms.png)
 
 ---
 
-## Containers = cheaper than VMs
+## Conteneurs = moins cher que les VMs
 
-* Users: hosting providers.
+* Utilisateurs: fournisseurs d'hébergement.
 
-* Highly specialized audience with strong ops culture.
+* Audience hautement spécialisée avec une forte culture d'admin. système.
 
 ---
 
 class: pic
 
-## The PAAS period (2008-2013)
+## Période PAAS (2008-2018)
+
 
 ![heroku 2007](images/heroku-first-homepage.png)
 
 ---
 
-## Containers = easier than VMs
+## Conteneurs = plus facile que les VMs
 
-* I can't speak for Heroku, but containers were (one of) dotCloud's secret weapon
+* Je ne peux pas parler pour Heroku, mais les conteneurs étaient l'arme secrète de dotCloud (parmi d'autres).
 
-* dotCloud was operating a PaaS, using a custom container engine.
+* dotCloud maintenait un PaaS, via un moteur de conteneur personnalisé.
 
-* This engine was based on OpenVZ (and later, LXC) and AUFS.
+* Ce moteur était basé sur OpenVZ (et plus tard, LXC) et AUFS.
 
-* It started (circa 2008) as a single Python script.
+* Tout a commencé (vers 2008) par un simple script Python.
 
-* By 2012, the engine had multiple (~10) Python components.
-  <br/>(and ~100 other micro-services!)
+* En 2012, le moteur comptait plusieurs composants Python (env. 10)
+  <br/>(et env. 100 micro-services!)
 
-* End of 2012, dotCloud refactors this container engine.
+* Fin 2012, dotCloud reconstruit le moteur de conteneur.
 
-* The codename for this project is "Docker."
+* Le nom de code de ce projet est "Docker".
 
 ---
 
 ## First public release of Docker
+## Première version publique de Docker
 
-* March 2013, PyCon, Santa Clara:
-  <br/>"Docker" is shown to a public audience for the first time.
+* Mars 2013, Pycon, Santa Clara:
+  <br/>"Docker" est montré en public pour la première fois.
 
-* It is released with an open source license.
+* Il est publié avec une licence open source.
 
-* Very positive reactions and feedback!
+* Réactions et retours très positifs!
 
-* The dotCloud team progressively shifts to Docker development.
+* L'équipe dotCloud est progressivement réaffectée au développement de Docker.
 
-* The same year, dotCloud changes name to Docker.
+* La même année, dotCloud change de nom pour s'appeler Docker.
 
-* In 2014, the PaaS activity is sold.
-
----
-
-## Docker early days (2013-2014)
+* En 2014, l'activité PaaS est revendue.
 
 ---
 
-## First users of Docker
+## Docker premiers jours (2013-2014)
 
-* PAAS builders (Flynn, Dokku, Tsuru, Deis...)
-
-* PAAS users (those big enough to justify building their own)
-
-* CI platforms
-
-* developers, developers, developers, developers
 
 ---
 
-## Positive feedback loop
+## Premiers utilisateurs de Docker
 
-* In 2013, the technology under containers (cgroups, namespaces, copy-on-write storage...)
-  had many blind spots.
+* Gestionnaires de PAAS (Flynn, Dokku, Tsuru, Deis...)
 
-* The growing popularity of Docker and containers exposed many bugs.
+* Utilisateurs de PAAS (ceux assez gros pour justifier la construction de leur propre PAAS)
 
-* As a result, those bugs were fixed, resulting in better stability for containers.
+* Services d'intégration continue
 
-* Any decent hosting/cloud provider can run containers today.
-
-* Containers become a great tool to deploy/move workloads to/from on-prem/cloud.
+* développeurs, développeurs, développeurs
 
 ---
 
-## Maturity (2015-2016)
+## Boucle de retours positifs
+
+* En 2013, la technologie sous-tenant les conteneurs (cgroups, namespaces, stockage copy-on-write, etc.)
+
+* La popularité croissante de Dcoker et des conteneurs a mis en lumière de nombreux bugs.
+
+* En conséquence, ces bugs sont corrigés, résultant dans une meilleurs stabilité des conteneurs.
+
+* Aujourd'hui, tout fournisseur d'hébergement/cloud un peu sérieux peut lancer des conteneurs.
+
+* Les conteneurs sont devenus un super outil pour déployer/transporter des applis vers/depuis les environnements on-prem/cloud.
 
 ---
 
-## Docker becomes an industry standard
-
-* Docker reaches the symbolic 1.0 milestone.
-
-* Existing systems like Mesos and Cloud Foundry add Docker support.
-
-* Standardization around the OCI (Open Containers Initiative).
-
-* Other container engines are developed.
-
-* Creation of the CNCF (Cloud Native Computing Foundation).
+## Maturité (2015-2016)
 
 ---
 
-## Docker becomes a platform
+## Docker devient un standard d'industrie
 
-* The initial container engine is now known as "Docker Engine."
+* Docker atteint le jalon symbolique du 1.0
 
-* Other tools are added:
-  * Docker Compose (formerly "Fig")
+* Docker est maintenant supporté par les systèmes existants comme Mesos ou Cloud Foundry.
+
+* Standardisation autour de l'OCI (Open Containers Initiative).
+
+* De nouveaux moteurs de conteneurs sont développés.
+
+* Création de la CNCF (Cloud Native Computing Foundation).
+
+---
+
+## Docker devient une plate-forme
+
+* Le moteur de conteneur initial est maintenant nommé "Docker Engine".
+
+* D'autres outils y sont ajoutés:
+  * Docker Compose (anciennement "Fig")
   * Docker Machine
   * Docker Swarm
   * Kitematic
-  * Docker Cloud (formerly "Tutum")
+  * Docker Cloud (anciennement "Tutum")
   * Docker Datacenter
   * etc.
 
-* Docker Inc. launches commercial offers.
+* Docker Inc. lance ses offres commerciales.

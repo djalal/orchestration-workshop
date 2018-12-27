@@ -1,83 +1,83 @@
 
 class: title
 
-# Our first containers
+# Nos premiers conteneurs
 
 ![Colorful plastic tubs](images/title-our-first-containers.jpg)
 
 ---
 
-## Objectives
+## Objectifs
 
-At the end of this lesson, you will have:
+À la fin de cette leçon, vous aurez:
 
-* Seen Docker in action.
+ * vu Docker en action;
 
-* Started your first containers.
+ * démarré vos premiers conteneurs.
 
 ---
 
 ## Hello World
 
-In your Docker environment, just run the following command:
+Depuis votre environnement Docker, lancez juste la commande suivante:
 
 ```bash
 $ docker run busybox echo hello world
 hello world
 ```
 
-(If your Docker install is brand new, you will also see a few extra lines,
-corresponding to the download of the `busybox` image.)
+(Si votre installation Docker est vierge, quelques lignes en plus s'afficheront,
+correspondant au téléchargement de l'image `busybox`.)
 
 ---
 
-## That was our first container!
+## C'était notre premier conteneur!
 
-* We used one of the smallest, simplest images available: `busybox`.
+* Nous avons utilisé l'une des images les plus petites et simples: `busybox`.
 
-* `busybox` is typically used in embedded systems (phones, routers...)
+* `busybox` est typiquement utilisée dans les systèmes embarqués (téléphones, routeurs, etc.)
 
-* We ran a single process and echo'ed `hello world`.
+* Nous avons lancé un seul processus pour afficher `hello world`.
 
 ---
 
-## A more useful container
+## Un conteneur plus utile
 
-Let's run a more exciting container:
+Lançons un conteneur un peu plus excitant:
 
 ```bash
 $ docker run -it ubuntu
 root@04c0bb0a6c07:/#
 ```
 
-* This is a brand new container.
+* C'est un conteneur tout neuf.
 
-* It runs a bare-bones, no-frills `ubuntu` system.
+* Il exécute un système `ubuntu` basique et sans fioritures.
 
-* `-it` is shorthand for `-i -t`.
+* `-it` est le raccourci pour `-i -it`.
 
-  * `-i` tells Docker to connect us to the container's stdin.
+  * `-i` dit à Docker de nous connecter à l'entrée du conteneur.
 
-  * `-t` tells Docker that we want a pseudo-terminal.
+  * `-t` dit à Docker que nous voulons un pseudo-terminal.
 
 ---
 
-## Do something in our container
+## Faire quelque chose dans notre conteneur
 
-Try to run `figlet` in our container.
+Essayez de lancer `figlet` dans notre conteneur.
 
 ```bash
 root@04c0bb0a6c07:/# figlet hello
 bash: figlet: command not found
 ```
 
-Alright, we need to install it.
+D'accord, donc nous allons devoir l'installer.
 
 ---
 
-## Install a package in our container
+## Installer un paquet dans notre conteneur
 
-We want `figlet`, so let's install it:
+Nous voulons `figlet`, alors installons-le:
 
 ```bash
 root@04c0bb0a6c07:/# apt-get update
@@ -89,13 +89,13 @@ Reading package lists... Done
 ...
 ```
 
-One minute later, `figlet` is installed!
+Une minute plus tard, `figlet` est installé!
 
 ---
 
-## Try to run our freshly installed program
+## Essayons de lancer notre programme fraichement installé
 
-The `figlet` program takes a message as parameter.
+Le programme `figlet` prend un message en paramètre.
 
 ```bash
 root@04c0bb0a6c07:/# figlet hello
@@ -106,101 +106,100 @@ root@04c0bb0a6c07:/# figlet hello
 |_| |_|\___|_|_|\___/ 
 ```
 
-Beautiful! .emoji[😍]
+Magnifique! .emoji[😍]
 
 ---
 
 class: in-person
 
-## Counting packages in the container
+## Compter les paquets dans le conteneur
 
-Let's check how many packages are installed there.
+Vérifions maintenant combien de paquets y sont installés.
 
 ```bash
 root@04c0bb0a6c07:/# dpkg -l | wc -l
 190
 ```
 
-* `dpkg -l` lists the packages installed in our container
+* `dpkg -l` liste les paquets installés dans notre conteneur
 
-* `wc -l` counts them
+* `wc -l` va les compter
 
-How many packages do we have on our host?
+Combien de paquets avons-nous sur notre hôte?
 
 ---
 
 class: in-person
 
-## Counting packages on the host
+## Compter les paquets sur l'hôte?
 
-Exit the container by logging out of the shell, like you would usually do.
+Quittez le conteneur en vous déconnectant du shell, comme d'habitude.
 
-(E.g. with `^D` or `exit`)
+(i.e. avec `^D` ou `exit`)
 
 ```bash
 root@04c0bb0a6c07:/# exit
 ```
 
-Now, try to:
+Maintenant, essayons de:
 
-* run `dpkg -l | wc -l`. How many packages are installed?
+* lancer `dpkg -l | wc -l`. Combien de paquets sont installés?
 
-* run `figlet`. Does that work?
+* lancer `figlet`. Est-ce que ça marche?
 
 ---
 
 class: self-paced
 
-## Comparing the container and the host
+## Comparaison du conteneur et de l'hôte
 
-Exit the container by logging out of the shell, with `^D` or `exit`.
+Sortez le conteneur en vous déconnectant du _shell_, avec `^D` ou `exit`.
 
-Now try to run `figlet`. Does that work?
+Maintenant essayez de lancer `figlet`. Est-ce que ça marche?
 
-(It shouldn't; except if, by coincidence, you are running on a machine where figlet was installed before.)
-
----
-
-## Host and containers are independent things
-
-* We ran an `ubuntu` container on an Linux/Windows/macOS host.
-
-* They have different, independent packages.
-
-* Installing something on the host doesn't expose it to the container.
-
-* And vice-versa.
-
-* Even if both the host and the container have the same Linux distro!
-
-* We can run *any container* on *any host*.
-
-  (One exception: Windows containers cannot run on Linux machines; at least not yet.)
+(Cela ne devrait pas; sauf si, pas coïncidence, vous utilisez une machine où figlet était déjà installé.)
 
 ---
 
-## Where's our container?
+## Hôte et conteneurs sont deux systèmes indépendants
 
-* Our container is now in a *stopped* state.
+* Nous avons lancé un conteneur `ubuntu` sur un hôte Linux/Windows/macOS.
 
-* It still exists on disk, but all compute resources have been freed up.
+* Ils possèdent des paquets indépendants et différents.
 
-* We will see later how to get back to that container.
+* Installer quelque chose sur l'hôte ne l'expose pas dans le conteneur.
+
+* Et vice-versa.
+
+* Même si l'hôte et le conteneur ont tous deux la même distribution Linux.
+
+* Nous pouvons lancer *n'importe quel conteneur* sur *n'importe quel hôte*.
+
+  (Une exception: les conteneurs Windows ne peuvent tourner sur les machines Linux; par encore en tout cas.)
 
 ---
 
-## Starting another container
+## Où est notre conteneur?
 
-What if we start a new container, and try to run `figlet` again?
- 
+* Notre conteneur est maintenant en état *stopped*.
+
+* Il existe encore sur le disque, mais toute ses ressources ont été libérées.
+
+* Nous verrons plus tard comment récupérer ce conteneur.
+
+---
+
+## Démarrer un autre conteneur
+
+Et si nous démarrions un nouveau conteneur, pour y lancer à nouveau `figlet`?
 ```bash
 $ docker run -it ubuntu
 root@b13c164401fb:/# figlet
 bash: figlet: command not found
 ```
 
-* We started a *brand new container*.
+* Nous avons lancé un *tout nouveau conteneur*.
 
-* The basic Ubuntu image was used, and `figlet` is not here.
+* Dans l'image de base Ubuntu utilisé ci-dessus, `figlet` est absent.
 
-* We will see in the next chapters how to bake a custom image with `figlet`.
+* Nous verrons dans les chapitres suivants comment préparer une image personnalisée avec `figlet`.

@@ -1,58 +1,57 @@
 
 class: title
 
-# Installing Docker
+# Installer Docker
 
 ![install](images/title-installing-docker.jpg)
 
 ---
 
-## Objectives
+## Objectifs
 
-At the end of this lesson, you will know:
+A la fin de cette leçon, vous saurez:
 
-* How to install Docker.
+* Comment installer Docker.
 
-* When to use `sudo` when running Docker commands.
+* Quand utiliser `sudo` pour lancer des commandes Docker.
 
-*Note:* if you were provided with a training VM for a hands-on
-tutorial, you can skip this chapter, since that VM already
-has Docker installed, and Docker has already been setup to run
-without `sudo`.
-
----
-
-## Installing Docker
-
-There are many ways to install Docker.
-
-We can arbitrarily distinguish:
-
-* Installing Docker on an existing Linux machine (physical or VM)
-
-* Installing Docker on macOS or Windows
-
-* Installing Docker on a fleet of cloud VMs
+*Note:* si on vous a fourni une VM de formation pour cet atelier,
+vous pouvez passer ce chapitre, puisque la VM a déjà Docker
+d'installé, et Docker est déjà configuré pour tourner sans `sudo`.
 
 ---
 
-## Installing Docker on Linux
+## Installer Docker
 
-* The recommended method is to install the packages supplied by Docker Inc.:
+Il existe bien des manières d'installer Docker.
+
+Nous pouvons distinguer sans ordre de préférence:
+
+* Installer Docker sur une machine Linux existante (physique ou VM)
+
+* Installer Docker sur macOS ou Windows
+
+* Installer Docker sur une flotte de VMs de cloud
+
+---
+
+## Installer Docker sur Linux
+
+* La méthode recommandée est d'installer les paquets fournis par Docker Inc.:
 
   https://store.docker.com
 
-* The general method is:
+* La méthode générale est:
 
-  - add Docker Inc.'s package repositories to your system configuration
+  - ajouter les dépôts de paquet de Docker Inc. à votre configuration de système.
 
-  - install the Docker Engine
+  - installer le Docker Engine
 
-* Detailed installation instructions (distro by distro) are available on:
+* Les instructions détaillées d'installation (par distribution) est disponible sur:
 
   https://docs.docker.com/engine/installation/
 
-* You can also install from binaries (if your distro is not supported):
+* Vous pouvez aussi l'installer à partir d'exécutables (si votre distribution n'est pas supportée):
 
   https://docs.docker.com/engine/installation/linux/docker-ce/binaries/
 

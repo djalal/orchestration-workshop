@@ -1,77 +1,75 @@
-# Restarting and attaching to containers
+# Redémarrer et s'attacher aux conteneurs
 
-We have started containers in the foreground, and in the background.
+Nous avons lancé des conteneurs en avant-plan, et en tâche de fond.
 
-In this chapter, we will see how to:
+Dans ce chapitre, nous verrons comment:
 
-* Put a container in the background.
-* Attach to a background container to bring it to the foreground.
-* Restart a stopped container.
-
----
-
-## Background and foreground
-
-The distinction between foreground and background containers is arbitrary.
-
-From Docker's point of view, all containers are the same.
-
-All containers run the same way, whether there is a client attached to them or not.
-
-It is always possible to detach from a container, and to reattach to a container.
-
-Analogy: attaching to a container is like plugging a keyboard and screen to a physical server.
+ * Passer un conteneur en tâche de fond.
+ * Attacher un conteneur d'arrière-plan pour l'amener au premier plan.
+ * Redémarrer un conteneur arrêté.
 
 ---
 
-## Detaching from a container (Linux/macOS)
+## Avant-plan et arrière-plan
 
-* If you have started an *interactive* container (with option `-it`), you can detach from it.
+La distinction entre les conteneurs d'avant-plan et d'arrière-plan est arbitraire.
 
-* The "detach" sequence is `^P^Q`.
+Du point de vue de Docker, tous les conteneurs sont les mêmes.
 
-* Otherwise you can detach by killing the Docker client.
-  
-  (But not by hitting `^C`, as this would deliver `SIGINT` to the container.)
+Tous les conteneurs tournent de la même manière, qu'ils aient un client attaché ou pas.
 
-What does `-it` stand for?
+Il est toujours possible de détacher un conteneur, et de se ré-attacher à un conteneur.
 
-* `-t` means "allocate a terminal."
-* `-i` means "connect stdin to the terminal."
+Analogie: s'attacher à un conteneur est comme brancher un clavier et un écran à un serveur physique.
 
 ---
 
-## Detaching cont. (Win PowerShell and cmd.exe)
+## Détacher un conteneur (Linux/macOS)
 
-* Docker for Windows has a different detach experience due to shell features.
+* Si vous démarrez un conteneur *interactif* (avec l'option `-it`), vous pouvez vous en détacher.
 
-* `^P^Q` does not work.
+* La séquence pour "détachement" est `^P^Q`.
 
-* `^C` will detach, rather than stop the container.
+* Par ailleurs, vous pouvez le détacher en tuant le client Docker.
 
-* Using Bash, Subsystem for Linux, etc. on Windows behaves like Linux/macOS shells.
+  (Mais pas avec la touche `^C`, car cela enverrait le signal `SIGINT` au conteneur.)
 
-* Both PowerShell and Bash work well in Win 10; just be aware of differences.
+Mais que représente `-it`?
+
+* `-t` signifie "allouer un terminal".
+* `-i` signifie "connecter stdin à ce terminal"
+
+---
+
+## Détacher, suite. (PowerShell Win et cmd.exe)
+
+* `^P^Q` ne fonctionne pas.
+
+* `^C` va le détacher, au lieu de stopper le conteneur.
+
+* Utiliser Bash, Subsystem pour Linux, etc. sur Windows se comporte comme les shells Linux/macOS.
+
+* PowerShell et Bash fonctionnent bien tous les deux sur Win 10; attention en revanche aux subtilités.
 
 ---
 
 class: extra-details
 
-## Specifying a custom detach sequence
+## Spécifier une séquence de détachement personnalisée
 
-* You don't like `^P^Q`? No problem!
-* You can change the sequence with `docker run --detach-keys`.
-* This can also be passed as a global option to the engine.
+* `^P^Q` ne vous convient pas? Pas de souci!
+* Vous pouvez changer cette séquence avec `docker run --detach-keys`
+* On peut aussi la passer comme une option globale au moteur.
 
-Start a container with a custom detach command:
+Démarrez un conteneur avec une commande de détachement spécifique:
 
 ```bash
 $ docker run -ti --detach-keys ctrl-x,x jpetazzo/clock
 ```
 
-Detach by hitting `^X x`. (This is ctrl-x then x, not ctrl-x twice!)
+Se détacher en tapant `^X x`. (C'est Ctrl-x puis x, pas deux fois Ctrl-X!)
 
-Check that our container is still running:
+Vérifier que notre conteneur tourne toujours:
 
 ```bash
 $ docker ps -l
@@ -81,44 +79,44 @@ $ docker ps -l
 
 class: extra-details
 
-## Attaching to a container
+## S'attacher à un conteneur
 
-You can attach to a container:
+On peut s'attacher à un conteneur:
 
 ```bash
 $ docker attach <containerID>
 ```
 
-* The container must be running.
-* There *can* be multiple clients attached to the same container.
-* If you don't specify `--detach-keys` when attaching, it defaults back to `^P^Q`.
+* Le conteneur doit être lancé.
+* Il peut y avoir plusieurs clients attachés au même conteneur.
+* Si on ne précise pas `--detach-keys` en s'attachant, la valeur par défaut reste `^P^Q`.
 
-Try it on our previous container:
+Essayez-la sur notre conteneur précédent:
 
 ```bash
 $ docker attach $(docker ps -lq)
 ```
 
-Check that `^X x` doesn't work, but `^P ^Q` does.
+Vérifier que `^X x` ne passe pas, mais que `^P ^Q` fonctionne.
 
 ---
 
-## Detaching from non-interactive containers
+## Se détacher de conteneurs non-interactifs
 
-* **Warning:** if the container was started without `-it`...
+* **Avertissement:** si le conteneur a été démarré sans `-it`...
 
-  * You won't be able to detach with `^P^Q`.
-  * If you hit `^C`, the signal will be proxied to the container.
+  * vous ne pourrez pas le détacher avec `^P^Q`
+  * si vous tapez `^C`, le signal sera passé au conteneur
 
-* Remember: you can always detach by killing the Docker client.
+* Rappel: vous pouvez toujours le détacher en tuant le client Docker.
 
 ---
 
-## Checking container output
+## Vérifier la sortie du conteneur
 
-* Use `docker attach` if you intend to send input to the container.
+* Utilisez `docker attach` si vous souhaitez envoyer des commandes au conteneur.
 
-* If you just want to see the output of a container, use `docker logs`.
+* Si vous voulez juste afficher la sortie du conteneur, utilisez `docker logs`.
 
 ```bash
 $ docker logs --tail 1 --follow <containerID>
@@ -126,41 +124,39 @@ $ docker logs --tail 1 --follow <containerID>
 
 ---
 
-## Restarting a container
+## Redémarrer un conteneur
 
-When a container has exited, it is in stopped state.
+Quand un conteneur est sorti, il est dans un état arrêté.
 
-It can then be restarted with the `start` command.
+Il peut être redémarré avec la commande `start`.
 
 ```bash
 $ docker start <yourContainerID>
 ```
 
-The container will be restarted using the same options you launched it
-with.
+Le conteneur sera redémarré avec les mêmes options qu'à sa création originelle.
 
-You can re-attach to it if you want to interact with it:
+Vous pouvez vous y ré-attacher si vous voulez interagir:
 
 ```bash
 $ docker attach <yourContainerID>
 ```
 
-Use `docker ps -a` to identify the container ID of a previous `jpetazzo/clock` container,
-and try those commands.
+Utilisez `docker ps -a`pour identifier l'ID d'un ancien conteneur basé sur `jpettazo/clock`, et testez ces commandes.
 
 ---
 
-## Attaching to a REPL
+## S'attacher à un REPL
 
-* REPL = Read Eval Print Loop
+* REPL = "Lit (_Read_), Evalue (_Eval_), Affiche (_Print_), Boucle (_Loop_)"
 
-* Shells, interpreters, TUI ...
+* Shells, interpréteurs, TUI ...
 
-* Symptom: you `docker attach`, and see nothing
+* Symptôme: après un `docker attach`, rien ne se passe.
 
-* The REPL doesn't know that you just attached, and doesn't print anything
+* Le _REPL_ ne sait pas que vous venez de vous attacher, et n'a rien à afficher.
 
-* Try hitting `^L` or `Enter`
+* Essayez de taper `^L` ou `Entrée`
 
 ---
 
@@ -168,10 +164,11 @@ class: extra-details
 
 ## SIGWINCH
 
-* When you `docker attach`, the Docker Engine sends SIGWINCH signals to the container.
 
-* SIGWINCH = WINdow CHange; indicates a change in window size.
+* Après un `docker attach`, le Docker Engine envoie un signal SIGWINCH au conteneur.
 
-* This will cause some CLI and TUI programs to redraw the screen.
+* SIGWINCH = WINdow CHange; indique un changement dans la taille de fenêtre.
 
-* But not all of them.
+* Cela provoque un rafraîchissement d'écran chez certains programmes textuels ou en ligne de commande.
+
+* Mais pas tout le temps.

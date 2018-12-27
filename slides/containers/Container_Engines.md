@@ -1,161 +1,159 @@
-# Docker Engine and other container engines
+# Docker Engine et autres moteurs de conteneurs
 
-* We are going to cover the architecture of the Docker Engine.
+* Nous allons couvrir l'architecture du _Docker Engine_.
 
-* We will also present other container engines.
+* Nous présenterons aussi d'autres moteurs de conteneurs.
 
 ---
 
 class: pic
 
-## Docker Engine external architecture
-
+## Architecture externe du moteur Docker
 ![](images/docker-engine-architecture.svg)
 
 ---
 
-## Docker Engine external architecture
+## Architecture externe du moteur Docker
 
-* The Engine is a daemon (service running in the background).
+* Le moteur est un _daemon_ (processus tournant en tâche de fond).
 
-* All interaction is done through a REST API exposed over a socket.
+* Toute interaction est faite à travers l'API REST exposé via une _socket_.
 
-* On Linux, the default socket is a UNIX socket: `/var/run/docker.sock`.
+* Sur Linux, la _socket_ par défaut est de type UNIX: `/var/run/docker.sock`.
 
-* We can also use a TCP socket, with optional mutual TLS authentication.
+* Nous pouvons aussi utiliser une  _socket_ TCP, avec une authentification TLS mutuelle.
 
-* The `docker` CLI communicates with the Engine over the socket.
+* La commande `docker` en ligne de commande communique avec le moteur à travers la _socket_.
 
-Note: strictly speaking, the Docker API is not fully REST.
+Note: _stricto sensu_, l'API Docker n'est pas complètement REST.
 
-Some operations (e.g. dealing with interactive containers
-and log streaming) don't fit the REST model.
- 
+Quelques opérations (e.g. la gestion interactive de conteneurs et la transmission de logs)
+ne respectent pas le modèle REST.
 ---
 
 class: pic
 
-## Docker Engine internal architecture
+## Architecture interne du moteur Docker
 
 ![](images/dockerd-and-containerd.png)
 
 ---
 
-## Docker Engine internal architecture
+## Architecture interne du moteur Docker
 
-* Up to Docker 1.10: the Docker Engine is one single monolithic binary.
+* Jusqu'à Docker 1.10: le Docker Engine est un binaire monolithique unique.
 
-* Starting with Docker 1.11, the Engine is split into multiple parts:
+* À partir de Docker 1.11, le moteur est séparé en multiple parties:
 
-  - `dockerd` (REST API, auth, networking, storage)
+ - `dockerd` (API REST, authentification, réseau, stockage)
 
-  - `containerd` (container lifecycle, controlled over a gRPC API)
+ - `containerd` (cycle de vie du conteneur, controllé via une API gRPC)
 
-  - `containerd-shim` (per-container; does almost nothing but allows to restart the Engine without restarting the containers)
+ - `containerd-shim` (par conteneur; ne permet presque rien, à part redémarrer le moteur sans redémarrer les conteneurs)
 
-  - `runc` (per-container; does the actual heavy lifting to start the container)
+ - `runc` (par conteneur; prend en charge le gros du travail lors du démarrage d'un conteneur)
 
-* Some features (like image and snapshot management) are progressively being pushed from `dockerd` to `containerd`.
+* Quelques fonctionnalités (comme la gestion d'image et de _snapshot_) sont progressivement poussés hors de `dockerd` vers `containerd`.
 
-For more details, check [this short presentation by Phil Estes](https://www.slideshare.net/PhilEstes/diving-through-the-layers-investigating-runc-containerd-and-the-docker-engine-architecture).
+Pour plus de détails, consulter [cette courte présentation par Phil Estes](https://www.slideshare.net/PhilEstes/diving-through-the-layers-investigating-runc-containerd-and-the-docker-engine-architecture).
 
 ---
 
-## Other container engines
+## Autres moteurs de conteneurs
 
-The following list is not exhaustive.
+La liste suivante n'est pas exhaustive.
 
-Furthermore, we limited the scope to Linux containers.
+En outre, nous l'avons limité au conteneurs Linux.
 
-We can also find containers (or things that look like containers) on other platforms
-like Windows, macOS, Solaris, FreeBSD ...
+Windows, macOS, Solaris, FreeBSD, etc. prennent aussi en charge les conteneurs (parfois sous un autre nom).
 
 ---
 
 ## LXC
 
-* The venerable ancestor (first released in 2008).
+* Le vénérable ancêtre (première publication en 2008).
 
-* Docker initially relied on it to execute containers.
+* Docker se basait dessus à l'origine pour lancer ses conteneurs.
 
-* No daemon; no central API.
+* Pas de _daemon_, ni API centrale.
 
-* Each container is managed by a `lxc-start` process.
+* Chaque conteneur est géré par un processus `lxc-start`.
 
-* Each `lxc-start` process exposes a custom API over a local UNIX socket, allowing to interact with the container.
+* Chaque processus `lxc-start` expose une API spécifique via une _socket_ locale UNIX, permettant l'intéraction avec le conteneur.
 
-* No notion of image (container filesystems have to be managed manually).
+* Aucune notion d'image (les systèmes de fichier pour conteneur doivent être gérés à la main).
 
-* Networking has to be setup manually.
+* Le réseau doit être configuré à la main.
 
 ---
 
 ## LXD
 
-* Re-uses LXC code (through liblxc).
+* Ré-utilise le code LXC (à travers liblxc)
 
-* Builds on top of LXC to offer a more modern experience.
+* Se base sur LXC pour offrir une expérience plus moderne.
 
-* Daemon exposing a REST API.
+* Un _daemon_ expose une API REST.
 
-* Can manage images, snapshots, migrations, networking, storage.
+* Peut gérer images, _snapshots_, migrations, réseaux et stockage.
 
-* "offers a user experience similar to virtual machines but using Linux containers instead."
+* "offre une expérience utilisateur similaire aux machines virtuelles, en les remplaçant par des conteneurs Linux."
 
 ---
 
 ## rkt
 
-* Compares to `runc`.
+* Comparable à `runc`.
 
-* No daemon or API.
+* Pas de _daemon_ ni API.
 
-* Strong emphasis on security (through privilege separation).
+* Fort emphase sur la sécurité (à travers la séparation de privilège).
 
-* Networking has to be setup separately (e.g. through CNI plugins).
+* Paramètrage séparé du réseau (e.g. via les plugins CNI).
 
-* Partial image management (pull, but no push).
+* Prise en charge partielle des images (_pull_, mais pas de _push_).
 
-  (Image build is handled by separate tools.)
+  (D'autres outils prennent en charge la génération d'image.)
 
 ---
 
 ## CRI-O
 
-* Designed to be used with Kubernetes as a simple, basic runtime.
+* Conçu pour être utilisé avec Kubernetes comme un runtime simple et basique.
 
-* Compares to `containerd`.
+* Comparable à `containerd`.
 
-* Daemon exposing a gRPC interface.
+* Expose une interface gRPC via le _daemon_.
 
-* Controlled using the CRI API (Container Runtime Interface defined by Kubernetes).
+* Controlé par l'API CRI (Container Runtime Interface, définie par Kubernetes).
 
-* Needs an underlying OCI runtime (e.g. runc).
+* Exige un moteur OCI sous-jacent (e.g. `runc`).
 
-* Handles storage, images, networking (through CNI plugins).
+* Stockage, images et réseau pris en charge via des plugins CNI.
 
-We're not aware of anyone using it directly (i.e. outside of Kubernetes).
+A notre connaissance, personne ne l'utilise directement (i.e. hors Kubernetes).
 
 ---
 
 ## systemd
 
-* "init" system (PID 1) in most modern Linux distributions.
+* système "init" (PID 1) dans la plupart des distributions Linux modernes.
 
-* Offers tools like `systemd-nspawn` and `machinectl` to manage containers.
+* Offre des outils comme `systemd-nspawn` et `machinectl` pour gérer les conteneurs.
 
-* `systemd-nspawn` is "In many ways it is similar to chroot(1), but more powerful".
+* `systemd-nspawn` est "De bien des manières similaires à chroot(1), mais en plus puissant".
 
-* `machinectl` can interact with VMs and containers managed by systemd.
+* `machinectl` peut intéragir avec des VMs ou des conteneurs gérés par systemd
 
-* Exposes a DBUS API.
+* Expose une API DBUS.
 
-* Basic image support (tar archives and raw disk images).
+* Supporte partiellement les images (sous forme d'archives tar ou d'image disque brutes).
 
-* Network has to be setup manually.
+* Couche réseau à gérer manuellement à part.
 
 ---
 
+<<<<<<< HEAD
 ## Kata containers
 
 * OCI-compliant runtime.
@@ -186,22 +184,22 @@ We're not aware of anyone using it directly (i.e. outside of Kubernetes).
 
 ---
 
-## Overall ...
+## Globalement ...
 
-* The Docker Engine is very developer-centric:
+* Le Docker Engine est très centré sur le développeur:
 
-  - easy to install
+ - facile à installer
 
-  - easy to use
+ - facile à utiliser
 
-  - no manual setup
+ - pas d'installation manuelle
 
-  - first-class image build and transfer
+ - génération et transfert d'image de première classe
 
-* As a result, it is a fantastic tool in development environments.
+* En conséquence, c'est un outil fantastique sur les environnements de développement.
 
-* On servers:
+* Sur les serveurs:
 
-  - Docker is a good default choice
+ - Docker est un bon choix par défaut
 
-  - If you use Kubernetes, the engine doesn't matter
+ - Si vous utilisez Kubernetes, le moteur importe peu
