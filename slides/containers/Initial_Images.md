@@ -1,214 +1,212 @@
 
 class: title
 
-# Understanding Docker images
-
+# Comprendre les images Docker
 ![image](images/title-understanding-docker-images.png)
 
 ---
 
-## Objectives
+## Objectifs
 
-In this section, we will explain:
+Dans cette section, nous expliquerons:
 
-* What is an image.
+ * Ce qu'est une image;
 
-* What is a layer.
+ * Ce qu'est un _layer_;
 
-* The various image namespaces.
+ * Les différents nommages d'image;
 
-* How to search and download images.
+ * Comment chercher et télécharger des images;
 
-* Image tags and when to use them.
+ * Les _tags_ d'image et quand les utiliser.
 
 ---
 
-## What is an image?
+## Qu'est-ce qu'une image?
 
-* Image = files + metadata
+* Image = fichiers + méta-données
 
-* These files form the root filesystem of our container.
+* Ces fichiers forment le système de fichier racine de notre conteneur.
 
-* The metadata can indicate a number of things, e.g.:
+* Les méta-données indiquent un nombre de choses, comme:
 
-  * the author of the image
-  * the command to execute in the container when starting it
-  * environment variables to be set
+  * l'auteur de l'image
+  * la commande à exécuter dans le conteneur au démarrage
+  * les variables d'environnement à initialiser
   * etc.
 
-* Images are made of *layers*, conceptually stacked on top of each other.
+* Des couches composent les images, appelées _layers_, empilées les unes au-dessus des autres.
 
-* Each layer can add, change, and remove files and/or metadata.
+* Chaque couche peut ajouter, modifier, supprimer des fichiers ou des méta-données.
 
-* Images can share layers to optimize disk usage, transfer times, and memory use.
+* Les _layers_ sont partagés entre images pour optimiser l'usage du disque, les temps de transfert et la consommation mémoire.
 
 ---
 
-## Example for a Java webapp
+## Exemple d'une web app Java
 
-Each of the following items will correspond to one layer:
+Chaque des points suivants se traduira par un _layer_:
 
-* CentOS base layer
-* Packages and configuration files added by our local IT
+* couche de base CentOS
+* Paquets et fichier de configuration fournis par le service informatique interne
 * JRE
 * Tomcat
-* Our application's dependencies
-* Our application code and assets
-* Our application configuration
+* Dépendances de notre application
+* Code et sources de notre application
+* Configuration de notre appli
 
 ---
 
 class: pic
 
-## The read-write layer
+## Le _layer_ en lecture/écriture
 
 ![layers](images/container-layers.jpg)
 
 ---
 
-## Differences between containers and images
-
-* An image is a read-only filesystem.
-
-* A container is an encapsulated set of processes running in a
-  read-write copy of that filesystem.
-
-* To optimize container boot time, *copy-on-write* is used
-  instead of regular copy.
-
-* `docker run` starts a container from a given image.
-
----
-
-class: pic
-
-## Multiple containers sharing the same image
+## Plusieurs conteneurs partageant la même image
 
 ![layers](images/sharing-layers.jpg)
 
 ---
 
-## Comparison with object-oriented programming
+## Différences entre conteneurs et images
 
-* Images are conceptually similar to *classes*.
+* Une image est un système de fichiers en lecture seule.
 
-* Layers are conceptually similar to *inheritance*.
+* Un conteneur est un ensemble de processus encapsulé dans
+une copie en lecture/écriture de ce système de fichiers.
 
-* Containers are conceptually similar to *instances*.
+* Pour optimiser le temps de démarrage du conteneur, on fait du
+*copy-on-write* au lieu d'une copie traditionnelle.
 
----
-
-## Wait a minute...
-
-If an image is read-only, how do we change it?
-
-* We don't.
-
-* We create a new container from that image.
-
-* Then we make changes to that container.
-
-* When we are satisfied with those changes, we transform them into a new layer.
-
-* A new image is created by stacking the new layer on top of the old image.
+* `docker run` démarre un conteneur depuis une image donnée.
 
 ---
 
-## A chicken-and-egg problem
+## Comparaison avec la programmation orientée objet
 
-* The only way to create an image is by "freezing" a container.
+* Conceptuellement, les images sont proches des *classes*.
 
-* The only way to create a container is by instantiating an image.
+* Conceptuellement, les _layers_ sont proches de l'*héritage*.
 
-* Help!
-
----
-
-## Creating the first images
-
-There is a special empty image called `scratch`.
-
-* It allows to *build from scratch*.
-
-The `docker import` command loads a tarball into Docker.
-
-* The imported tarball becomes a standalone image.
-* That new image has a single layer.
-
-Note: you will probably never have to do this yourself.
+* Conceptuellement, les conteneurs sont proches des *instances*.
 
 ---
 
-## Creating other images
+## Attends un peu...
+
+Si une image est en lecture-seule, comment on la change?
+
+* On ne la change pas.
+
+* On lance un nouveau conteneur à partir de cette image.
+
+* Puis on apporte des modifications à ce conteneur.
+
+* Quand on a fini, nous les figeons dans un nouveau _layer_.
+
+* Une nouvelle image est créée en empilant la nouvelle couche au-dessus de l'ancienne image.
+
+---
+
+## Le problème de l'oeuf et la poule
+
+* La seule façon de créer une image est de geler un conteneur.
+
+* La seule façon de créer un conteneur est d'instancier une image.
+
+* A l'aide!
+
+---
+
+## Créer les premières images
+
+Il existe une image spéciale vide, appelée `scratch`.
+
+* Elle permet de générer une image *de zéro*.
+
+La commande `docker import` charge un fichier tarball dans Docker.
+
+* L'image importée devient une image indépendante.
+* Cette nouvelle image a un seul _layer_.
+
+Note: vous n'aurez sans doute jamais à faire cela vous-même.
+
+---
+
+## Créer d'autres images
 
 `docker commit`
 
-* Saves all the changes made to a container into a new layer.
-* Creates a new image (effectively a copy of the container).
+* Enregistre tous les changements d'un conteneur dans un nouveau _layer_.
+* Génère une nouvelle image (en réalité une copie du conteneur).
 
-`docker build` **(used 99% of the time)**
+`docker build` **(utilisé 99% du temps)**
 
-* Performs a repeatable build sequence.
-* This is the preferred method!
+* Exécute une séquence répétable de construction.
+* C'est la méthode recommandée!
 
-We will explain both methods in a moment.
+Nous expliquerons les deux méthodes dans un moment.
 
 ---
 
-## Images namespaces
+## Images et espaces de nommage
 
-There are three namespaces:
+Il existe trois espaces de nommage (_namespaces_):
 
-* Official images
+* Images officielles:
 
-    e.g. `ubuntu`, `busybox` ...
+    par ex. `ubuntu`, `busybox`, etc.
 
-* User (and organizations) images
+* Images d'utilisateurs (et organisations):
 
-    e.g. `jpetazzo/clock`
+    par ex. `jpetazzo/clock`
 
-* Self-hosted images
+* Images auto hébergées
 
-    e.g. `registry.example.com:5000/my-private/image`
+    par ex. `registry.example.com:5000/mon-image/privee`
 
-Let's explain each of them.
+Examinons chacun d'entre eux.
 
 ---
 
 ## Root namespace
+## Espace de nom 'racine'
 
-The root namespace is for official images. They are put there by Docker Inc.,
-but they are generally authored and maintained by third parties.
+L'espace de nom racine est pour les images officielles. Elles y sont placées par Docker Inc.,
+mais sont généralement écrites et maintenues par des tierces parties.
 
-Those images include:
+Ces images inclut:
 
-* Small, "swiss-army-knife" images like busybox.
+* De petites images "couteau suisse", telles busybox.
 
-* Distro images to be used as bases for your builds, like ubuntu, fedora...
+* Des images de distributions Linux servant de base aux _builds_, comme ubuntu, fedora, etc.
 
-* Ready-to-use components and services, like redis, postgresql...
+* Des services et composants prêts à l'emploi, comme redis, postgresql, etc.
 
-* Over 130 at this point!
+* Plus de 130 à ce jour!
 
 ---
 
-## User namespace
+## Espace de nommage utilisateur
 
-The user namespace holds images for Docker Hub users and organizations.
+L'espace de nommage pour utilisateur contient les images dans Docker Hub fournies par les utilisateurs et organisations.
 
-For example:
+Par exemple:
 
 ```bash
 jpetazzo/clock
 ```
 
-The Docker Hub user is:
+L'utilisateur Docker Hub est:
 
 ```bash
 jpetazzo
 ```
 
-The image name is:
+Le nom de l'image est:
 
 ```bash
 clock
@@ -216,22 +214,20 @@ clock
 
 ---
 
-## Self-hosted namespace
+## Espace de nommage auto-hébergé
 
-This namespace holds images which are not hosted on Docker Hub, but on third
-party registries.
+Cet espace de nommage contient les images qui ne sont pas hébergées sur Docker Hub, mais sur des registres de tierce partie.
 
-They contain the hostname (or IP address), and optionally the port, of the
-registry server.
+Ils contiennent le nom de serveur (ou adresse IP), et le port (en option), du serveur de registre.
 
-For example:
+Par exemple:
 
 ```bash
 localhost:5000/wordpress
 ```
 
-* `localhost:5000` is the host and port of the registry
-* `wordpress` is the name of the image
+* `localhost:5000` est l'hôte et le port du registre
+* `wordpress` est le nom de cette image
 
 Other examples:
 
@@ -242,23 +238,22 @@ gcr.io/google-containers/hugo
 
 ---
 
-## How do you store and manage images?
+## Comment gérer et stocker les images?
 
-Images can be stored:
+On stocke les images:
+ * sur votre hôte Docker.
+ * dans un registre Docker.
 
-* On your Docker host.
-* In a Docker registry.
+Vous pouvez utiliser le client Docker pour télécharger (pull) ou téléverser (push) des images.
 
-You can use the Docker client to download (pull) or upload (push) images.
-
-To be more accurate: you can use the Docker client to tell a Docker Engine
-to push and pull images to and from a registry.
+Pour être plus précis: vous pouvez utiliser le client Docker pour intimer au Docker Engine
+de _push_ et _pull_ des images vers/depuis un registre.
 
 ---
 
-## Showing current images
+## Afficher les images actuelles
 
-Let's look at what images are on our host now.
+Voyons quelles sont les images disponibles sur notre serveur.
 
 ```bash
 $ docker images
@@ -277,10 +272,10 @@ jpetazzo/clock   latest    12068b93616f   12 months ago   2.433 MB
 
 ---
 
-## Searching for images
+## Chercher des images
 
-We cannot list *all* images on a remote registry, but
-we can search for a specific keyword:
+Nous ne pouvons lister *toutes* les images sur un registre distant, mais
+nous pouvons chercher un mot-clé spécifique:
 
 ```bash
 $ docker search marathon
@@ -292,26 +287,26 @@ tobilg/mongodb-marathon  A Docker image to start a ...   4                [OK]
 ```
 
 
-* "Stars" indicate the popularity of the image.
+* "Stars" mesure la popularité de l'image.
 
-* "Official" images are those in the root namespace.
+* "Official" concerne les images qui sont dans le _namespace_ racine.
 
-* "Automated" images are built automatically by the Docker Hub.
-  <br/>(This means that their build recipe is always available.)
-
----
-
-## Downloading images
-
-There are two ways to download images.
-
-* Explicitly, with `docker pull`.
-
-* Implicitly, when executing `docker run` and the image is not found locally.
+* "Automated" indique que l'image est générée automatiquement par le Docker Hub.
+  <br/>(Cela signifie que leur recette de construction est toujours disponible.)
 
 ---
 
-## Pulling an image
+## Télécharger des images
+
+Il y a deux façons de récupérer des images.
+
+* Explicite, avec `docker pull`.
+
+* Implicite, en lançant `docker run` et l'image n'est pas disponible en local.
+
+---
+
+## Télécharger une image via _pull_
 
 ```bash
 $ docker pull debian:jessie
@@ -321,53 +316,52 @@ b164861940b8: Pulling image (jessie) from debian
 d1881793a057: Download complete
 ```
 
-* As seen previously, images are made up of layers.
+* Comme vu précédemment, les images sont faites de _layers_.
 
-* Docker has downloaded all the necessary layers.
+* Docker a téléchargé tous les _layers_ nécessaires.
 
-* In this example, `:jessie` indicates which exact version of Debian
-  we would like.
+* Dans notre exemple, `:jessie` indique quelle version exacte de Debian nous voulons.
 
-  It is a *version tag*.
-
----
-
-## Image and tags
-
-* Images can have tags.
-
-* Tags define image versions or variants.
-
-* `docker pull ubuntu` will refer to `ubuntu:latest`.
-
-* The `:latest` tag is generally updated often.
+C'est un _tag_ (étiquette) de version.
 
 ---
 
-## When to (not) use tags
+## Images et _tags_
 
-Don't specify tags:
+* On peut associer des _tags_ aux images.
 
-* When doing rapid testing and prototyping.
-* When experimenting.
-* When you want the latest version.
+* C'est utile pour préciser les versions ou variantes d'une image.
 
-Do specify tags:
+* `docker pull ubuntu` va se référer à `ubuntu:latest`.
 
-* When recording a procedure into a script.
-* When going to production.
-* To ensure that the same version will be used everywhere.
-* To ensure repeatability later.
+* Le _tag_ `:latest` est par tradition mis à jour fréquemment.
+
+---
+
+## Quand utiliser (et ne pas utiliser) les _tags_
+
+Pas besoin de spécifier d'étiquette (_tag_) pour:
+
+* des tests ou prototypes rapides.
+* expérimenter.
+* récupérer la dernière version.
+
+Utiliser des _tags_ pour:
+
+* Persister une procédure dans un script;
+* Déployer en production;
+* Garantir que la même version sera utilisée partout;
+* Garantir la répétabilité future.
 
 This is similar to what we would do with `pip install`, `npm install`, etc.
 
 ---
 
-## Section summary
+## Résumé du chapitre
 
-We've learned how to:
+Nous avons appris comment:
 
-* Understand images and layers.
-* Understand Docker image namespacing.
-* Search and download images.
+* Comprendre les images et _layers_;
+* Fonctionne les espaces de nom dans Docker;
+* Chercher et télécharger des images.
 

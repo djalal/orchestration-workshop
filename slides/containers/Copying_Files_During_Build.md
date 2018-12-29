@@ -1,32 +1,31 @@
 
 class: title
 
-# Copying files during the build
+# Copier des fichiers pendant le _build_
 
 ![Monks copying books](images/title-copying-files-during-build.jpg)
 
 ---
 
-## Objectives
+## Objectifs
 
-So far, we have installed things in our container images
-by downloading packages.
+Jusqu'ici, nous avons installé des choses dans nos images de conteneurs
+en téléchargeant des paquets.
 
-We can also copy files from the *build context* to the
-container that we are building.
+Nous pouvons aussi copier des fichiers depuis le *build context* vers le
+conteneur que nous générons.
 
-Remember: the *build context* is the directory containing
-the Dockerfile.
+Rappel: le *build context* est le dossier qui contient le Dockerfile.
 
-In this chapter, we will learn a new Dockerfile keyword: `COPY`.
+Dans ce chapitre, nous apprendrons une nouvelle instruction du Dockerfile: `COPY`.
 
 ---
 
-## Build some C code
+## Compilons du code C
 
-We want to build a container that compiles a basic "Hello world" program in C.
+Nous voulons construire un conteneur qui compiles un simple programme "Hello world" écrit en C.
 
-Here is the program, `hello.c`:
+Voici le programme, `hello.c`:
 
 ```bash
 int main () {
@@ -35,19 +34,20 @@ int main () {
 }
 ```
 
-Let's create a new directory, and put this file in there.
+Ouvrons un nouveau dossier, et plaçons ce fichier à l'intérieur.
 
-Then we will write the Dockerfile.
+Nous écrirons ensuite le Dockerfile.
 
 ---
 
-## The Dockerfile
+## Le Dockerfile
 
-On Debian and Ubuntu, the package `build-essential` will get us a compiler.
+Sur Debian et Ubuntu, le paquet `build-essential` nous donnera un compilateur.
 
-When installing it, don't forget to specify the `-y` flag, otherwise the build will fail (since the build cannot be interactive).
+En l'installant, n'oubliez pas de spécifier l'option `-y`, ou sinon le _build_ échouera
+(puisque cette phase ne peut pas être intéractive).
 
-Then we will use `COPY` to place the source file into the container.
+Puis nous allons utiliser `COPY` pour placer le fichier source dans le conteneur.
 
 ```bash
 FROM ubuntu
@@ -58,43 +58,43 @@ RUN make hello
 CMD /hello
 ```
 
-Create this Dockerfile.
+Ecrivez ce Dockerfile.
 
 ---
 
-## Testing our C program
+## Tester notre programme C
 
-* Create `hello.c` and `Dockerfile` in the same directory.
+* Créez les fichiers `hello.c` et `Dockerfile` dans le même dossier.
 
-* Run `docker build -t hello .` in this directory.
+* Lancer `docker build -t hello .` dans ce dossier.
 
-* Run `docker run hello`, you should see `Hello, world!`.
+* Lancer `docker run hello`, vous devriez voir `Hello, world!`.
 
-Success!
-
----
-
-## `COPY` and the build cache
-
-* Run the build again.
-
-* Now, modify `hello.c` and run the build again.
-
-* Docker can cache steps involving `COPY`.
-
-* Those steps will not be executed again if the files haven't been changed.
+Victoire!
 
 ---
 
-## Details
+## `COPY` et le cache de _build_
 
-* You can `COPY` whole directories recursively.
+* Lancez le _build_ encore.
 
-* Older Dockerfiles also have the `ADD` instruction.
-  <br/>It is similar but can automatically extract archives.
+* Maintenant, modifiez `hello.c` et lancer le _build_ encore.
 
-* If we really wanted to compile C code in a container, we would:
+* Docker peut mettre en cache les étapes impliquant `COPY`.
 
-  * Place it in a different directory, with the `WORKDIR` instruction.
+* Ces étapes ne seront pas exécutées si les fichiers n'ont pas changé.
 
-  * Even better, use the `gcc` official image.
+---
+
+## Détails
+
+* On peut `COPY` des dossiers complets en récursif.
+
+* D'anciens Dockerfiles peuvent aussi comporter l'instruction `ADD`.
+  <br/>C'est similaire sauf qu'il peut aussi extraire des archives automatiquement.
+
+* Si nous voulions vraiment compiler le code C dans le conteneur, nous aurions:
+
+  * copié le source dans un dossier différent, via l'instruction `WORKDIR`.
+
+  * ou mieux encore, utilisé l'image officielle `gcc`.

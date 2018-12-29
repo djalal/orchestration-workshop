@@ -273,7 +273,7 @@ IMAGE         CREATED            CREATED BY                     SIZE
 
   * est plus facile à écrire
   * extrapole les variables d'environnement et d'autres expressions de shell
-  * créé un processus supplémentaire (`/bin/sh -c ...`) pour interpréter la commande
+  * crée un processus supplémentaire (`/bin/sh -c ...`) pour interpréter la commande
   * exige l'existence de `/bin/sh` dans le conteneur
 
 * La syntaxe JSON:
