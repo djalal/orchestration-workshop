@@ -10,7 +10,6 @@ Nous allons voir comment:
 
 ---
 
-## Reducing the number of layers
 ## Réduire le nombre de _layers_
 
 * Chaque ligne du Dockerfile ajoute une nouvelle couche.
@@ -191,7 +190,6 @@ CMD ["jekyll", "serve", "--host", "0.0.0.0", "--incremental"]
 
 ---
 
-## Multi-dimensional versioning systems
 ## Système de version multi-dimensionnels
 
 Un _tag_ d'image peut indiquer une version de l'image.
