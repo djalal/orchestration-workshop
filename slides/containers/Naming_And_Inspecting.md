@@ -1,36 +1,36 @@
 
 class: title
 
-# Naming and inspecting containers
+# Nommage et examen de conteneurs
 
 ![Markings on container door](images/title-naming-and-inspecting-containers.jpg)
 
 ---
 
-## Objectives
+## Objectifs
 
-In this lesson, we will learn about an important
-Docker concept: container *naming*.
+Dans cette leçon, nous apprendrons un important
+concept de Docker: *nommer* les conteneurs.
 
-Naming allows us to:
+Le nommage nous permet de:
 
-* Reference easily a container.
+* manipuler facilement un conteneur;
 
-* Ensure unicity of a specific container.
+* assurer l'unicité d'un conteneur spécifique.
 
-We will also see the `inspect` command, which gives a lot of details about a container.
+Nous verrons aussi la commande `inspect`, qui donne un tas de détails sur un conteneur.
 
 ---
 
-## Naming our containers
+## Nommer nos conteneurs
 
-So far, we have referenced containers with their ID.
+Jusque là, nous avons fait référence à nos conteneurs via leur ID.
 
-We have copy-pasted the ID, or used a shortened prefix.
+Nous avons copié/collé leur ID, ou utilisé leur préfixe court.
 
-But each container can also be referenced by its name.
+Mais chaque conteneur peut aussi être manipulé par son nom.
 
-If a container is named `thumbnail-worker`, I can do:
+Si un conteneur est nommé `thumbnail-worker`, je peux lancer:
 
 ```bash
 $ docker logs thumbnail-worker
@@ -40,93 +40,93 @@ etc.
 
 ---
 
-## Default names
+## Nommage par défaut
 
-When we create a container, if we don't give a specific
-name, Docker will pick one for us.
+Quand on crée un conteneur, si on ne donne pas un nom explicite,
+Docker va en choisir un pour nous.
 
-It will be the concatenation of:
+Ce sera un nom composé de deux mots tirés au sort:
 
-* A mood (furious, goofy, suspicious, boring...)
+* Une humeur (furieux, joueur, suspicieux, ennuyant...)
 
-* The name of a famous inventor (tesla, darwin, wozniak...)
+* Le nom d'un inventeur célèbre (tesla, darwin, wozniak...)
 
-Examples: `happy_curie`, `clever_hopper`, `jovial_lovelace` ...
+Exemples: `happy_curie`, `clever_hopper`, `jovial_lovelace` ...
 
 ---
 
-## Specifying a name
+## Spécifier un nom
 
-You can set the name of the container when you create it.
+Vous pouvez forcer le nom d'un conteneur à sa création.
 
 ```bash
 $ docker run --name ticktock jpetazzo/clock
 ```
 
-If you specify a name that already exists, Docker will refuse
-to create the container.
+Si vous spécifiez un nom qui existe déjà, Docker refusera
+de créer un conteneur.
 
-This lets us enforce unicity of a given resource.
-
----
-
-## Renaming containers
-
-* You can rename containers with `docker rename`.
-
-* This allows you to "free up" a name without destroying the associated container.
+Cela nous permet d'assurer l'unicité d'une certaine ressource.
 
 ---
 
-## Inspecting a container
+## Renommer les conteneurs
 
-The `docker inspect` command will output a very detailed JSON map.
+* Vous pouvez renommer des conteneurs avec `docker rename`.
+
+* Cela permet de "libérer" un nom sans détruire le conteneur associé.
+
+---
+
+## Inspecter un conteneur
+
+La commande `docker inspect` va afficher un tableau JSON très détaillé.
 
 ```bash
 $ docker inspect <containerID>
 [{
 ...
-(many pages of JSON here)
+(nombreuses pages de JSON ici)
 ...
 ```
 
-There are multiple ways to consume that information.
+Il y a plusieurs façons d'exploiter ces informations.
 
 ---
 
-## Parsing JSON with the Shell
+## Parser le JSON via le _shell_
 
-* You *could* grep and cut or awk the output of `docker inspect`.
+* On *pourrait* filtrer la sortie de `docker inspect` avec grep, cut ou awk.
 
-* Please, don't.
+* N'en faites rien, s'il-vous-plaît.
 
-* It's painful.
+* C'est douloureux.
 
-* If you really must parse JSON from the Shell, use JQ! (It's great.)
+* Si vous devez vraiment parser du JSON via le _shell_, prenez JQ! (c'est super)
 
 ```bash
 $ docker inspect <containerID> | jq .
 ```
 
-* We will see a better solution which doesn't require extra tools.
+* On verra une meilleure solution qui ne demande aucun outil supplémentaire.
 
 ---
 
-## Using `--format`
+## Usage de `--format`
 
-You can specify a format string, which will be parsed by 
-Go's text/template package.
+On peut spécifier un chaîne de format, qui sera interprétée par
+la librairie Go _text/template_.
 
 ```bash
 $ docker inspect --format '{{ json .Created }}' <containerID>
 "2015-02-24T07:21:11.712240394Z"
 ```
 
-* The generic syntax is to wrap the expression with double curly braces.
+* La syntaxe générique est d'entourer l'expression avec des doubles accolades.
 
-* The expression starts with a dot representing the JSON object.
+* L'expression doit débuter par un point, représentant l'objet JSON.
 
-* Then each field or member can be accessed in dotted notation syntax.
+* Puis chaque champ ou propriété peut être référencé via la notation par point.
 
-* The optional `json` keyword asks for valid JSON output.
-  <br/>(e.g. here it adds the surrounding double-quotes.)
+* Le mot-clé optionnel `json` force une réponse au format JSON valide.
+  <br/>(par ex. dans notre cas, il est entouré d'apostrophes doubles)

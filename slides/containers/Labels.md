@@ -1,20 +1,20 @@
 # Labels
 
-* Labels allow to attach arbitrary metadata to containers.
+* Les labels servent à attacher des méta-données arbitraires aux conteneurs.
 
-* Labels are key/value pairs.
+* Les labels sont des paires de clé/valeur.
 
-* They are specified at container creation.
+* Ils sont spécifiés à la création du conteneur.
 
-* You can query them with `docker inspect`.
+* On les consulte via `docker inspect`
 
-* They can also be used as filters with some commands (e.g. `docker ps`).
+* Ils peuvent aussi servir de filtres à certaines commandes (par ex. `docker ps`).
 
 ---
 
-## Using labels
+## Usage des labels
 
-Let's create a few containers with a label `owner`.
+Lançons quelques conteneurs avec un label `owner`.
 
 ```bash
 docker run -d -l owner=alice nginx
@@ -22,15 +22,15 @@ docker run -d -l owner=bob nginx
 docker run -d -l owner nginx
 ```
 
-We didn't specify a value for the `owner` label in the last example.
+Nous n'avons pas spécifié de valeur pour le label `owner` de notre dernier exemple.
 
-This is equivalent to setting the value to be an empty string.
+Cela équivaut à spécifier une chaîne vide comme valeur du label.
 
 ---
 
-## Querying labels
+## Consultation des labels
 
-We can view the labels with `docker inspect`.
+On peut lister les labels avec `docker inspect`.
 
 ```bash
 $ docker inspect $(docker ps -lq) | grep -A3 Labels
@@ -40,7 +40,7 @@ $ docker inspect $(docker ps -lq) | grep -A3 Labels
             },
 ```
 
-We can use the `--format` flag to list the value of a label.
+On peut utiliser l'option `--format` pour lister les valeurs d'un label.
 
 ```bash
 $ docker inspect $(docker ps -q) --format 'OWNER={{.Config.Labels.owner}}'
@@ -48,15 +48,15 @@ $ docker inspect $(docker ps -q) --format 'OWNER={{.Config.Labels.owner}}'
 
 ---
 
-## Using labels to select containers
+## Usage des labels et sélection de conteneurs
 
-We can list containers having a specific label.
+On peut lister les conteneurs qui ont un label spécifique.
 
 ```bash
 $ docker ps --filter label=owner
 ```
 
-Or we can list containers having a specific label with a specific value.
+Ou bien lister les conteneurs avec une valeur spécifique d'un label spécifique.
 
 ```bash
 $ docker ps --filter label=owner=alice
@@ -64,19 +64,19 @@ $ docker ps --filter label=owner=alice
 
 ---
 
-## Use-cases for labels
+## Cas d'usage des labels
 
 
-* HTTP vhost of a web app or web service.
+* vhost HTTP pour une web app ou un service web.
 
-  (The label is used to generate the configuration for NGINX, HAProxy, etc.)
+  (Le label est utilisé pour générer la configuration pour NGINX, HAProxy, etc.)
 
-* Backup schedule for a stateful service.
+* Planification de sauvegarde pour un service avec données persistantes.
 
-  (The label is used by a cron job to determine if/when to backup container data.)
+  (Le label est utilisé par un _cronjob_ pour déterminer si/quand sauvegarder les données du conteneur.)
 
-* Service ownership.
+* Propriétaire d'un service
 
-  (To determine internal cross-billing, or who to page in case of outage.)
+  (Pour calculer une facturation interne, ou qui alerter en cas de panne.)
 
 * etc.

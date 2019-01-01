@@ -1,24 +1,25 @@
-# Tips for efficient Dockerfiles
+# Astuces pour Dockerfiles efficaces
 
-We will see how to:
+Nous allons voir comment:
 
-* Reduce the number of layers.
+* réduire le nombre de _layers_.
 
-* Leverage the build cache so that builds can be faster.
+* Exploiter le cache de _build_ pour accélérer la construction.
 
-* Embed unit testing in the build process.
+* Injecter les tests unitaires dans le processus de génération.
 
 ---
 
 ## Reducing the number of layers
+## Réduire le nombre de _layers_
 
-* Each line in a `Dockerfile` creates a new layer.
+* Chaque ligne du Dockerfile ajoute une nouvelle couche.
 
-* Build your `Dockerfile` to take advantage of Docker's caching system.
+* Ecrivez votre Dockerfile pour exploiter le système de cache de Docker.
 
-* Combine commands by using `&&` to continue commands and `\` to wrap lines.
+* Combinez les commandes avec `&&` pour chainer les commandes et `\` pour empiler les lignes.
 
-Note: it is frequent to build a Dockerfile line by line:
+Note: il est fréquent d'écrire un Dockerfile ligne par ligne:
 
 ```dockerfile
 RUN apt-get install thisthing
@@ -26,7 +27,7 @@ RUN apt-get install andthatthing andthatotherone
 RUN apt-get install somemorestuff
 ```
 
-And then refactor it trivially before shipping:
+Puis le corriger très facilement avant déploiement:
 
 ```dockerfile
 RUN apt-get install thisthing andthatthing andthatotherone somemorestuff
@@ -34,20 +35,20 @@ RUN apt-get install thisthing andthatthing andthatotherone somemorestuff
 
 ---
 
-## Avoid re-installing dependencies at each build
+## Eviter de ré-installer les dépendances à chaque _build_
 
-* Classic Dockerfile problem:
+* Problème classique de Dockerfile:
 
-  "each time I change a line of code, all my dependencies are re-installed!"
+  "chaque fois que je change une ligne de code, toutes mes dépendances sont ré-installées!"
 
-* Solution: `COPY` dependency lists (`package.json`, `requirements.txt`, etc.)
-  by themselves to avoid reinstalling unchanged dependencies every time.
+* Solution: `COPY`-er les listes de dépendances (`packages.json`, `requirements.txt`, etc.)
+  à part pour éviter de ré-installer des dépendances inchangées chaque fois.
 
 ---
 
-## Example "bad" `Dockerfile`
+## Exemple de "mauvais" `Dockerfile`
 
-The dependencies are reinstalled every time, because the build system does not know if `requirements.txt` has been updated.
+Les dépendances sont ré-installées chaque fois, car le système de _build_ ne sait pas si `requirements.txt` a été mis à jour.
 
 ```bash
 FROM python
@@ -60,9 +61,9 @@ CMD ["python", "app.py"]
 
 ---
 
-## Fixed `Dockerfile`
+## Correction du `Dockerfile`
 
-Adding the dependencies as a separate step means that Docker can cache more efficiently and only install them when `requirements.txt` changes.
+Ajouter les dépendances dans une étape à part permet à Docker un cache plus efficace, car il ne les installera que si `requirements.txt` change.
 
 ```bash
 FROM python
@@ -76,7 +77,7 @@ CMD ["python", "app.py"]
 
 ---
 
-## Embedding unit tests in the build process
+## Injecter les tests unitaires dans le processus de génération.
 
 ```dockerfile
 FROM <baseimage>
@@ -93,43 +94,41 @@ RUN <build code>
 CMD, EXPOSE ...
 ```
 
-* The build fails as soon as an instruction fails
-* If `RUN <unit tests>` fails, the build doesn't produce an image
-* If it succeeds, it produces a clean image (without test libraries and data)
+* Le _build_ échoue dès qu'une instruction échoue
+* Si `RUN <unit tests>` échoue, le _build_ ne produira aucune image
+* S'il réussit, le _build_ générera une image propre (sans librairie de test ni données)
 
 ---
 
-# Dockerfile examples
+# Exemples de Dockerfile
 
-There are a number of tips, tricks, and techniques that we can use in Dockerfiles.
+Il y a quelque astuces, conseils et techniques qu'on peut appliquer dans nos Dockerfiles.
 
-But sometimes, we have to use different (and even opposed) practices depending on:
+Mais parfois, on se doit de passer par des formes différentes, voire opposées, selon:
 
-- the complexity of our project,
+ - la complexité du projet,
 
-- the programming language or framework that we are using,
+ - le langage de programmation ou le _framework_ choisi,
 
-- the stage of our project (early MVP vs. super-stable production),
+ - l'étape du projet (nouveau MVP vs prod super-stable),
 
-- whether we're building a final image or a base for further images,
+ - si nous générons une image finale, ou une base pour d'autres images,
 
-- etc.
+ - etc.
 
-We are going to show a few examples using very different techniques.
+Nous allons montrer quelques exemples de techniques très différentes.
 
 ---
 
-## When to optimize an image
+## Quand optimiser une image
 
-When authoring official images, it is a good idea to reduce as much as possible:
+Au moment d'écrire des images officielles, c'est une bonne idée de réduire au maximum:
 
-- the number of layers,
+- le nombre de couches,
 
-- the size of the final image.
+- la taille finale de l'image.
 
-This is often done at the expense of build time and convenience for the image maintainer;
-but when an image is downloaded millions of time, saving even a few seconds of pull time
-can be worth it.
+C'est souvent au détriment du temps de génération et du confort pour le mainteneur de l'image; mais quand une image est téléchargée des millions de fois, économiser ne serait-ce qu'une poignée de secondes de délai vaut le coup.
 
 .small[
 ```dockerfile
@@ -145,27 +144,27 @@ RUN curl -o wordpress.tar.gz -SL https://wordpress.org/wordpress-${WORDPRESS_UPS
 ```
 ]
 
-(Source: [Wordpress official image](https://github.com/docker-library/wordpress/blob/618490d4bdff6c5774b84b717979bfe3d6ba8ad1/apache/Dockerfile))
+(Source: [Image officielle Wordpress](https://github.com/docker-library/wordpress/blob/618490d4bdff6c5774b84b717979bfe3d6ba8ad1/apache/Dockerfile))
 
 ---
 
-## When to *not* optimize an image
+## Quand ne *pas* optimiser une image
 
-Sometimes, it is better to prioritize *maintainer convenience*.
+Parfois, il est préférable de prioriser le *confort du mainteneur*
 
-In particular, if:
+En particulier, si:
 
-- the image changes a lot,
+ - l'image change beaucoup,
 
-- the image has very few users (e.g. only 1, the maintainer!),
+ - l'image a peu d'utilisateurs (par ex. 1 seul, le mainteneur!),
 
-- the image is built and run on the same machine,
+ - l'image est générée et lancée sur la même machine,
 
-- the image is built and run on machines with a very fast link ...
+ - l'image est générée et lancée sur des machines sur un réseau très rapide...
 
-In these cases, just keep things simple!
+Dans ces cas, mieux vaut garder les choses simples!
 
-(Next slide: a Dockerfile that can be used to preview a Jekyll / github pages site.)
+(Prochaine diapo: un Dockerfile qui peut être utilisé pour un aperçu de site Jekyll / *github pages*)
 
 ---
 
@@ -193,13 +192,13 @@ CMD ["jekyll", "serve", "--host", "0.0.0.0", "--incremental"]
 ---
 
 ## Multi-dimensional versioning systems
+## Système de version multi-dimensionnels
 
-Images can have a tag, indicating the version of the image.
+Un _tag_ d'image peut indiquer une version de l'image.
 
-But sometimes, there are multiple important components, and we need to indicate the versions
-for all of them.
+Mais parfois, plusieurs composants importants co-existent, et nous devons indiquer les versions de chacun.
 
-This can be done with environment variables:
+C'est possible en passant par des variables d'environnement:
 
 ```dockerfile
 ENV PIP=9.0.3 \
@@ -210,61 +209,60 @@ ENV PIP=9.0.3 \
     PLONE_MD5=76dc6cfc1c749d763c32fff3a9870d8d
 ```
 
-(Source: [Plone official image](https://github.com/plone/plone.docker/blob/master/5.1/5.1.0/alpine/Dockerfile))
+(Source: [Image officielle Plone](https://github.com/plone/plone.docker/blob/master/5.1/5.1.0/alpine/Dockerfile))
 
 ---
 
-## Entrypoints and wrappers
+## _Entrypoints_ et démarreurs
 
-It is very common to define a custom entrypoint.
+Il est très répandu de définir un _entrypoint_ spécifique.
 
-That entrypoint will generally be a script, performing any combination of:
+Ce point d'entrée est généralement un script, réalisant une série d'opération telles que:
 
-- pre-flights checks (if a required dependency is not available, display
-  a nice error message early instead of an obscure one in a deep log file),
+ - vérifications avant démarrage (si une dépendance obligatoire n'est pas disponible, afficher un message d'erreur sympa au lieu d'un obscur paquet de lignes dans un fichier log);
 
-- generation or validation of configuration files,
+ - génération ou validation de fichier de configuration;
 
-- dropping privileges (with e.g. `su` or `gosu`, sometimes combined with `chown`),
+ - limiter les privilèges (avec par ex. `su` ou `gosu`, parfois combiné avec `chown`);
 
-- and more.
+ - et plus encore.
 
 ---
 
-## A typical entrypoint script
+## Un script d'_entrypoint_ typique
 
 ```dockerfile
  #!/bin/sh
  set -e
- 
+
  # first arg is '-f' or '--some-option'
  # or first arg is 'something.conf'
  if [ "${1#-}" != "$1" ] || [ "${1%.conf}" != "$1" ]; then
  	set -- redis-server "$@"
  fi
- 
+
  # allow the container to be started with '--user'
  if [ "$1" = 'redis-server' -a "$(id -u)" = '0' ]; then
  	chown -R redis .
  	exec su-exec redis "$0" "$@"
  fi
- 
+
  exec "$@"
 ```
 
-(Source: [Redis official image](https://github.com/docker-library/redis/blob/d24f2be82673ccef6957210cc985e392ebdc65e4/4.0/alpine/docker-entrypoint.sh))
+(Source: [Image officielle Redis](https://github.com/docker-library/redis/blob/d24f2be82673ccef6957210cc985e392ebdc65e4/4.0/alpine/docker-entrypoint.sh))
 
 ---
 
-## Factoring information
+## Factoriser les informations
 
-To facilitate maintenance (and avoid human errors), avoid to repeat information like:
+Pour faciliter la maintenance (et éviter les erreurs humaines), éviter de répéter des informations comme:
 
-- version numbers,
+- numéros de versions,
 
-- remote asset URLs (e.g. source tarballs) ...
+- URLs de ressources distantes (par ex. fichiers tarballs) ...
 
-Instead, use environment variables.
+Pour ce faire, utilisez des variables d'environnement.
 
 .small[
 ```dockerfile
@@ -281,25 +279,25 @@ RUN ...
 ```
 ]
 
-(Source: [Nodejs official image](https://github.com/nodejs/docker-node/blob/master/10/alpine/Dockerfile))
+(Source: [Image officielle Nodejs](https://github.com/nodejs/docker-node/blob/master/10/alpine/Dockerfile))
 
 ---
 
-## Overrides
+## Surcharge
 
-In theory, development and production images should be the same.
+En théorie, les images de production et développement devraient être les mêmes.
 
-In practice, we often need to enable specific behaviors in development (e.g. debug statements).
+En pratique, nous avons souvent besoin d'activer des comportements spécifiques en développement (par ex. trace de debogage).
 
-One way to reconcile both needs is to use Compose to enable these behaviors.
+Une façon de concilier les deux besoins est d'utiliser Compose pour activer ces comportements.
 
-Let's look at the [trainingwheels](https://github.com/jpetazzo/trainingwheels) demo app for an example.
+Jetons un oeil à l'appli de démo [trainingwheels](https://github.com/jpetazzo/trainingwheels) comme exemple.
 
 ---
 
-## Production image
+## Image de production
 
-This Dockerfile builds an image leveraging gunicorn:
+Le Dockerfile génère une image exploitant gunicorn:
 
 ```dockerfile
 FROM python
@@ -312,19 +310,19 @@ CMD gunicorn --bind 0.0.0.0:5000 --workers 10 counter:app
 EXPOSE 5000
 ```
 
-(Source: [trainingwheels Dockerfile](https://github.com/jpetazzo/trainingwheels/blob/master/www/Dockerfile))
+(Source: [Dockerfile trainingwheels](https://github.com/jpetazzo/trainingwheels/blob/master/www/Dockerfile))
 
 ---
 
-## Development Compose file
+## Fichier Compose de développement
 
-This Compose file uses the same image, but with a few overrides for development:
+Ce fichier Compose utilise la même image, mais avec quelques valeurs surchargées en développement:
 
-- the Flask development server is used (overriding `CMD`),
+- On préfère le serveur Flask de développement (surcharge de `CMD`);
 
-- the `DEBUG` environment variable is set,
+- On définit la variable d'environnement `DEBUG`;
 
-- a volume is used to provide a faster local development workflow.
+- On utilise un volume pour fournir un processus de développement local plus rapide.
 
 .small[
 ```yaml
@@ -342,20 +340,20 @@ services:
 ```
 ]
 
-(Source: [trainingwheels Compose file](https://github.com/jpetazzo/trainingwheels/blob/master/docker-compose.yml))
+(Source: [Fichier Compose trainingwheels](https://github.com/jpetazzo/trainingwheels/blob/master/docker-compose.yml))
 
 ---
 
-## How to know which best practices are better?
+## Comment choisir quelles bonnes pratiques sont les meilleures?
 
-- The main goal of containers is to make our lives easier.
+- Le but principal des conteneurs est de rendre notre vie meilleure;
 
-- In this chapter, we showed many ways to write Dockerfiles.
+- Dans ce chapitre, nous avons montré bien des façons d'écrire des Dockerfiles;
 
-- These Dockerfiles use sometimes diametrally opposed techniques.
+- Ces Dockerfiles utilisent parfois des techniques diamétralement opposée;
 
-- Yet, they were the "right" ones *for a specific situation.*
+- Et pourtant, c'était la "bonne" technique *pour cette situation spécifique*;
 
-- It's OK (and even encouraged) to start simple and evolve as needed.
+- C'est bien (et souvent encouragé) de commencer simple et d'évoluer selon le besoin;
 
-- Feel free to review this chapter later (after writing a few Dockerfiles) for inspiration!
+- N'hésitez pas à revoir ce chapitre plus tard (après quelques Dockerfiles) pour inspiration!

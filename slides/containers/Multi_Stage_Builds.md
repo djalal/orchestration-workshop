@@ -1,22 +1,22 @@
-# Reducing image size
+# Réduire la taille de l'image
 
-* In the previous example, our final image contained:
+* Dans notre précédent exemple, notre image finale contenait:
 
-  * our `hello` program
+  * notre programme `hello`
 
-  * its source code
+  * son code source
 
-  * the compiler
+  * le compilateur
 
-* Only the first one is strictly necessary.
+* Seul le premier élément est strictement nécessaire.
 
-* We are going to see how to obtain an image without the superfluous components.
+* Nous allons voir comment obtenir une image sans les composants superflus.
 
 ---
 
-## Can't we remove superfluous files with `RUN`?
+## Ne pouvons-nous pas retirer les fichiers superflus avec `RUN`?
 
-What happens if we do one of the following commands?
+Que se passe-t-il si nous utilisons une des commandes suivantes?
 
 - `RUN rm -rf ...`
 
@@ -26,54 +26,54 @@ What happens if we do one of the following commands?
 
 --
 
-This adds a layer which removes a bunch of files.
+Cela ajoute une couche qui supprime un tas de fichiers.
 
-But the previous layers (which added the files) still exist.
+Mais les couches précédentes (qui ont ajouté les fichiers) existent toujours.
 
 ---
 
-## Removing files with an extra layer
+## Retirer les fichiers avec un _layer_ en plus
 
-When downloading an image, all the layers must be downloaded.
+En téléchargeant une image, tous les _layers_ doivent être récupérés.
 
-| Dockerfile instruction | Layer size | Image size |
+| Instruction Dockerfile | Taille du _layer_ | Taille de l'image |
 | ---------------------- | ---------- | ---------- |
-| `FROM ubuntu` | Size of base image | Size of base image |
-| `...` | ... | Sum of this layer <br/>+ all previous ones |
-| `RUN apt-get install somepackage` | Size of files added <br/>(e.g. a few MB) | Sum of this layer <br/>+ all previous ones |
-| `...` | ... | Sum of this layer <br/>+ all previous ones |
-| `RUN apt-get remove somepackage` | Almost zero <br/>(just metadata) | Same as previous one |
+| `FROM ubuntu` | Taille de l'image de base | Taille de l'image de base  |
+| `...` | ... | Somme de cette couche <br/>+ toutes les précédentes |
+| `RUN apt-get install somepackage` | Taille des fichiers ajoutés <br/>(e.g. quelques Mo) | Somme de cette couche <br/>+ toutes les couches précédentes|
+| `...` | ... | Somme de cette couche <br/>+ toutes les couches précédentes |
+| `RUN apt-get remove somepackage` | Pratiquement zéro<br/>(juste des méta-données) | Identique à la précédente |
 
-Therefore, `RUN rm` does not reduce the size of the image or free up disk space.
-
----
-
-## Removing unnecessary files
-
-Various techniques are available to obtain smaller images:
-
-- collapsing layers,
-
-- adding binaries that are built outside of the Dockerfile,
-
-- squashing the final image,
-
-- multi-stage builds.
-
-Let's review them quickly.
+En conséquence, `RUN rm` ne réduit pas la taille de l'image, ni ne libère d'espace disque.
 
 ---
 
-## Collapsing layers
+## Supprimer les fichiers inutiles
 
-You will frequently see Dockerfiles like this:
+Des techniques variées sont disponibles pour obtenir des images plus petites:
+
+ - dégonflement de _layers_,
+
+ - ajouter des binaires qui sont générés hors du Dockerfile,
+
+ - aplatir l'image finale,
+
+ - les _builds multi-stage_, à multiples étapes.
+
+Passons-les en revue rapidement.
+
+---
+
+## Dégonflement de _layers_
+
+Vous verrez souvent des Dockerfiles comme suit:
 
 ```dockerfile
 FROM ubuntu
 RUN apt-get update && apt-get install xxx && ... && apt-get remove xxx && ...
 ```
 
-Or the (more readable) variant:
+Ou la variante plus lisible:
 
 ```dockerfile
 FROM ubuntu
@@ -84,85 +84,84 @@ RUN apt-get update \
  && ...
 ```
 
-This `RUN` command gives us a single layer.
+Cette commande `RUN` nous retourne une seule couche.
 
-The files that are added, then removed in the same layer, do not grow the layer size.
-
----
-
-## Collapsing layers: pros and cons
-
-Pros:
-
-- works on all versions of Docker
-
-- doesn't require extra tools
-
-Cons:
-
-- not very readable
-
-- some unnecessary files might still remain if the cleanup is not thorough
-
-- that layer is expensive (slow to build)
+Les fichiers qui y sont ajoutés, puis supprimés dans le même _layer_, n'augmentent pas sa taille.
 
 ---
 
-## Building binaries outside of the Dockerfile
+## Dégonflement de _layers_ : pour et contre
 
-This results in a Dockerfile looking like this:
+Pours:
+
+- fonctionne sur toutes les versions de Docker
+
+- n'exige pas d'outils spéciaux
+
+Contre:
+
+- pas très lisible
+
+- quelques fichiers inutiles pourrait subsister si le nettoyage n'est pas assez poussé
+
+- ce _layer_ est coûteux (lent à générer)
+
+---
+
+## Compiler les binaires hors du Dockerfile
+
+Cela résulte dans un Dockerfile qui ressemble à ça:
 
 ```dockerfile
 FROM ubuntu
 COPY xxx /usr/local/bin
 ```
 
-Of course, this implies that the file `xxx` exists in the build context.
+Bien sûr, cela suppose que le fichier `xxx` existe déjà dans le _build context_.
 
-That file has to exist before you can run `docker build`.
+Ce fichier doit exister avant de lancer `docker build`.
 
-For instance, it can:
+Par exemple, il peut:
 
-- exist in the code repository,
-- be created by another tool (script, Makefile...),
-- be created by another container image and extracted from the image.
+- exister dans le dépôt du code,
+- être créé par un autre outil (script, Makefile...),
+- être créé par un autre conteneur puis extrait depuis l'image.
 
-See for instance the [busybox official image](https://github.com/docker-library/busybox/blob/fe634680e32659aaf0ee0594805f74f332619a90/musl/Dockerfile) or this [older busybox image](https://github.com/jpetazzo/docker-busybox).
-
----
-
-## Building binaries outside: pros and cons
-
-Pros:
-
-- final image can be very small
-
-Cons:
-
-- requires an extra build tool
-
-- we're back in dependency hell and "works on my machine"
-
-Cons, if binary is added to code repository:
-
-- breaks portability across different platforms
-
-- grows repository size a lot if the binary is updated frequently
+Voir par exemple [l'image officielle busybox](https://github.com/docker-library/busybox/blob/fe634680e32659aaf0ee0594805f74f332619a90/musl/Dockerfile) ou cette [image busybox plus ancienne](https://github.com/jpetazzo/docker-busybox).
 
 ---
 
-## Squashing the final image
+## Compiler les binaires en dehors: pour et contre
 
-The idea is to transform the final image into a single-layer image.
+Pours:
 
-This can be done in (at least) two ways.
+- l'image finale peut être très petite
 
-- Activate experimental features and squash the final image:
+Contre:
+
+- exige un outil de _build_ supplémentaire
+
+- nous retombons dans l'enfer des dépendances et le "ça-marche-sur-mon-poste"
+
+Contre, si le binaire est ajouté au dépôt de code:
+
+- brise la portabilité entre différentes plate-formes
+
+- augmente largement la taille du dépôt si le binaire est souvent mis à jour
+
+---
+
+## Aplatir l'image finale
+
+L'idée est de transformer l'image finale en une image à un seul _layer_.
+
+Cela peut être réalisé de deux manières (au moins).
+
+- Activer les fonctions expérimentales et aplatir l'image finale:
   ```bash
   docker image build --squash ...
   ```
-
-- Export/import the final image.
+- Exporter/importer l'image finale.
   ```bash
   docker build -t temp-image .
   docker run --entrypoint true --name temp-container temp-image
@@ -173,61 +172,62 @@ This can be done in (at least) two ways.
 
 ---
 
-## Squashing the image: pros and cons
+## Aplatir l'image finale: pour et contre
 
-Pros:
+Pours:
 
-- single-layer images are smaller and faster to download
+- les images à _layer_ unique sont plus légères et rapides à télécharger
 
-- removed files no longer take up storage and network resources
+- les fichiers supprimés ne prennent plus de place ni de ressources réseau.
 
-Cons:
+Contre:
 
-- we still need to actively remove unnecessary files
+- nous devons quand même activement supprimer les fichiers inutiles;
 
-- squash operation can take a lot of time (on big images)
+- aplatir une image peut prendre beaucoup de temps (pour les plus grosses images)
 
-- squash operation does not benefit from cache
+- aplatir est une opération qui annule le cache
   <br/>
-  (even if we change just a tiny file, the whole image needs to be re-squashed)
+  (ne changer ne serait-ce qu'un petit fichier, et toute l'image doit être aplatie de nouveau)
+
 
 ---
 
-## Multi-stage builds
+## _Builds_ multi-stage
 
-Multi-stage builds allow us to have multiple *stages*.
+Un _build multi-stage_ nous permet d'indiquer plusieurs étapes d'images.
 
-Each stage is a separate image, and can copy files from previous stages.
+Chaque étape constitue une image séparée, et peut copier les fichiers des images précédentes.
 
-We're going to see how they work in more detail.
-
----
-
-# Multi-stage builds
-
-* At any point in our `Dockerfile`, we can add a new `FROM` line.
-
-* This line starts a new stage of our build.
-
-* Each stage can access the files of the previous stages with `COPY --from=...`.
-
-* When a build is tagged (with `docker build -t ...`), the last stage is tagged.
-
-* Previous stages are not discarded: they will be used for caching, and can be referenced.
+Nous allons voir comment ça marche plus en détail.
 
 ---
 
-## Multi-stage builds in practice
+# _Builds_ multi-stage
 
-* Each stage is numbered, starting at `0`
+* A tout moment dans notre `Dockerfile`, nous pouvons ajouter une ligne `FROM`.
 
-* We can copy a file from a previous stage by indicating its number, e.g.:
+* Cette ligne démarre une nouvelle étape dans notre _build_.
+
+* Chaque étape peut accéder aux fichiers des étapes précédentes avec `COPY --from=...`.
+
+* Quand un _build_ est étiqueté (avec `docker build -t ...`), c'est la dernière étape qui récupère le _tag_.
+
+* Les étapes précédentes ne sont pas supprimées, elle seront utilisées par le cache, et peuvent être référencées.
+
+---
+
+## _Builds_ Multi-stage en pratique
+
+* Chaque étape est numérotée, en débutant à `0`
+
+* Nous pouvons copier un fichier d'une étape précédentes en indiquant son numéro, par ex.:
 
   ```dockerfile
-  COPY --from=0 /file/from/first/stage /location/in/current/stage
+  COPY --from=0 /fichier/depuis/etape/une /chemin/dans/etape/courante
   ```
 
-* We can also name stages, and reference these names:
+* Nous pouvons aussi nommer les étapes, et y faire référence:
 
   ```dockerfile
   FROM golang AS builder
@@ -238,25 +238,25 @@ We're going to see how they work in more detail.
 
 ---
 
-## Multi-stage builds for our C program
+## _Builds_ multi-stage pour notre programme C
 
-We will change our Dockerfile to:
+Nous allons changer notre Dockerfile pour:
 
-* give a nickname to the first stage: `compiler`
+* donner un surnom à notre première étape: `compiler`
 
-* add a second stage using the same `ubuntu` base image
+* ajouter une seconde étape utilisant la même image de base `ubuntu`
 
-* add the `hello` binary to the second stage
+* ajouter le binaire `hello` à la seconde étape
 
-* make sure that `CMD` is in the second stage 
+* vérifier que `CMD` est dans la seconde étape
 
-The resulting Dockerfile is on the next slide.
+Le Dockerfile résultant est dans la prochaine diapo.
 
 ---
 
-## Multi-stage build `Dockerfile`
+## `Dockerfile`du _build_ multi-stage
 
-Here is the final Dockerfile:
+Voici le Dockerfile final:
 
 ```dockerfile
 FROM ubuntu AS compiler
@@ -269,8 +269,7 @@ COPY --from=compiler /hello /hello
 CMD /hello
 ```
 
-Let's build it, and check that it works correctly:
-
+Essayons de le générer, et vérifions que cela fonctionne bien:
 ```bash
 docker build -t hellomultistage .
 docker run hellomultistage
@@ -278,38 +277,33 @@ docker run hellomultistage
 
 ---
 
-## Comparing single/multi-stage build image sizes
+## Comparaison des tailles d'image en _build_ simple/multi-stage
 
-List our images with `docker images`, and check the size of:
+Listez nos images avec `docker images`, et vérifiez la taille de:
 
-- the `ubuntu` base image,
+- l'image de base `ubuntu`,
 
-- the single-stage `hello` image,
+- l'image `hello` à étape unique,
 
-- the multi-stage `hellomultistage` image.
+- l'image `hellomultistage` à plusieurs étapes.
 
-We can achieve even smaller images if we use smaller base images.
+Nous pouvons arriver à des tailles d'images encore plus petites avec des images de base plus petites.
 
-However, if we use common base images (e.g. if we standardize on `ubuntu`),
-these common images will be pulled only once per node, so they are
-virtually "free."
+Toutefois, si nous utilisons une image de base commune (par ex. en prenant comme standard `ubuntu`), ces images en commun ne seront téléchargées qu'une fois par hôte, les rendant
+virtuellement "gratuites".
 
 ---
 
-## Build targets
+## Cibles de _build_
 
-* We can also tag an intermediary stage with `docker build --target STAGE --tag NAME`
+* On peut aussi étiqueter une étape intermédiaire avec `docker build --target STAGE --tag NAME`
 
-* This will create an image (named `NAME`) corresponding to stage `STAGE`
+* Cela va créer une image (appelée `NAME`) correspondant à l'étape `STAGE`
 
-* This can be used to easily access an intermediary stage for inspection
+* Elle peut être utilisée pour accéder facilement à une étape intermédiaire pour inspection.
 
-  (Instead of parsing the output of `docker build` to find out the image ID)
+  (Au lieu de fouiller l'affichage de `docker build` pour trouver l'ID d'image)
 
-* This can also be used to describe multiple images from a single Dockerfile
+* Elle peut aussi être utilisée pour générer de multiples images avec un seul Dockerfile
 
-  (Instead of using multiple Dockerfiles, which could go out of sync)
-
-* Sometimes, we want to inspect a specific intermediary build stage.
-
-* Or, we want to describe multiple images using a single Dockerfile.
+  (Au lieu d'utiliser plusieurs Dockerfiles, qu'il faudrait perpétuellement synchroniser)
