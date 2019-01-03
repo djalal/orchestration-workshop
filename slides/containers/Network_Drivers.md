@@ -1,10 +1,10 @@
-# Container network drivers
+# Pilote réseau pour conteneur
 
-The Docker Engine supports many different network drivers.
+Le Docker Engine prend en charge de nombreux pilotes réseau.
 
-The built-in drivers include:
+Certains pilotes sont inclus à l'installation:
 
-* `bridge` (default)
+* `bridge` (par défaut)
 
 * `none`
 
@@ -12,73 +12,73 @@ The built-in drivers include:
 
 * `container`
 
-The driver is selected with `docker run --net ...`.
+Le pilote est indiqué avec `docker run --net ...`.
 
-The different drivers are explained with more details on the following slides.
-
----
-
-## The default bridge
-
-* By default, the container gets a virtual `eth0` interface.
-  <br/>(In addition to its own private `lo` loopback interface.)
-
-* That interface is provided by a `veth` pair.
-
-* It is connected to the Docker bridge.
-  <br/>(Named `docker0` by default; configurable with `--bridge`.)
-
-* Addresses are allocated on a private, internal subnet.
-  <br/>(Docker uses 172.17.0.0/16 by default; configurable with `--bip`.)
-
-* Outbound traffic goes through an iptables MASQUERADE rule.
-
-* Inbound traffic goes through an iptables DNAT rule.
-
-* The container can have its own routes, iptables rules, etc.
+Les différents pilotes sont expliqués en détail dans les diapos suivantes.
 
 ---
 
-## The null driver
+## La passerelle par défaut (_bridge_)
 
-* Container is started with `docker run --net none ...`
+* Par défaut, le conteneur dispose d'une interface `eth0` virtuelle.
+  <br/>(En supplément de `lo`, sa propre interface de boucle interne).
 
-* It only gets the `lo` loopback interface. No `eth0`.
+* Cette interface est fournie par une paire `veth`.
 
-* It can't send or receive network traffic.
+* Elle est connectée au Docker _bridge_.
+  <br/>(Appelé `docker0` par défaut; configurable avec `--bridge`.)
 
-* Useful for isolated/untrusted workloads.
+* L'allocation d'adresses IP se fait sur un sous-réseau privé interne.
+  <br/>(Docker utilise 172.17.0.0/16 par défaut; configurable avec `--bip`.)
+
+* Le trafic sortant passe à travers une règle iptables MASQUERADE.
+
+* Le trafic entrant passe à travers une règle iptables DNAT.
+
+* Le conteneur peut avoir ses propres routes, règles iptables, etc.
 
 ---
 
-## The host driver
+## Le pilote null
 
-* Container is started with `docker run --net host ...`
+* On démarre le conteneur avec `docker run --net none ...`
 
-* It sees (and can access) the network interfaces of the host.
+* Il n'aura que l'interface de bouclage `lo`. Pas de `eth0`.
 
-* It can bind any address, any port (for ill and for good).
+* Il ne peut ni recevoir ni envoyer de trafic réseau.
 
-* Network traffic doesn't have to go through NAT, bridge, or veth.
+* Utile pour les logiciels isolés/suspects.
+
+---
+
+## Le pilote hôte
+
+* On démarre le conteneur avec `docker run --net host ...`
+
+* Il voit (et peut accéder) aux interfaces réseau de l'hôte.
+
+* Il peut ouvrir n'importe quelle interface et port (pour le meilleur et pour le pire).
+
+* Le trafic réseau se passe des couches NAT, bridge ou veth.
 
 * Performance = native!
 
-Use cases:
+Cas d'usage:
 
-* Performance sensitive applications (VOIP, gaming, streaming...)
+* Applications sensibles à la performance (VOIP, jeu-vidéo, streaming...)
 
-* Peer discovery (e.g. Erlang port mapper, Raft, Serf...)
+* découvertes d'homologue (par ex. mappage de port Erlang, Raft, Serf ...)
 
 ---
 
-## The container driver
+## Le pilote conteneur
 
-* Container is started with `docker run --net container:id ...`
+* On démarre le conteneur avec `docker run --net container:id ...`
 
-* It re-uses the network stack of another container.
+* Il recycle la pile réseau d'un autre conteneur.
 
-* It shares with this other container the same interfaces, IP address(es), routes, iptables rules, etc.
+* Il partage avec l'autre conteneur les mêmes interfaces, adresses IP, routes, règles iptables, etc.
 
-* Those containers can communicate over their `lo` interface.
-  <br/>(i.e. one can bind to 127.0.0.1 and the others can connect to it.)
+* Ces conteneurs peuvent communiquer à travers leur interface `lo`.
+  <br/>(i.e. l'un peut s'attacher à 127.0.0.1 et les autres peuvent s'y connecter.)
 

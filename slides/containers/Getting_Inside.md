@@ -1,153 +1,152 @@
 
 class: title
 
-# Getting inside a container
-
+# Investir l'intérieur d'un conteneur
 ![Person standing inside a container](images/getting-inside.png)
 
 ---
 
-## Objectives
+## Objectifs
 
-On a traditional server or VM, we sometimes need to:
+Sur un serveur classique ou unVM, nous avons parfois besoin de:
 
-* log into the machine (with SSH or on the console),
+* se connecter sur la machine (via SSH ou la console),
 
-* analyze the disks (by removing them or rebooting with a rescue system).
+* analyser les disques (en les retirant ou en démarrant en mode secours).
 
-In this chapter, we will see how to do that with containers.
-
----
-
-## Getting a shell
-
-Every once in a while, we want to log into a machine.
-
-In an perfect world, this shouldn't be necessary.
-
-* You need to install or update packages (and their configuration)?
-
-  Use configuration management. (e.g. Ansible, Chef, Puppet, Salt...)
-
-* You need to view logs and metrics?
-
-  Collect and access them through a centralized platform.
-
-In the real world, though ... we often need shell access!
+Dans ce chapitre, nous verrons comment faire ça sur des conteneurs.
 
 ---
 
-## Not getting a shell
+## Récupérer un _shell_
 
-Even without a perfect deployment system, we can do many operations without getting a shell.
+De temps à autre, nous avons besoin de nous connecter à un serveur.
 
-* Installing packages can (and should) be done in the container image.
+Dans un monde parfait, cela ne devrait pas être nécessaire.
 
-* Configuration can be done at the image level, or when the container starts.
+* Vous devez installer ou mettre à jour des paquets (et leur configuration)?
 
-* Dynamic configuration can be stored in a volume (shared with another container).
+  Passez pas la gestion de configuration (par ex. Ansible, Chef, Puppet, Salt...)
 
-* Logs written to stdout are automatically collected by the Docker Engine.
+* Vous devez jeter un oeil aux logs et métriques?
 
-* Other logs can be written to a shared volume.
+  Collectez-les et passez par une plate-forme centralisée.
 
-* Process information and metrics are visible from the host.
-
-_Let's save logging, volumes ... for later, but let's have a look at process information!_
+Dans la vraie vie, néanmoins... on doit souvent ouvrir un accès _shell_!
 
 ---
 
-## Viewing container processes from the host
+## Sans récupérer un _shell_
 
-If you run Docker on Linux, container processes are visible on the host.
+Même sans un système de déploiement parfait, on peut réaliser plein d'opérations sans passer par un _shell_.
+
+* Installer des paquets peut (et devrait) être fait dans l'image d'un conteneur.
+
+* Configurer le conteneur peut se faire à son démarrage, ou dans l'image.
+
+* Toute configuration dynamique peut passer par un volume (partagé avec un autre conteneur).
+
+* Tous logs passant par _stdout_ sont automatiquement collectés par le Docker Engine.
+
+* N'importe quels autres logs peuvent être écrits dans un volume partagé.
+
+* La machine hôte expose les métriques et les informations du processus.
+
+_Mettons de côté pour plus tard les logs, volumes, etc. et jetons un oeil aux information de processus!_
+
+---
+
+## Afficher les processus d'un conteneur depuis l'hôte
+
+Si vous lancez Docker sur Linux, les processus de conteneurs sont visibles depuis l'hôte.
 
 ```bash
 $ ps faux | less
 ```
 
-* Scroll around the output of this command.
+* Faites défiler l'affichage de cette commande.
 
-* You should see the `jpetazzo/clock` container.
+* Vous devriez voir le conteneur `jpetazzo/clock`.
 
-* A containerized process is just like any other process on the host.
+* Un processus dans un conteneur est comme n'importe quel autre processus sur l'hôte.
 
-* We can use tools like `lsof`, `strace`, `gdb` ... To analyze them.
+* Nous pouvons utiliser des outils comme `lsof`, `strace`, `gdb`, ... pour les analyser.
 
 ---
 
 class: extra-details
 
-## What's the difference between a container process and a host process?
+## Quelle est la différence entre les processus de l'hôte et d'un conteneur?
 
-* Each process (containerized or not) belongs to *namespaces* and *cgroups*.
+* Chaque processus (conteneurisé ou pas) appartient à des *namespaces* et *cgroups*.
 
-* The namespaces and cgroups determine what a process can "see" and "do".
+* Les _namespaces_ et _cgroups_ déterminent ce qu'un processus peut "voir" et "faire".
 
-* Analogy: each process (containerized or not) runs with a specific UID (user ID).
+* Analogie: chaque processus (conteneurisé ou pas) tourne avec un UID (user ID) spécifique.
 
-* UID=0 is root, and has elevated privileges. Other UIDs are normal users.
+* UID=0, c'est root, et dispose de privilèges supérieurs. Les autres utilisateurs sont dits normaux.
 
-_We will give more details about namespaces and cgroups later._
+_Nous donneronss plus de détails sur les namespaces et cgroups plus tard._
 
 ---
 
-## Getting a shell in a running container
+## Récupérer un _shell_ dans un conteneur
 
-* Sometimes, we need to get a shell anyway.
+* Parfois, nous devons récupérer un _shell_ malgré tout.
 
-* We _could_ run some SSH server in the container ...
+* On _pourrait_ faire tourner un serveur SSH dans le conteneur...
 
-* But it is easier to use `docker exec`.
+* Mais c'est plus facile d'utiliser `docker exec`.
 
 ```bash
 $ docker exec -ti ticktock sh
 ```
 
-* This creates a new process (running `sh`) _inside_ the container.
+* Cela créé un nouveau processus (avec `sh`) _à l'intérieur_ du conteneur.
 
-* This can also be done "manually" with the tool `nsenter`.
-
----
-
-## Caveats
-
-* The tool that you want to run needs to exist in the container.
-
-* Some tools (like `ip netns exec`) let you attach to _one_ namespace at a time.
-
-  (This lets you e.g. setup network interfaces, even if you don't have `ifconfig` or `ip` in the container.)
-
-* Most importantly: the container needs to be running.
-
-* What if the container is stopped or crashed?
+* On peut arriver au même résultat "manuellement" avec l'outil `nsenter`.
 
 ---
 
-## Getting a shell in a stopped container
+## Réserves
 
-* A stopped container is only _storage_ (like a disk drive).
+* Cela exige que l'outil que nous voulons lancer pré-existe dans le conteneur.
 
-* We cannot SSH into a disk drive or USB stick!
+* Certains outils (comme `ip netns exec`) permettent de s'attacher à _un_ namespace _à la fois_.
 
-* We need to connect the disk to a running machine.
+  (On peut par ex. configurer des interfaces réseau, même si vous n'avez pas `ifconfig` ou `ip` dans le conteneur.)
 
-* How does that translate into the container world?
+* Et surtout: le conteneur doit être en cours d'exécution.
+
+* Et si le conteneur est stoppé ou en panne?
 
 ---
 
-## Analyzing a stopped container
+## Récupérer un _shell_ dans un conteneur à l'arrêt
 
-As an exercise, we are going to try to find out what's wrong with `jpetazzo/crashtest`.
+* Un conteneur à l'arrêt n'est que du _stockage_ (comme un disque dur).
+
+* SSH ne sert à rien pour accéder à un disque dur ou une clé USB!
+
+* Nous devons brancher le disque avec une machine en fonctionnement.
+
+* Comment ça se traduit dans le monde des conteneurs?
+
+---
+
+## Analyser un conteneur à l'arrêt
+
+Comme exercice, nous allons essayer de trouver ce qui cloche avec `jpetazzo/crashtest`.
 
 ```bash
 docker run jpetazzo/crashtest
 ```
 
-The container starts, but then stops immediately, without any output.
+Le conteneur démarre, mais s'arrête tout de suite, sans rien afficher.
 
-What would MacGyver&trade; do?
+Que ferait Mac Gyver &trade;?
 
-First, let's check the status of that container.
+D'abord, vérifions le statut de ce conteneur.
 
 ```bash
 docker ps -l
@@ -155,55 +154,55 @@ docker ps -l
 
 ---
 
-## Viewing filesystem changes
+## Examiner les changements de fichier
 
-* We can use `docker diff` to see files that were added / changed / removed.
+On peut passer `docker diff` pour voir les fichiers ajoutés / modifiés ou supprimés.
 
 ```bash
 docker diff <container_id>
 ```
 
-* The container ID was shown by `docker ps -l`.
+* L'ID du conteneur est affiché par `docker ps -l`.
 
-* We can also see it with `docker ps -lq`.
+* On peut aussi le voir avec `docker ps -lq`.
 
-* The output of `docker diff` shows some interesting log files!
+* L'affichage de `docker diff` montre quelques fichiers log intéressants!
 
 ---
 
-## Accessing files
+## Accéder aux fichiers
 
-* We can extract files with `docker cp`.
+* On peut extraire les fichiers avec `docker cp`.
 
 ```bash
 docker cp <container_id>:/var/log/nginx/error.log .
 ```
 
-* Then we can look at that log file.
+* Et c'est là qu'on peut consulter le fichier log.
 
 ```bash
 cat error.log
 ```
 
-(The directory `/run/nginx` doesn't exist.)
+(Le dossier `/run/nginx` n'existe pas.)
 
 ---
 
-## Exploring a crashed container
+## Explorer un conteneur en panne
 
-* We can restart a container with `docker start` ...
+* On peut redémarrer un conteneur avec `docker start` ...
 
-* ... But it will probably crash again immediately!
+* ... Mais il va sans doute retomber en panne immédiatement!
 
-* We cannot specify a different program to run with `docker start`
+* On ne peut pas indiquer un programme différent à lancer avec `docker start`
 
-* But we can create a new image from the crashed container
+* Mais on peut générer une nouvelle image à partir du conteneur en panne
 
 ```bash
 docker commit <container_id> debugimage
 ```
 
-* Then we can run a new container from that image, with a custom entrypoint
+* On peut alors lancer un nouveau conteneur depuis cette image, avec un point d'entrée spécifique
 
 ```bash
 docker run -ti --entrypoint sh debugimage
@@ -213,16 +212,16 @@ docker run -ti --entrypoint sh debugimage
 
 class: extra-details
 
-## Obtaining a complete dump
+## Obtenir un _dump_ complet
 
-* We can also dump the entire filesystem of a container.
+* On peut aussi récupérer le système de fichiers complet pour un conteneur.
 
-* This is done with `docker export`.
+* C'est possible avec `docker export`.
 
-* It generates a tar archive.
+* Cela génère une archive tar.
 
 ```bash
 docker export <container_id> | tar tv
 ```
 
-This will give a detailed listing of the content of the container.
+Cela nous donnera la liste détaillé du contenu de ce conteneur.

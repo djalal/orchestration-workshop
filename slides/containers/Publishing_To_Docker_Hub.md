@@ -1,102 +1,101 @@
-# Publishing images to the Docker Hub
+# Publier des images sur le Docker Hub
 
-We have built our first images.
+Nous avons généré nos premières images.
 
-We can now publish it to the Docker Hub!
+Nous pouvons maintenant les publier vers le Docker Hub!
 
-*You don't have to do the exercises in this section,
-because they require an account on the Docker Hub, and we
-don't want to force anyone to create one.*
+*Vous n'avez pas à faire les exercices de cette section,
+parce qu'ils exigent un compte sur le Docker Hub, et nous
+ne voulons forcer personne à en créer un.*
 
-*Note, however, that creating an account on the Docker Hub
-is free (and doesn't require a credit card), and hosting
-public images is free as well.*
+*Veuillez noter, toutefois, que la création d'un compte sur
+le Docker Hub est gratuite (sans carte bancaire), et que
+l'hébergement d'images publiques est aussi gratuit.*
 
 ---
 
-## Logging into our Docker Hub account
+## Connexion au Docker Hub
 
-* This can be done from the Docker CLI:
+* C'est faisable depuis la ligne de commande Docker:
   ```bash
   docker login
   ```
 
-.warning[When running Docker for Mac/Windows, or
-Docker on a Linux workstation, it can (and will when
-possible) integrate with your system's keyring to
-store your credentials securely. However, on most Linux
-servers, it will store your credentials in `~/.docker/config`.]
+.warning[Depuis Docker sur Mac/Windows, ou Docker sur un
+poste de travail Linux, on peut (et on préfére si possible)
+s'intégrer avec le trousseau de clés du système pour stocker
+les accès en sécurité. Toutefois, sur la plupart des serveurs
+Linux, ce sera stocké par défaut dans `~/.docker/config`.]
 
 ---
 
-## Image tags and registry addresses
+## _Tags_ d'image et adresses de registre
 
-* Docker images tags are like Git tags and branches.
+* Docker et ses _tags_ d'images sont comme Git et ses tags/branches.
 
-* They are like *bookmarks* pointing at a specific image ID.
+* Ce sont des _pointeurs_ vers un ID d'image spécifique.
 
-* Tagging an image doesn't *rename* an image: it adds another tag.
+* Marquer une image ne *renomme pas* cette image: elle ne fait qu'ajouter une étiquette.
 
-* When pushing an image to a registry, the registry address is in the tag.
+* En poussant une image vers un registre distant, l'adresse de registre est dans le _tag_.
 
   Example: `registry.example.net:5000/image`
 
-* What about Docker Hub images?
+* Qu'en est-il des images du Docker Hub?
 
 --
 
-* `jpetazzo/clock` is, in fact, `index.docker.io/jpetazzo/clock`
+* `jpetazzo/clock` est, en fait, `index.docker.io/jpetazzo/clock`
 
-* `ubuntu` is, in fact, `library/ubuntu`, i.e. `index.docker.io/library/ubuntu`
+* `ubuntu` est, en fait, `library/ubuntu`, i.e. `index.docker.io/library/ubuntu`
 
 ---
 
-## Tagging an image to push it on the Hub
+## Etiqueter une image pour la pousser sur le _Hub_
 
-* Let's tag our `figlet` image (or any other to our liking):
+* Ajoutons une étiquette à notre image `figlet` (ou une autre):
   ```bash
   docker tag figlet jpetazzo/figlet
   ```
 
-* And push it to the Hub:
+* Et poussons-là sur le Hub:
   ```bash
   docker push jpetazzo/figlet
   ```
 
-* That's it!
+* C'est tout!
 
 --
 
-* Anybody can now `docker run jpetazzo/figlet` anywhere.
+* N'importe qui peut maintenant `docker run jpetazzo/figlet` de partout.
 
 ---
 
-## The goodness of automated builds
+## Les vertus des _builds_ automatisés
 
-* You can link a Docker Hub repository with a GitHub or BitBucket repository
+* Vous pouvez lier un dépôt du Docker Hub avec un dépôt Github ou BitBucket.
 
-* Each push to GitHub or BitBucket will trigger a build on Docker Hub
+* Chaque _push_ dans Github/Bitbucket va déclencher un _build_ sur Docker Hub.
 
-* If the build succeeds, the new image is available on Docker Hub
+* Si l'image est générée avec succès, elle sera disponible sur Docker Hub.
 
-* You can map tags and branches between source and container images
+* Vous pouvez associer _tags_ et branches entre le code source et images de conteneurs.
 
-* If you work with public repositories, this is free
+* Si vous maintenez des dépôts publics, tout ça est gratuit.
 
 ---
 
 class: extra-details
 
-## Setting up an automated build
+## Installer un _build_ automatisé
 
-* We need a Dockerized repository!
-* Let's go to https://github.com/jpetazzo/trainingwheels and fork it.
-* Go to the Docker Hub (https://hub.docker.com/) and sign-in. Select "Repositories" in the blue navigation menu.
-* Select "Create" in the top-right bar, and select "Create Repository+".
-* Connect your Docker Hub account to your GitHub account.
-* Click "Create" button.
-* Then go to "Builds" folder.
-* Click on Github icon and select your user and the repository that we just forked.
-* In "Build rules" block near page bottom, put `/www` in "Build Context" column (or whichever directory the Dockerfile is in).
-* Click "Save and Build" to build the repository immediately (without waiting for a git push).
-* Subsequent builds will happen automatically, thanks to GitHub hooks.
+* Vous avez besoin d'un code source "Dockerisé"!
+* Direction https://github.com/jpetazzo/trainingwheels pour le _fork_.
+* Allez sur Docker Hub (https://hub.docker.com/) et connectez-vous. Sélectionnez "Repositories" dans la barre de navigation bleue.
+* Connectez votre compte Docker Hub à votre compte Github.
+* Cliquez sur le bouton "Create".
+* Puis allez dans l'onglet "Builds".
+* Cliquez sur l'icône Github et choisissez le compte/dépôt que nous avons juste _fork_.
+* Dans le bloc "Builds rules" en bas de page, indiquez `/www` dans la colonne "Build context" (ou le dossier qui contient le Dockerfile).
+* Cliquez "Save and build" pour lancer un _build_ immédiatement (sans attendre le prochain _git push_).
+* Les prochains _builds_ seront automatiques, grâce aux notifications Github.
