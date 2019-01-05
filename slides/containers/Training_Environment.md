@@ -23,7 +23,6 @@ class: title
 
 ---
 
-## Our Docker VM
 ## Notre VM Docker
 
 *Cette section suppose que vous suivez ce cours dans le cadre d'un

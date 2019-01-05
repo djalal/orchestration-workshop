@@ -140,16 +140,16 @@ Cette opération de _copy-up_ peut prendre un moment si le fichier est énorme!
 
 - Mais les opérations `open()` sont coûteuses dans deux scénarii:
 
-  - quand on écrit de gros fichiers (fichier logs, bases de données, etc.),
+  - si on écrit de gros fichiers (fichier logs, bases de données, etc.),
 
-  - quand on cherche dans de nombreux dossier (PATH, classpath, etc.) à travers plusieurs couches.
+  - si on cherche dans plein de dossiers (PATH, classpath, etc.) et plein de couches.
 
 - Astuce: quand on a lancé dotCloud, on a fini par mettre toutes les données
 importantes dans des *volumes*.
 
 - En lançant le même conteneur plusieurs fois:
 
-  - la donnée est chargée une seule fois depuis le disque, et mise en cache une seul fois en mémoire;
+  - la donnée est chargée une seule fois depuis le disque, et mise en cache une seule fois en mémoire;
   - mais les `dentries` seront dupliquées
 
 ---
@@ -207,7 +207,7 @@ Si vous voyez l'abréviation "thinp", il faut lire "thin provisioning".
 provenant du _pool_ lui est alloué.
 
 - quand il n'y a plus aucun bloc dans le _pool_, les tentatives d'écriture vont
-être suspendues jusqu'à ce que la taille du  _pool_ augmente (ou que l'opération d'écriture soit annulée).
+être suspendues jusqu'à augmentation du  _pool_  (ou annulation de l'opération d'écriture).
 
 - En d'autres termes: sans espace de stockage, les conteneurs sont gelés, mais
 les opérations repartent dès que l'espace est à nouveau disponible.

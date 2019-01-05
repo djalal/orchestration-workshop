@@ -62,7 +62,6 @@ class: pic
 
 ---
 
-## First public release of Docker
 ## Première version publique de Docker
 
 * Mars 2013, Pycon, Santa Clara:

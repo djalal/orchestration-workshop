@@ -1,7 +1,7 @@
 
 class: title
 
-# Containers en tâche de fond
+# Conteneurs en tâche de fond
 
 ![Background containers](images/title-background-containers.jpg)
 

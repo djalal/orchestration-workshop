@@ -254,7 +254,7 @@ Ce point d'entrée est généralement un script, réalisant une série d'opérat
 
 ## Factoriser les informations
 
-Pour faciliter la maintenance (et éviter les erreurs humaines), éviter de répéter des informations comme:
+Pour faciliter la maintenance (et éviter les erreurs humaines), évitez de répéter des informations comme:
 
 - numéros de versions,
 

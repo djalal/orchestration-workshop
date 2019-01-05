@@ -52,7 +52,7 @@ Même sans un système de déploiement parfait, on peut réaliser plein d'opéra
 
 * La machine hôte expose les métriques et les informations du processus.
 
-_Mettons de côté pour plus tard les logs, volumes, etc. et jetons un oeil aux information de processus!_
+_Mettons de côté pour plus tard les logs, volumes, etc. et jetons un oeil aux informations de processus!_
 
 ---
 

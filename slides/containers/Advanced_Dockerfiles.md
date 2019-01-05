@@ -181,7 +181,7 @@ ADD ./assets.zip /var/www/htdocs/assets/
 ```
 Cette ligne décompresse `assets.zip` pour copier son contenu dans `/var/www/htdocs/assets`.
 
-*Néanmoins,*, `ADD` ne décompressera pas automatiquement les fichiers téléchargés à distance.
+*Néanmoins*, `ADD` ne décompressera pas automatiquement les fichiers téléchargés à distance.
 
 ---
 
@@ -192,7 +192,7 @@ Cette ligne décompresse `assets.zip` pour copier son contenu dans `/var/www/htd
 * Pour la plupart des instructions `Dockerfile`, Docker examine simplement le contenu
 du Dockerfile pour la vérification du cache.
 
-* Pour les instructions`ADD` et `COPY`, Docker vérifie aussi si les fichiers
+* Pour les instructions `ADD` et `COPY`, Docker vérifie aussi si les fichiers
 à ajouter à l'image ont été modifiés.
 
 * `ADD` doit toujours télécharger tout fichier distant avant de vérifier

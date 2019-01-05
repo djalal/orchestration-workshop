@@ -409,7 +409,7 @@ $ docker run --rm --net dev centos curl -s es:9200
 ```
 ]
 
-Puis essayons la à nouveau plusierus fois en remplaçant `--net dev` par `--net prod`:
+Puis essayons-la à nouveau plusieurs fois en remplaçant `--net dev` par `--net prod`:
 
 .small[
 ```bash
@@ -530,7 +530,7 @@ Instructions très rapides:
 - `docker network create mynet --driver overlay`
 - `docker service create --network mynet myimage`
 
-Voir https://jpetazzo.github.io/container.training  pour tous les détails sur les _clusters_!
+Voir https://container.training pour tous les détails sur les _clusters_!
 
 ---
 
@@ -608,7 +608,7 @@ Cela ne fonctionne pas, mais nous allons corriger cela en connectant le _contain
 ## Vérifier nos actions
 
 
-* Essoayez encore `ping es` depuis le _container_.
+* Essayez encore `ping es` depuis le _container_.
 
 * Cela devrait fonctionner correctement normalement:
 
@@ -653,7 +653,6 @@ Comme nous pouvons le voir, nous pouvons être connecté à plusieurs réseaux e
 
 ---
 
-## Disconnecting from a network
 ## Se déconnecter d'un réseau
 
 * Essayons ce que donne la commande symétrique pour déconnecter le _container_:
@@ -682,7 +681,6 @@ Comme nous pouvons le voir, nous pouvons être connecté à plusieurs réseaux e
 
 class: extra-details
 
-## Network aliases are scoped per network
 ## Visibilité des alias de réseau par réseau
 
 

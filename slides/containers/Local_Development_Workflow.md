@@ -1,45 +1,45 @@
 
 class: title
 
-# Local development workflow with Docker
+# Processus de développement local avec Docker
 
 ![Construction site](images/title-local-development-workflow-with-docker.jpg)
 
 ---
 
-## Objectives
+## Objectifs
 
-At the end of this section, you will be able to:
+A la fin de cette section, vous serez capable de:
 
-* Share code between container and host.
+* Partager du code entre conteneur et hôte.
 
-* Use a simple local development workflow.
-
----
-
-## Local development in a container
-
-We want to solve the following issues:
-
-- "Works on my machine"
-
-- "Not the same version"
-
-- "Missing dependency"
-
-By using Docker containers, we will get a consistent development environment.
+* Utiliser un processus de développement local simple.
 
 ---
 
-## Working on the "namer" application
+## Développement local dans un conteneur
 
-* We have to work on some application whose code is at:
+On veut résoudre les problèmes suivants:
+
+- "Ça marche sur ma machine"
+
+- "Pas la même version"
+
+- "Manque une dépendance"
+
+En utilisant les conteneurs Docker, on arrivera à un environnement de développement homogène.
+
+---
+
+## Travailler à l'application "namer"
+
+* Nous avons à travailler sur une application dont le code est sur:
 
   https://github.com/jpetazzo/namer.
 
-* What is it? We don't know yet!
+* De quoi s'agit-il? On ne le sait pas encore!
 
-* Let's download the code.
+* Récupérons le code.
 
 ```bash
 $ git clone https://github.com/jpetazzo/namer
@@ -47,7 +47,7 @@ $ git clone https://github.com/jpetazzo/namer
 
 ---
 
-## Looking at the code
+## Examiner le code
 
 ```bash
 $ cd namer
@@ -61,11 +61,11 @@ Gemfile
 
 --
 
-Aha, a `Gemfile`! This is Ruby. Probably. We know this. Maybe?
+Aha, un `Gemfile`! C'est du Ruby. Probablement. On s'en doute. A moins que?
 
 ---
 
-## Looking at the `Dockerfile`
+## Examiner le `Dockerfile`
 
 ```dockerfile
 FROM ruby
@@ -78,17 +78,17 @@ CMD ["rackup", "--host", "0.0.0.0"]
 EXPOSE 9292
 ```
 
-* This application is using a base `ruby` image.
-* The code is copied in `/src`.
-* Dependencies are installed with `bundler`.
-* The application is started with `rackup`.
-* It is listening on port 9292.
+* Cette appli utilise l'image de base `ruby`.
+* Le code est copié dans `/src`.
+* Les dépendances sont installées avec `bundler`.
+* L'application est lancé via `rackup`.
+* Elle écoute sur le port 9292.
 
 ---
 
-## Building and running the "namer" application
+## Générer et lancer l'application "namer"
 
-* Let's build the application with the `Dockerfile`!
+* Générons l'application grâce au `Dockerfile`!
 
 --
 
@@ -98,7 +98,7 @@ $ docker build -t namer .
 
 --
 
-* Then run it. *We need to expose its ports.*
+* Et maintenant lancez-là. *on doit publier ses ports.*
 
 --
 
@@ -108,7 +108,7 @@ $ docker run -dP namer
 
 --
 
-* Check on which port the container is listening.
+* Vérifiez sur quel port le conteneur écoute.
 
 --
 
@@ -118,71 +118,71 @@ $ docker ps -l
 
 ---
 
-## Connecting to our application
+## Accéder à notre application
 
-* Point our browser to our Docker node, on the port allocated to the container.
-
---
-
-* Hit "reload" a few times.
+* Pointez le navigateur sur le serveur Docker, et sur le port alloué au conteneur.
 
 --
 
-* This is an enterprise-class, carrier-grade, ISO-compliant company name generator!
+* Cliquez "Recharger" plusieurs fois.
 
-  (With 50% more bullshit than the average competition!)
+--
 
-  (Wait, was that 50% more, or 50% less? *Anyway!*)
+* C'est un générateur de nom d'entreprise de première classe, certifié ISO, niveau opérateur de réseau!
+
+  (Avec 50% de plus de baratin que la moyenne de la compétition!)
+
+  (Attends, c'était 50% de plus, ou 50% de moins? *Qu'importe!*)
 
   ![web application 1](images/webapp-in-blue.png)
 
 ---
 
-## Making changes to the code
+## Amender le code
 
 Option 1:
 
-* Edit the code locally
-* Rebuild the image
-* Re-run the container
+* Modifier le code en local
+* Re-générer une image
+* Relancer un conteneur
 
 Option 2:
 
-* Enter the container (with `docker exec`)
-* Install an editor
-* Make changes from within the container
+* S'introduire dans le conteneur (avec `docker exec`)
+* Installer un éditeur
+* Changer le code depuis l'intérieur du conteneur
 
 Option 3:
 
-* Use a *volume* to mount local files into the container
-* Make changes locally
-* Changes are reflected into the container
+* Utiliser un *volume* pour monter les fichiers locaux dans le conteneur
+* Opérer les changements en local
+* Constater les changements dans le conteneur
 
 ---
 
-## Our first volume
+## Notre premier volume
 
-We will tell Docker to map the current directory to `/src` in the container.
+On va indiquer à Docker de monter le dossier en cours sur `/src` dans le conteneur.
 
 ```bash
 $ docker run -d -v $(pwd):/src -P namer
 ```
 
-* `-d`: the container should run in detached mode (in the background).
+* `-d`: le conteneur doit tourner en mode détaché (en arrière-plan).
 
-* `-v`: the following host directory should be mounted inside the container.
+* `-v`: le dossier du hôte mentionné doit être monté à l'intérieur du conteneur.
 
-* `-P`: publish all the ports exposed by this image.
+* `-P`: tous les ports exposés par cette image doivent être publiés.
 
-* `namer` is the name of the image we will run.
+* `namer` est le nom de l'image à exécuter.
 
-* We don't specify a command to run because it is already set in the Dockerfile.
+* Nous n'ajoutons pas la commande à lancer car elle est déjà dans le Dockerfile.
 
-Note: on Windows, replace `$(pwd)` with `%cd%` (or `${pwd}` if you use PowerShell).
+Note: sur Windows, remplacer `$(pwd)`par `%cd%` (ou `${pwd}` avec PowerShell).
 
 ---
 
-## Mounting volumes inside containers
+## Monter les volumes dans des conteneurs
 
 The `-v` flag mounts a directory from your host into your Docker container.
 

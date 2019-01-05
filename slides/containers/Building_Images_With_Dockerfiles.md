@@ -224,7 +224,7 @@ La plupart des arguments de `Dockerfile` peuvent être passés sous deux formes:
 * liste JSON:
   <br/>`RUN ["apt-get", "install", "figlet"]`
 
-We are going to change our Dockerfile to see how it affects the resulting image.
+Nous allons changer notre Dockerfile et voir comment cela affecte l'image résultante.
 
 ---
 
@@ -281,4 +281,4 @@ IMAGE         CREATED            CREATED BY                     SIZE
   * est plus longue à écrire (et à lire!)
   * passe tous les arguments sans interprétation
   * n'ajoute pas de processus supplémentaire
-  * ne requière pas l'existence de `/bin/sh` dans le conteneur
+  * ne requiert pas l'existence de `/bin/sh` dans le conteneur

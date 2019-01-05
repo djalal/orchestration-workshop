@@ -172,7 +172,6 @@ Examinons chacun d'entre eux.
 
 ---
 
-## Root namespace
 ## Espace de nom 'racine'
 
 L'espace de nom racine est pour les images officielles. Elles y sont placées par Docker Inc.,

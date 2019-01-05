@@ -40,7 +40,6 @@ Pas de souci, nous y arriverons assez tôt!
 
 ---
 
-## Deployment becomes very complex
 ## Déployer devient très compliqué
 
 * Nombreuses technos différentes:
@@ -194,7 +193,6 @@ Bien plus rapide et économique que de monter des VMs à chaque fois!
 
 class: extra-details
 
-## Use container images as build artefacts
 ## Utiliser des images de conteneurs comme artefacts de _build_
 
 1. Générez votre appli à partir de Dockerfiles
@@ -241,7 +239,6 @@ class: extra-details
 
 class: extra-details
 
-## Formats and APIs, before Docker
 ## Formats et APIs, avant Docker
 
 * Aucun format d'échange standard.

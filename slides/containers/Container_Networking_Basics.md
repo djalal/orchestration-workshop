@@ -37,7 +37,7 @@ $ docker run -d -P nginx
 * `-d` dit à Docker de lancer une image en tâche de fond.
 
 * `-P` dit à Docker de rendre se service disponible depuis d'autres serveurs.
-  <br/>(`-P` est la version courte de `--publish-all`/)
+  <br/>(`-P` est la version courte de `--publish-all`)
 
 Mais, comment on se connecte à notre serveur web maintenant?
 
@@ -157,7 +157,7 @@ $ docker run -d -p 8080:80 -p 8888:80 nginx
 * Le deuxième est exposé sur le port 8000.
 * Le troisième est exposé sur les ports 8080 et 8888.
 
-Note: la convention est `port-sur-hôte:port-sur-conteneur`.
+Note: la convention est `port-du-hôte:port-du-conteneur`.
 
 ---
 

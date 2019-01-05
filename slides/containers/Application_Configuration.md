@@ -1,6 +1,6 @@
 # Configuration d'applications
 
-Il y a de nombreuses façon de passer une configuration aux applications containerisées.
+Il y a de nombreuses façons de passer une configuration aux applications containerisées.
 
 Il n'y a pas de "bonne manière", cela dépend de plusieurs facteurs, tels que:
 
@@ -185,7 +185,7 @@ La configuration pourrait aussi mise à jour via une API REST.
 
 * des images, surtout celles stockées dans une Registry.
 
-La gestion des secrets est mieux prise en charge avec un orchestrateur (comme Swarm ou Kubernetes).
+La gestion des secrets est mieux supportée avec un orchestrateur (type Swarm ou K8S).
 
 Les orchestrateurs autorisent la transmission de secrets en "sens-unique".
 

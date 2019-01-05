@@ -40,9 +40,9 @@ En téléchargeant une image, tous les _layers_ doivent être récupérés.
 | ---------------------- | ---------- | ---------- |
 | `FROM ubuntu` | Taille de l'image de base | Taille de l'image de base  |
 | `...` | ... | Somme de cette couche <br/>+ toutes les précédentes |
-| `RUN apt-get install somepackage` | Taille des fichiers ajoutés <br/>(e.g. quelques Mo) | Somme de cette couche <br/>+ toutes les couches précédentes|
+| `RUN apt-get install somepackage` | Taille des fichiers ajoutés <br/>(e.g. qqes Mo) | Somme de cette couche <br/>+ toutes les couches précédentes|
 | `...` | ... | Somme de cette couche <br/>+ toutes les couches précédentes |
-| `RUN apt-get remove somepackage` | Pratiquement zéro<br/>(juste des méta-données) | Identique à la précédente |
+| `RUN apt-get remove somepackage` | Env. zéro<br/>(méta-données seules) | Identique à la précédente |
 
 En conséquence, `RUN rm` ne réduit pas la taille de l'image, ni ne libère d'espace disque.
 
@@ -221,7 +221,7 @@ Nous allons voir comment ça marche plus en détail.
 
 * Chaque étape est numérotée, en débutant à `0`
 
-* Nous pouvons copier un fichier d'une étape précédentes en indiquant son numéro, par ex.:
+* Nous pouvons copier un fichier d'une étape précédente en indiquant son numéro, par ex.:
 
   ```dockerfile
   COPY --from=0 /fichier/depuis/etape/une /chemin/dans/etape/courante
@@ -254,7 +254,7 @@ Le Dockerfile résultant est dans la prochaine diapo.
 
 ---
 
-## `Dockerfile`du _build_ multi-stage
+## `Dockerfile` du _build_ multi-stage
 
 Voici le Dockerfile final:
 
