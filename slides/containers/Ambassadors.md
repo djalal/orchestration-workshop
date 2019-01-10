@@ -1,42 +1,41 @@
 
 class: title
 
-# Ambassadors
+# Ambassadeurs
 
 ![Two serious-looking persons shaking hands](images/title-ambassador.jpg)
 
 ---
 
-## The ambassador pattern
+## Le modèle Ambassadeur
 
-Ambassadors are containers that "masquerade" or "proxy" for another service.
+On appelle "Ambassadeur" tout conteneur qui agit en "proxy" ou "déguisement" d'un autre service.
 
-They abstract the connection details for this services, and can help with:
+Il encapsule les détails de connexion pour ces services, et peut aider à:
 
-* discovery (where is my service actually running?)
+* la découverte (où mon service est vraiment en train de tourner?)
 
-* migration (what if my service has to be moved while I use it?)
+* la migration (que faire si mon service doit être déplacé pendant son utilisation?)
 
-* fail over (how do I know to which instance of a replicated service I should connect?)
+* le basculement (comment savoir à quelle instance d'un service je dois me connecter?)
 
-* load balancing (how to I spread my requests across multiple instances of a service?)
+* la répartition de charge (comment partager mes requêtes à travers plusieurs instance d'un service?)
 
-* authentication (what if my service requires credentials, certificates, or otherwise?)
+* l'authentification (que faire si mon service exige des accès, certificats ou autre?)
 
 ---
 
-## Introduction to Ambassadors
+## Introduction aux ambassadeurs
 
-The ambassador pattern:
+Le modèle d'ambassadeur:
 
-* Takes advantage of Docker's per-container naming system and abstracts
-  connections between services.
+* tire avantage du système de nommage "par conteneur" de Docker,
+et encapsule les connexions entre services.
 
-* Allows you to manage services without hard-coding connection
-  information inside applications.
+* permet de gérer les services sans coder les informations de connexion en dur dans les applications.
 
-To do this, instead of directly connecting containers you insert
-ambassador containers.
+Pour ce faire, au lieu de se connecter directement aux conteneurs, on intercale
+des conteneurs ambassadeurs.
 
 ---
 
@@ -46,159 +45,159 @@ class: pic
 
 ---
 
-## Interacting with ambassadors
+## Intéragir avec les ambassadeurs
 
-* The web container uses normal Docker networking to connect
-  to the ambassador.
+* Le conteneur web utilise le réseau classique Docker pour
+se connecter à l'ambassadeur.
 
-* The database container also talks with an ambassador.
+* Le conteneur de base de données échange aussi avec un ambassadeur.
 
-* For both containers, the ambassador is totally transparent.
+* Pour les deux conteneurs, l'ambassadeur est totalement transparent.
   <br/>
-  (There is no difference between normal
-  operation and operation with an ambassador.)
+  (Il n'y a aucune différence entre un traitement normal
+  et un traitement via un ambassadeur.)
 
-* If the database container is moved (or a failover happens), its new location will
-  be tracked by the ambassador containers, and the web application
-  container will still be able to connect, without reconfiguration.
-
----
-
-## Ambassadors for simple service discovery
-
-Use case:
-
-* my application code connects to `redis` on the default port (6379),
-* my Redis service runs on another machine, on a non-default port (e.g. 12345),
-* I want to use an ambassador to let my application connect without modification.
-
-The ambassador will be:
-
-* a container running right next to my application,
-* using the name `redis` (or linked as `redis`),
-* listening on port 6379,
-* forwarding connections to the actual Redis service.
+* Si le conteneur de BDD est déplacé (ou si un basculement arrive), sa nouvelle
+localisation sera suivie par les conteneurs ambassadeurs, et le conteneur
+application web sera encore capable de se connecter, sans reconfiguration.
 
 ---
 
-## Ambassadors for service migration
+## Ambassadeur pour simple service de localisation
 
-Use case:
+Cas d'usage:
 
-* my application code still connects to `redis`,
-* my Redis service runs somewhere else,
-* my Redis service is moved to a different host+port,
-* the location of the Redis service is given to me via e.g. DNS SRV records,
-* I want to use an ambassador to automatically connect to the new location, with as little disruption as possible.
+* mon code d'application se connecte à `redis` sur le port par défaut (6379),
+* mon service Redis tourne sur une autre machine, sur un port non conventionnel (par ex. 12345)
+* Je veux utiliser un ambassadeur pour permettre à mon application de sec connecter sans modification.
 
-The ambassador will be:
+Le conteneur ambassadeur devra:
 
-* the same kind of container as before,
-* running an additional routine to monitor DNS SRV records,
-* updating the forwarding destination when the DNS SRV records are updated.
-
----
-
-## Ambassadors for credentials injection
-
-Use case:
-
-* my application code still connects to `redis`,
-* my application code doesn't provide Redis credentials,
-* my production Redis service requires credentials,
-* my staging Redis service requires different credentials,
-* I want to use an ambassador to abstract those credentials.
-
-The ambassador will be:
-
-* a container using the name `redis` (or a link),
-* passed the credentials to use,
-* running a custom proxy that accepts connections on Redis default port,
-* performing authentication with the target Redis service before forwarding traffic.
+* être placé au plus proche de mon appli,
+* se nommer `redis` (ou lié en tant que `redis`),
+* écouter sur le port 6379,
+* transmettre les connexions au service Redis réel.
 
 ---
 
-## Ambassadors for load balancing
+## Ambassadeur pour migration de service
 
-Use case:
+Cas d'usage:
 
-* my application code connects to a web service called `api`,
-* I want to run multiple instances of the `api` backend,
-* those instances will be on different machines and ports,
-* I want to use an ambassador to abstract those details.
+* mon application se connecte toujours à `redis`,
+* mon service Redis tourne quelque part d'autre,
+* mon service Redis est déplacé sur un autre hôte+port,
+* la localisation du service Redis m'est fournie via par ex. les champs DNS SRV
+* je veux utiliser un ambassadeur pour me connecter automatiquement au nouveau serveur, avec un minimum de coupure.
 
-The ambassador will be:
+Le conteneur ambassadeur devra:
 
-* a container using the name `api` (or a link),
-* passed the list of backends to use (statically or dynamically),
-* running a load balancer (e.g. HAProxy or NGINX),
-* dispatching requests across all backends transparently.
-
----
-
-## "Ambassador" is a *pattern*
-
-There are many ways to implement the pattern.
-
-Different deployments will use different underlying technologies.
-
-* On-premise deployments with a trusted network can track
-  container locations in e.g. Zookeeper, and generate HAproxy
-  configurations each time a location key changes.
-* Public cloud deployments or deployments across unsafe
-  networks can add TLS encryption.
-* Ad-hoc deployments can use a master-less discovery protocol
-  like avahi to register and discover services.
-* It is also possible to do one-shot reconfiguration of the
-  ambassadors. It is slightly less dynamic but has much less
-  requirements.
-* Ambassadors can be used in addition to, or instead of, overlay networks.
+* ressembler au précédent conteneur,
+* faire tourner une routine supplémentaire pour surveiller les champs DNS SRV,
+* mettre à jour la destination cible quand les champs DNS SRV changent.
 
 ---
 
-## Service meshes
+## Ambassadeurs pour injection d'accès
 
-* A service mesh is a configurable network layer.
+Cas d'usage:
 
-* It can provide service discovery, high availability, load balancing, observability...
+* mon code d'application se connecte toujours à `redis`,
+* mon code d'application ne fournit pas d'identifiants Redis,
+* mon service Redis en production requiert des identifiants,
+* mon service Redis de _staging_ requiert des identifiants différents,
+* je veux utiliser un ambassadeur pour extraire la logique de gestion des identifiants
 
-* Service meshes are particularly useful for microservices applications.
+Le conteneur ambassadeur devra:
 
-* Service meshes are often implemented as proxies.
-
-* Applications connect to the service mesh, which relays the connection where needed.
-
-*Does that sound familiar?*
-
----
-
-## Ambassadors and service meshes
-
-* When using a service mesh, a "sidecar container" is often used as a proxy
-
-* Our services connect (transparently) to that sidecar container
-
-* That sidecar container figures out where to forward the traffic
-
-... Does that sound familiar?
-
-(It should, because service meshes are essentially app-wide or cluster-wide ambassadors!)
+* utiliser le nom `redis` (ou un alias),
+* transmettre les identifiants à utiliser,
+* lancer un proxy spécifique qui accepte les connexions sur le port Redis par défaut,
+* opérer l'authentification avec le service Redis de cible avant de transmettre le trafic.
 
 ---
 
-## Section summary
+## Ambassadeurs de répartition de charge
 
-We've learned how to:
+Cas d'usage:
 
-* Understand the ambassador pattern and what it is used for (service portability).
+* mon code d'application se connecte à un service web nommé `api`,
+* je veux lancer plusieurs instances de ma couche `api`,
+* ces instances tournent sur des hôtes et ports différents,
+* je veux utiliser un ambassadeur pour cacher ces détails à mon code.
 
-For more information about the ambassador pattern, including demos on Swarm and ECS: 
+Le conteneur ambassadeur devra:
+
+* utiliser le nom `api` (ou un alias),
+* passer la liste des instances `api` à utiliser (de façon statique ou dynamique)
+* faire tourner un répartiteur de charge (par ex. HAProxy ou NGiNX),
+* partager les requêtes entre les instances `api` de façon transparente.
+
+---
+
+## "Ambassadeur" est un *modèle de conception*
+
+Il existe de nombreuses implémentations possibles.
+
+Différents déploiements utiliseront différents technologies sous-jacentes.
+
+* Des déploiements dans vos locaux au sein d'un réseau de confiance peuvent
+suivre la localisation des conteneurs dans par ex. Zookeeper, et générer
+les configurations HAproxy à chaque fois qu'une clé de localisation change.
+* On pourra ajouter un chiffrement TLS aux déploiements dans un cloud public
+ou à travers des réseaux risqués.
+* Des déploiements spéciaux peuvent utiliser un protocole de découverte
+sans maître tel avahi pour inscrire et découvrir des services.
+* Il est aussi possible de procéder à une reconfiguration ponctuelle des
+ambassadeurs. C'est relativement moins dynamique mais cela demande
+beaucoup moins de pré-requis.
+* On peut utiliser les ambassadeurs en plus ou à la place des réseaux superposés.
+
+---
+
+## Service de maillage
+
+* Un _service mesh_ est une couche réseau configurable.
+
+* Cette couche fournit le service de découverte, la haute disponibilité, la répartition de charge, l'observabilité...
+
+* Les _service meshes_ sont particulièrement utiles pour les applications en microservices.
+
+* Les _service meshes_ sont souvent installés en position de proxy.
+
+* Les applications se connectent au service de maillage, qui va relayer la requête vers sa cible.
+
+*Ça vous dit quelque chose?*
+
+---
+
+## Ambassadeurs et service meshes
+
+* En utilisant un _service mesh_, un "conteneur side-car" est souvent utilisé comme proxy
+
+* Nos services s'y connectent en transparence à ce conteneur side-car
+
+* Ce conteneur side-car détermine où transmettre le trafic réseau
+
+... Ça vous dit quelque chose?
+
+(Ça devrait, parce que les services de maillage sont par nature des ambassadeurs au niveau d'un cluster ou d'une appli)
+
+---
+
+## Résumé de section
+
+Nous avons appris comment:
+
+* comprendre le motif de conception d'ambassadeur et comment l'utiliser (portabilité de service).
+
+Pour plus d'information sur le _pattern_ ambassadeur, incluant des demos sur Swarm et ECS:
 
 * AWS re:invent 2015 [DVO317](https://www.youtube.com/watch?v=7CZFpHUPqXw)
 
 * [SwarmWeek video about Swarm+Compose](https://youtube.com/watch?v=qbIvUvwa6As)
 
-Some services meshes and related projects:
+Quelques services de maillage et projets relatifs:
 
 * [Istio](https://istio.io/)
 

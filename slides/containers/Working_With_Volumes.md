@@ -1,128 +1,129 @@
 
 class: title
 
-# Working with volumes
+# Travailler avec des volumes
 
 ![volume](images/title-working-with-volumes.jpg)
 
 ---
 
-## Objectives
+## Objectifs
 
-At the end of this section, you will be able to:
+A la fin de cette section, vous serez capable de:
 
-* Create containers holding volumes.
+* Créer des conteneurs gérant des volumes.
 
-* Share volumes across containers.
+* Partager des volumes à travers des conteneurs.
 
-* Share a host directory with one or many containers.
-
----
-
-## Working with volumes
-
-Docker volumes can be used to achieve many things, including:
-
-* Bypassing the copy-on-write system to obtain native disk I/O performance.
-
-* Bypassing copy-on-write to leave some files out of `docker commit`.
-
-* Sharing a directory between multiple containers.
-
-* Sharing a directory between the host and a container.
-
-* Sharing a *single file* between the host and a container.
-
-* Using remote storage and custom storage with "volume drivers".
+* Partager un dossier du serveur ave un ou plusieurs conteneurs.
 
 ---
 
-## Volumes are special directories in a container
+## Travailler avec des volumes
 
-Volumes can be declared in two different ways.
+Les volumes Docker sont utilisés pour accomplir bien des buts, y compris:
 
-* Within a `Dockerfile`, with a `VOLUME` instruction.
+* Contourner le système _copy-on-write_ pour obtenir une performance d'I/O native.
+
+* Contourner le _copy-on-write_ pour laisser quelques fichiers hors de `docker commit`.
+
+* Partager un dossier entre plusieurs conteneurs.
+
+* Partager un dossier entre le serveur et le conteneur.
+
+* Partager _un seul fichier_ entre l'hôte et le conteneur.
+
+* Utiliser un stockage distant et un stockage spécifique avec les "pilotes de volumes".
+
+---
+
+## "Volumes", des dossiers spéciaux d'un conteneur
+
+On peut déclarer des volumes de deux façons différentes.
+
+* Dans un `Dockerfile`, avec une instruction `VOLUME`.
 
 ```dockerfile
 VOLUME /uploads
 ```
 
-* On the command-line, with the `-v` flag for `docker run`.
+* En ligne de commande, avec l'option `-v` avec `docker run`.
 
 ```bash
 $ docker run -d -v /uploads myapp
 ```
 
-In both cases, `/uploads` (inside the container) will be a volume.
+Dans les deux cas, `/uploads` (à l'intérieur du conteneur) sera un volume.
 
 ---
 
 class: extra-details
 
-## Volumes bypass the copy-on-write system
+## Les volumes pour contourner le système _copy-on-write_
 
-Volumes act as passthroughs to the host filesystem.
+Les volumes agissent comme des passerelles vers le système de fichier de l'hôte.
 
-* The I/O performance on a volume is exactly the same as I/O performance
-  on the Docker host.
+* La performance d'un volume en termes d'I/O disque est exactement la même
+  que sur l'hôte Docker.
 
-* When you `docker commit`, the content of volumes is not brought into
-  the resulting image.
+* Quand on fait un `docker commit`, le contenu des volumes n'est pas intégré
+  dans l'image résultante.
 
-* If a `RUN` instruction in a `Dockerfile` changes the content of a
-  volume, those changes are not recorded neither.
+* Si une instruction `RUN` dans un `Dockerfile`change le contenu d'un volume,
+  ces changements ne seront pas non plus enregistrés.
 
-* If a container is started with the `--read-only` flag, the volume
-  will still be writable (unless the volume is a read-only volume).
-
----
-
-class: extra-details
-
-## Volumes can be shared across containers
-
-You can start a container with *exactly the same volumes* as another one.
-
-The new container will have the same volumes, in the same directories.
-
-They will contain exactly the same thing, and remain in sync.
-
-Under the hood, they are actually the same directories on the host anyway.
-
-This is done using the `--volumes-from` flag for `docker run`.
-
-We will see an example in the following slides.
+* Si un conteneur est démarré avec l'option `--read-only`, le volume sera
+  toujours modifiable (à moins que le volume lui-même soit en lecture-seule).
 
 ---
 
 class: extra-details
 
-## Sharing app server logs with another container
+## Les volumes peuvent être partagés entre conteneurs
 
-Let's start a Tomcat container:
+Vous pouvez démarrer un conteneur avec *exactement les mêmes volumes* qu'un autre.
+
+Le nouveau conteneur aura les mêmes volumes, dans les mêmes dossiers.
+
+Ils contiendront exactement la même chose, et resteront synchronisés.
+
+Sous le capot, ce sont en fait les mêmes dossiers sur le serveur.
+
+C'est possible avec l'option `--volumes-from` dans `docker run`.
+
+Nous allons en voir un exemple dans les diapos suivantes.
+
+---
+
+class: extra-details
+
+## Partager les logs d'un serveur d'application avec un autre conteneur
+
+Démarrons un conteneur Tomcat:
 
 ```bash
 $ docker run --name webapp -d -p 8080:8080 -v /usr/local/tomcat/logs tomcat
 ```
 
-Now, start an `alpine` container accessing the same volume:
+Maintenant, démarrons un conteneur `alpine` avec les mêmes volumes:
 
 ```bash
 $ docker run --volumes-from webapp alpine sh -c "tail -f /usr/local/tomcat/logs/*"
 ```
 
-Then, from another window, send requests to our Tomcat container:
+Puis, d'une autre fenêtre, envoyons des requêtes à notre conteneur Tomcat:
+
 ```bash
 $ curl localhost:8080
 ```
 
 ---
 
-## Volumes exist independently of containers
+## Les volumes existent indépendemment des conteneurs
 
-If a container is stopped or removed, its volumes still exist and are available.
+Si un conteneur est arrêté ou supprimé, ses volumes existent toujours et sont accessibles.
 
-Volumes can be listed and manipulated with `docker volume` subcommands:
+On peut lister et manipuler les volumes avec les sous-commandes de `docker volume`:
 
 ```bash
 $ docker volume ls
@@ -133,17 +134,17 @@ local               pgdata-dev
 local               13b59c9936d78d109d094693446e174e5480d973...
 ```
 
-Some of those volume names were explicit (pgdata-prod, pgdata-dev).
+Certains des noms de volumes sont explicites (pgdata-prod, pgdata-dev).
 
-The others (the hex IDs) were generated automatically by Docker.
+D'autres (les IDs hexa) sont générés automatiquement par Docker.
 
 ---
 
-## Naming volumes
+## Nommer les volumes
 
-* Volumes can be created without a container, then used in multiple containers.
+* On peut créer des volumes sans conteneur, et les utiliser ensuite dans plusieurs conteneurs.
 
-Let's create a couple of volumes directly.
+Ajoutons quelques volumes directement.
 
 ```bash
 $ docker volume create webapps
@@ -155,17 +156,17 @@ $ docker volume create logs
 logs
 ```
 
-Volumes are not anchored to a specific path.
+Nos volumes ne sont attachés à aucun dossier en particulier.
 
 ---
 
-## Using our named volumes
+## Utiliser nos volumes nommés
 
-* Volumes are used with the `-v` option.
+* On active les volumes avec l'option `-v`.
 
-* When a host path does not contain a /, it is considered to be a volume name.
+* Quand le chemin côté hôte ne contient pas de /, il est traité comme un nom de volume.
 
-Let's start a web server using the two previous volumes.
+Démarrons un serveur web avec les deux précédents volumes.
 
 ```bash
 $ docker run -d -p 1234:8080 \
@@ -174,99 +175,99 @@ $ docker run -d -p 1234:8080 \
          tomcat
 ```
 
-Check that it's running correctly:
+Vérifions que cela s'exécute normalement:
 
 ```bash
 $ curl localhost:1234
-... (Tomcat tells us how happy it is to be up and running) ...
+... (Tomcat nous raconte combien il est content de tourner) ...
 ```
 
 ---
 
-## Using a volume in another container
+## utiliser un volume d'un autre conteneur
 
-* We will make changes to the volume from another container.
+* Nous allons modifier le contenu d'un volume depuis un autre conteneur.
 
-* In this example, we will run a text editor in the other container.
+* Dans cet exemple, nous allons lancer un éditeur de texte dans un autre conteneur.
 
-  (But this could be a FTP server, a WebDAV server, a Git receiver...)
+  (Mais ça pourrait être un serveur FTP, un serveur WebDAV, un dépôt Git...)
 
-Let's start another container using the `webapps` volume.
+Démarrons un autre conteneur attaché au volume `webapps`.
 
 ```bash
 $ docker run -v webapps:/webapps -w /webapps -ti alpine vi ROOT/index.jsp
 ```
 
-Vandalize the page, save, exit.
+Il nous reste à vandaliser la page, enregistrer, et sortir.
 
-Then run `curl localhost:1234` again to see your changes.
+Exécutons encore un `curl localhost:1234` pour voir nos changements.
 
 ---
 
-## Using custom "bind-mounts"
+## Usage des "bind-mounts" personnalisés
 
-In some cases, you want a specific directory on the host to be mapped
-inside the container:
+Dans certains cas, vous voudrez monter un dossier depuis l'hôte vers le conteneur:
 
-* You want to manage storage and snapshots yourself.
+* Pour gérer le stockage et les snapshots vous-même;
 
-    (With LVM, or a SAN, or ZFS, or anything else!)
+  (Avec LVM, ou un SAN, ou ZFS, ou toute autre chose!)
 
-* You have a separate disk with better performance (SSD) or resiliency (EBS)
-  than the system disk, and you want to put important data on that disk.
+* ou vous avez un autre disque aux meilleures performances (SSD) ou à résilience supérieure (EBS)
+et vous voulez y placer d'importantes données.
 
-* You want to share your source directory between your host (where the
-  source gets edited) and the container (where it is compiled or executed).
+* ou vous voulez partager un dossier source entre votre hôte (où se trouve le source)
+et le conteneur (où se passe la compilation et l'exécution).
 
-Wait, we already met the last use-case in our example development workflow!
-Nice.
+Un moment, on a déjà vu ce cas d'usage dans notre exemple de processus de développement!
+Pas mal.
 
 ```bash
-$ docker run -d -v /path/on/the/host:/path/in/container image ...
+$ docker run -d -v /chemin/depuis/notre/hote:/chemin/dans/le/conteneur image ...
 ```
 
 ---
 
 class: extra-details
 
-## Migrating data with `--volumes-from`
+## Migrer des données avec `--volumes-from`
 
-The `--volumes-from` option tells Docker to re-use all the volumes
-of an existing container.
+L'option `--volumes-from` indique à Docker de reprendre tous les volumes
+d'un conteneur existant.
 
-* Scenario: migrating from Redis 2.8 to Redis 3.0.
+* Scenario: migrer de Redis 2.8 à Redis 3.0.
 
-* We have a container (`myredis`) running Redis 2.8.
+* Nous avons un conteneur (`myredis`) qui fait tourner Redis 2.8.
 
-* Stop the `myredis` container.
+* Arrêtez le conteneur `myredis`.
 
-* Start a new container, using the Redis 3.0 image, and the `--volumes-from` option.
+* Démarrez un nouveau conteneur, avec l'image Redis 3.0, et l'option `--volumes-from`.
 
-* The new container will inherit the data of the old one.
+* Le nouveau conteneur va hériter des données de l'ancien.
 
-* Newer containers can use `--volumes-from` too.
+* Les futurs conteneurs pourront aussi utiliser `--volumes-from`.
 
-* Doesn't work across servers, so not usable in clusters (Swarm, Kubernetes).
+* Ne marche pas entre serveurs, donc impossible en clusters (Swarm, Kubernetes).
+
 
 ---
 
 class: extra-details
 
-## Data migration in practice
+## Migration de données en pratique
 
-Let's create a Redis container.
+Créons un conteneur Redis.
 
 ```bash
 $ docker run -d --name redis28 redis:2.8
 ```
 
-Connect to the Redis container and set some data.
+Puis connectons-nous au conteneur Redis pour ajouter des données.
 
 ```bash
 $ docker run -ti --link redis28:redis busybox telnet redis 6379
 ```
 
-Issue the following commands:
+Envoyons les commandes suivantes:
 
 ```bash
 SET counter 42
@@ -279,15 +280,15 @@ QUIT
 
 class: extra-details
 
-## Upgrading Redis
+## Mettre à jour Redis
 
-Stop the Redis container.
+Arrêtez le conteneur Redis.
 
 ```bash
 $ docker stop redis28
 ```
 
-Start the new Redis container.
+Démarrer le nouveau conteneur Redis.
 
 ```bash
 $ docker run -d --name redis30 --volumes-from redis28 redis:3.0
@@ -297,15 +298,15 @@ $ docker run -d --name redis30 --volumes-from redis28 redis:3.0
 
 class: extra-details
 
-## Testing the new Redis
+## Tester le nouveau Redis
 
-Connect to the Redis container and see our data.
+Connectez-vous au conteneur Redis pour voir les données.
 
 ```bash
 docker run -ti --link redis30:redis busybox telnet redis 6379
 ```
 
-Issue a few commands.
+Lancez les commandes suivantes:
 
 ```bash
 GET counter
@@ -315,26 +316,26 @@ QUIT
 
 ---
 
-## Volumes lifecycle
+## Cycle de vie des volumes
 
-* When you remove a container, its volumes are kept around.
+* Au moment de supprimer le conteneur, ses volumes sont conservés.
 
-* You can list them with `docker volume ls`.
+* On peut les lister avec `docker volume ls`.
 
-* You can access them by creating a container with `docker run -v`.
+* On peut y accéder en créant un conteneur avec `docker run -v`.
 
-* You can remove them with `docker volume rm` or `docker system prune`.
+* On peut les supprimer avec `docker volume rm` ou `docker system prune`.
 
-Ultimately, _you_ are the one responsible for logging,
-monitoring, and backup of your volumes.
+Au final, _vous_ êtes responsable de logger,
+surveiller, et sauvegarder vos volumes.
 
 ---
 
 class: extra-details
 
-## Checking volumes defined by an image
+## Vérifier les volumes définis par une image
 
-Wondering if an image has volumes? Just use `docker inspect`:
+Vous vous demandez si une image a des volumes? Il suffit d'appeler `docker inspect`:
 
 ```bash
 $ # docker inspect training/datavol
@@ -352,10 +353,10 @@ $ # docker inspect training/datavol
 
 class: extra-details
 
-## Checking volumes used by a container
+## Vérifier les volumes utilisés par un conteneur
 
-To look which paths are actually volumes, and to what they are bound,
-use `docker inspect` (again):
+Pour voir quels dossiers sont en fait des volumes, et où est-ce qu'ils pointent,
+passons par `docker inspect` (encore):
 
 ```bash
 $ docker inspect <yourContainerID>
@@ -371,78 +372,75 @@ $ docker inspect <yourContainerID>
 }]
 ```
 
-* We can see that our volume is present on the file system of the Docker host.
+* On peut voir que le volume est présent sur le système de fichier de l'hôte Docker.
 
 ---
 
-## Sharing a single file
+## Partager un seul fichier
 
-The same `-v` flag can be used to share a single file (instead of a directory).
+La même option `-v` peut servir à partage un seul fichier (au lieu de tout un dossier).
 
-One of the most interesting examples is to share the Docker control socket.
+Un des exemples les plus intéressants est de partager la socket de contrôle de Docker.
 
 ```bash
 $ docker run -it -v /var/run/docker.sock:/var/run/docker.sock docker sh
 ```
 
-From that container, you can now run `docker` commands communicating with
-the Docker Engine running on the host. Try `docker ps`!
+Depuis ce conteneur, on peut lancer des commandes `docker` pour communiquer avec
+le Docker Engine qui tourne sur ce serveur. Essayez `docker ps`!
 
-.warning[Since that container has access to the Docker socket, it
-has root-like access to the host.]
+.warning[Puisque ce conteneur a accès à la socket Docker, il a un accès root au hôte.]
 
 ---
 
-## Volume plugins
+## Plugins de volume
 
-You can install plugins to manage volumes backed by particular storage systems,
-or providing extra features. For instance:
+Vous pouvez installer des plugins pour gérer les volumes adossés à différents
+systèmes de stockage ou ayant des fonctions spéciales. Par exemple:
 
-* [REX-Ray](https://rexray.io/) - create and manage volumes backed by an enterprise storage system (e.g.
-  SAN or NAS), or by cloud block stores (e.g. EBS, EFS).
+* [REX-Ray](https://rexray.io/) - créer et gérer des volumes adossés à un système de stockage professionnel (SAN ou NAS), ou des solutions cloud (par ex. EBS, EFS).
 
-* [Portworx](http://portworx.com/) - provides distributed block store for containers.
+* [Portworx](https://portworx.com/) - fournit un stockage par bloc distribué pour conteneurs.
 
-* [Gluster](https://www.gluster.org/) - open source software-defined distributed storage that can scale
-  to several petabytes. It provides interfaces for object, block and file storage.
+* [Gluster](https://www.gluster.org/) - stockage open source, défini par code, qui peut grimper jusqu'à plusieurs petaoctets. Il fournit une interface pour du stockage d'objet, bloc ou fichier.
 
-* and much more at the [Docker Store](https://store.docker.com/search?category=volume&q=&type=plugin)!
+* et bien d'autres sur le [Docker Store](https://store.docker.com/search?category=volume&q=&type=plugin)!
 
 ---
 
 ## Volumes vs. Mounts
 
-* Since Docker 17.06, a new options is available: `--mount`.
+* Depuis Docker 17.06, une nouvelle option est disponible: `--mount`.
 
-* It offers a new, richer syntax to manipulate data in containers.
+* Elle offre une syntaxe plus riche pour manipuler les données de conteneurs.
 
-* It makes an explicit difference between:
+* Elle introduit une différence explicite entre:
 
-  - volumes (identified with a unique name, managed by a storage plugin),
+ - les volumes (identifiés par un nom unique, gérés par un plugin de stockage),
 
-  - bind mounts (identified with a host path, not managed).
+ - les _bind mounts_ (identifiés par un chemin du hôte, sans gestion intermédiaire).
 
-* The former `-v` / `--volume` option is still usable.
+* L'option précédente `-v` / `--volume` reste toujours utilisable.
 
 ---
 
-## `--mount` syntax
+## Syntaxe de `--mount`
 
-Binding a host path to a container path:
+Attacher un dossier de l'hôte à un chemin du conteneur:
 
 ```bash
 $ docker run \
   --mount type=bind,source=/path/on/host,target=/path/in/container alpine
 ```
 
-Mounting a volume to a container path:
+Monter un volume dans un chemin du conteneur:
 
 ```bash
 $ docker run \
   --mount source=myvolume,target=/path/in/container alpine
 ```
 
-Mounting a tmpfs (in-memory, for temporary files):
+Monter un _tmpfs_ (pour stockage de fichiers temporaires en mémoire):
 
 ```bash
 $ docker run \
@@ -451,12 +449,12 @@ $ docker run \
 
 ---
 
-## Section summary
+## Résumé de section
 
-We've learned how to:
+Nous avons appris comment:
 
-* Create and manage volumes.
+* Créer et gérer les images.
 
-* Share volumes across containers.
+* Partager des volumes entre conteneurs.
 
-* Share a host directory with one or many containers.
+* Partager un dossier de l'hôte avec un ou plusieurs conteneurs.

@@ -184,28 +184,27 @@ Note: sur Windows, remplacer `$(pwd)`par `%cd%` (ou `${pwd}` avec PowerShell).
 
 ## Monter les volumes dans des conteneurs
 
-The `-v` flag mounts a directory from your host into your Docker container.
+L'option `-v` monte un dossier depuis votre hôte dans le conteneur Docker.
 
-The flag structure is:
+La structure de l'option est:
 
 ```bash
-[host-path]:[container-path]:[rw|ro]
+[chemin-hote]:[chemin-conteneur]:[rw|ro]
 ```
 
-* If `[host-path]` or `[container-path]` doesn't exist it is created.
+* Si `[chemin-hote]` ou `[chemin-conteneur]` n'existe pas, il sera créé.
 
-* You can control the write status of the volume with the `ro` and
-  `rw` options.
+* Vous pouvez contrôler l'option d'écriture du volume avec les options `ro` et `rw`.
 
-* If you don't specify `rw` or `ro`, it will be `rw` by default.
+* Si vous ne spécifiez ni `rw` ou `ro`, ce sera `rw` par défaut.
 
-There will be a full chapter about volumes!
+Il y aura un chapitre complet sur les volumes!
 
 ---
 
-## Testing the development container
+## Tester le conteneur de développement
 
-* Check the port used by our new container.
+* Trouvez le port utilisé par notre nouveau conteneur.
 
 ```bash
 $ docker ps -l
@@ -213,25 +212,25 @@ CONTAINER ID  IMAGE  COMMAND  CREATED        STATUS  PORTS                   NAM
 045885b68bc5  namer  rackup   3 seconds ago  Up ...  0.0.0.0:32770->9292/tcp ...
 ```
 
-* Open the application in your web browser.
+* Ouvrez l'application sur votre navigateur web.
 
 ---
 
-## Making a change to our application
+## Opérer un changement dans notre application
 
-Our customer really doesn't like the color of our text. Let's change it.
+Notre client n'aime pas du tout la couleur de notre texte. Allons la changer.
 
 ```bash
 $ vi company_name_generator.rb
 ```
 
-And change
+Et changeons:
 
 ```css
 color: royalblue;
 ```
 
-To:
+En:
 
 ```css
 color: red;
@@ -239,121 +238,117 @@ color: red;
 
 ---
 
-## Viewing our changes
+## Tester nos changements
 
-* Reload the application in our browser.
+* Recharger l'application dans notre navigateur
 
 --
 
-* The color should have changed.
+* La couleur doit avoir changé.
 
   ![web application 2](images/webapp-in-red.png)
 
 ---
 
-## Understanding volumes
+## Comprendre les volumes
 
-* Volumes are *not* copying or synchronizing files between the host and the container.
+* *Aucune* copie ou synchronisation de fichiers entre hôte et conteneur ne se passe dans un volume.
 
-* Volumes are *bind mounts*: a kernel mechanism associating a path to another.
+* Les volumes sont des *bind mounts*: un mécanisme du noyau associant un chemin à un autre.
 
-* Bind mounts are *kind of* similar to symbolic links, but at a very different level.
+* Un bind mount est _une sorte de_ lien symbolique, mais à un niveau très différent.
 
-* Changes made on the host or on the container will be visible on the other side.
+* Tout changement sur l'hôte ou le conteneur sera visible de l'autre côté.
 
-  (Since under the hood, it's the same file on both anyway.)
+  (Puisque sous le capot, c'est le même fichier de toute façon.)
 
 ---
 
-## Trash your servers and burn your code
+## Jetez vos serveurs et brûlez votre code
 
-*(This is the title of a
-[2013 blog post](http://chadfowler.com/2013/06/23/immutable-deployments.html)
-by Chad Fowler, where he explains the concept of immutable infrastructure.)*
+*(C'est le titre d'un [billet de blog de 2013](http://chadfowler.com/2013/06/23/immutable-deployments.html) par Chad Fowler, expliquant le concept d'infrastructure immuable.)*
 
 --
 
-* Let's mess up majorly with our container.
+* Mettons un grand bazar dans notre conteneur.
 
-  (Remove files or whatever.)
+  (Supprimer des fichiers ou autre.)
 
-* Now, how can we fix this?
+* Maintenant, comment réparer ça?
 
 --
 
-* Our old container (with the blue version of the code) is still running.
+* Notre vieux conteneur (avec la version bleue du code) tourne toujours.
 
-* See on which port it is exposed:
+* Voyons sur quel port c'est exposé:
   ```bash
   docker ps
   ```
-
-* Point our browser to it to confirm that it still works fine.
-
----
-
-## Immutable infrastructure in a nutshell
-
-* Instead of *updating* a server, we deploy a new one.
-
-* This might be challenging with classical servers, but it's trivial with containers.
-
-* In fact, with Docker, the most logical workflow is to build a new image and run it.
-
-* If something goes wrong with the new image, we can always restart the old one.
-
-* We can even keep both versions running side by side.
-
-If this pattern sounds interesting, you might want to read about *blue/green deployment*
-and *canary deployments*.
+* Pointez le navigateur dessus pour confirmer que ça marche toujours bien.
 
 ---
 
-## Recap of the development workflow
+## Infrastructure immuable en deux mots
 
-1. Write a Dockerfile to build an image containing our development environment.
+* Au lieu de *modifier* le serveur, nous en déployons un nouveau.
+
+* Cela peut sembler un défi pour les serveurs classiques, mais c'est trivial avec les conteneurs.
+
+* En fait, avec Docker, le processus le plus logique est de générer une nouvelle image et de la lancer.
+
+* Si quoique ce soit cloche avec la nouvelle image, on peut toujours relancer l'ancienne.
+
+* On peut même garder les deux versions côte-à-côte.
+
+* Si ce motif vous semble intéressant, vous pouvez regarder du côté des déploiements *blue/green* ou *canary*
+
+---
+
+## Récap du process de développement
+
+1. Ecrire un Dockerfile pour générer une image contenant l'environnement de développement.
    <br/>
-   (Rails, Django, ... and all the dependencies for our app)
+   (Rails, Django, ... et toutes les dépendances de notre appli)
 
-2. Start a container from that image.
+2. Démarrer un conteneur de cette image.
    <br/>
-   Use the `-v` flag to mount our source code inside the container.
+   Utiliser l'option `-v` pour monter notre code source dans le conteneur.
 
-3. Edit the source code outside the containers, using regular tools.
+3. Modifier le code source hors des conteneurs, avec les outils d'habitude.
    <br/>
    (vim, emacs, textmate...)
 
-4. Test the application.
+4. Tester l'application.
    <br/>
-   (Some frameworks pick up changes automatically.
-   <br/>Others require you to Ctrl-C + restart after each modification.)
+   (Certains frameworks détecter les changements automatiquement
+   <br/>D'autres exigent un Ctrl+C / redémarrage après chaque modification..)
 
-5. Iterate and repeat steps 3 and 4 until satisfied.
+5. Reboucler et répéter les étapes 3 et 4 jusqu'à satisfaction.
 
-6. When done, commit+push source code changes.
-
----
-
-class: extra-details
-
-## Debugging inside the container
-
-Docker has a command called `docker exec`.
-
-It allows users to run a new process in a container which is already running.
-
-If sometimes you find yourself wishing you could SSH into a container: you can use `docker exec` instead.
-
-You can get a shell prompt inside an existing container this way, or run an arbitrary process for automation.
+6. Quand c'est fini, faire un "commit+push" des changements de code.
 
 ---
 
 class: extra-details
 
-## `docker exec` example
+## Débugger à l'intérieur du conteneur
+
+Docker dispose d'une commande appelée `docker exec`.
+
+Cela permet aux utilisateurs de lancer un nouveau processus dans un conteneur déjà lancé.
+
+Si parfois vous sentez que vous aimeriez entrer via SSH sur un conteneur: vous pouvez utiliser `docker exec` à la place.
+
+Vous pouvez ainsi récupérer un terminal ou lancer une n'importe quelle autre commande pour automatisation.
+
+---
+
+class: extra-details
+
+## Exemple avec `docker exec`
 
 ```bash
-$ # You can run ruby commands in the area the app is running and more!
+$ #Vous pouvez lancer des commandes ruby dans là même où l'appli tourne!
 $ docker exec -it <yourContainerId> bash
 root@5ca27cf74c2e:/opt/namer# irb
 irb(main):001:0> [0, 1, 2, 3, 4].map {|x| x ** 2}.compact
@@ -365,15 +360,15 @@ irb(main):002:0> exit
 
 class: extra-details
 
-## Stopping the container
+## Arrêter le conteneur
 
-Now that we're done let's stop our container.
+Maintenant que nous avons fini, arrêtons notre conteneur.
 
 ```bash
 $ docker stop <yourContainerID>
 ```
 
-And remove it.
+Et supprimons-le.
 
 ```bash
 $ docker rm <yourContainerID>
@@ -381,13 +376,12 @@ $ docker rm <yourContainerID>
 
 ---
 
-## Section summary
+## Résumé de section
 
-We've learned how to:
+Nous avons appris à:
 
-* Share code between container and host.
+ * Partager le code entre conteneur et hôte.
 
-* Set our working directory.
+ * Régler notre dossier de travail.
 
-* Use a simple local development workflow.
-
+ * Utiliser un processus simple de développement.

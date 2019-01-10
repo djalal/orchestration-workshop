@@ -1,6 +1,6 @@
 FROM python:2-slim
 
-RUN apt-get update && apt-get install -yq git
+RUN apt-get update && apt-get install -yq git entr
 
 WORKDIR /usr/src
 
@@ -12,4 +12,8 @@ COPY . .
 
 WORKDIR /usr/src/slides
 
-RUN ["./build.sh", "once"]
+VOLUME /usr/src
+
+ENTRYPOINT ["./build.sh"]
+
+CMD ["once"]
