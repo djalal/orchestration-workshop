@@ -1,81 +1,79 @@
-# Managing hosts with Docker Machine
+# Gérer les hôtes avec Docker Machine
 
-- Docker Machine is a tool to provision and manage Docker hosts.
+- Docker Machine est un outil pour provisionner et gérer des serveurs Docker.
 
-- It automates the creation of a virtual machine:
+- Il automatise la création d'une machine virtuelle:
 
-  - locally, with a tool like VirtualBox or VMware;
+ - en local, avec un outil tel que VirtualBox ou VMWare
 
-  - on a public cloud like AWS EC2, Azure, Digital Ocean, GCP, etc.;
+ - sur un _cloud_ public tel que AWS EC2, Azure, Digital Ocean, GCP, etc.
 
-  - on a private cloud like OpenStack.
+ - sur un _cloud_ privé comme OpenStack.
 
-- It can also configure existing machines through an SSH connection.
+- Il peut aussi configurer des machines existantes à travers une connection SSH.
 
-- It can manage as many hosts as you want, with as many "drivers" as you want.
-
----
-
-## Docker Machine workflow
-
-1) Prepare the environment: setup VirtualBox, obtain cloud credentials ...
-
-2) Create hosts with `docker-machine create -d drivername machinename`.
-
-3) Use a specific machine with `eval $(docker-machine env machinename)`.
-
-4) Profit!
+- Enfin, il sait gérer autant de serveurs que vous voulez, avec autant de "pilotes" que vous voulez.
 
 ---
 
-## Environment variables
+## Processus Docker Machine
 
-- Most of the tools (CLI, libraries...) connecting to the Docker API can use environment variables.
+1) Préparer l'environnement: configurer VirtualBox, récupérer les accès au _cloud_
 
-- These variables are:
+2) Créer des hôtes avec `docker-machine create -d nom-pilote nom-machine`
 
-  - `DOCKER_HOST` (indicates address+port to connect to, or path of UNIX socket)
+3) Utiliser une machine spécifique avec `eval $(docker-machine env nom-machine)`
 
-  - `DOCKER_TLS_VERIFY` (indicates that TLS mutual auth should be used)
-
-  - `DOCKER_CERT_PATH` (path to the keypair and certificate to use for auth)
-
-- `docker-machine env ...` will generate the variables needed to connect to a host.
-
-- `$(eval docker-machine env ...)` sets these variables in the current shell.
+4) Profiter!
 
 ---
 
-## Host management features
+## Variables d'environnement
 
-With `docker-machine`, we can:
+- La plupart des outils (CLI, bibliothèques, etc.) passant par l'API Docker peuvent accéder aux variables d'environnement.
 
-- upgrade a host to the latest version of the Docker Engine,
+- Ces variabless sont:
 
-- start/stop/restart hosts,
+ - `DOCKER_HOST` (indique une adresse+port où se connecter, ou le chemin de la socket UNIX)
 
-- get a shell on a remote machine (with SSH),
+ - `DOCKER_TLS_VERIFY` (indique que l'authentification mutuelle en TLS doit être activée)
 
-- copy files to/from remotes machines (with SCP),
+ - `DOCKER_CERT_PATH` (chemin vers la paire de clés et certificat à utiliser lors de l'authentification)
 
-- mount a remote host's directory on the local machine (with SSHFS),
+- `docker-machine env ...` va générer les variables nécessaires pour se connecter à un certain hôte.
 
-- ...
+- `$(eval docker-machine env ...)` initialise ces variables dans le terminal en cours.
 
 ---
 
-## The `generic` driver
+## Fonctions de gestion des hôtes
 
-When provisioning a new host, `docker-machine` executes these steps:
+Avec `docker-machine`, on peut:
 
-1) Create the host using a cloud or hypervisor API.
+- mettre à jour un hôte à la dernière version de Docker Engine,
 
-2) Connect to the host over SSH.
+- démarrer/arrêter/redémarrer des hôtes,
 
-3) Install and configure Docker on the host.
+- récupérer un _shell_ sur une machine distante (avec SSH),
 
-With the `generic` driver, we provide the IP address of an existing host
-(instead of e.g. cloud credentials) and we omit the first step.
+- copier des ficheirs vers/depuis des machines distantes (avec SCP),
 
-This allows to provision physical machines, or VMs provided by a 3rd
-party, or use a cloud for which we don't have a provisioning API.
+- monter un dossier distant du hôte sur le poste local (via SSHFS)
+
+- etc.
+
+---
+
+## Le pilote `generic`
+
+Lors de la mise en service d'un nouvel hôte, `docker-machine` exécute les étapes suivantes:
+
+1) Créer l'hôte dans le _cloud_ ou via l'API de l'hyperviseur.
+
+2) Se connecter à l'hôte via SSH.
+
+3) Installer et configurer Docker sur lhôte.
+
+Avec le pilote `generic`, on fournit l'adresse IP d'un hôte exitant (au lieu des accès _cloud_), et on saute la première étape.
+
+Cela permet de référencer des machines physiques, ou des VMs fournies par une tierce partie, ou un cloud sans API de mise en service.

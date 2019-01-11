@@ -124,7 +124,8 @@ EXPOSE 53/tcp 53/udp
 * Quand vous lancez `docker run -P...`(sans numéro de port), tous les ports
 déclarés via `EXPOSE` deviennent publics.
 
-Un *port public* est accessible depuis les autres containers et depuis l'extérieur de la machine hôte.
+Un *port public* est accessible depuis les autres containers
+et depuis l'extérieur de la machine hôte.
 
 Un *port privé* n'est pas accessible depuis l'extérieur.
 
@@ -227,10 +228,11 @@ tout volume restera en lecture/écriture si nécessaire.
 
 ## Instruction `WORKDIR`
 
-L'instruction `WORKDIR` change le dossier en cours pour les instructions suivantes.
+L'instruction `WORKDIR` change le dossier en cours
+pour les instructions suivantes.
 
-Cela affecte aussi `CMD` et `ENTRYPOINT`, puisque cela modifie le dossier de démarrage
-quand un container se lance.
+Cela affecte aussi `CMD` et `ENTRYPOINT`, puisque cela modifie
+le dossier de démarrage quand un container se lance.
 
 ```dockerfile
 WORKDIR /src
@@ -271,8 +273,8 @@ $ docker run -e WEBAPP_PORT=8000 -e WEBAPP_HOST=www.example.com ...
 L'instruction `USER` change l'utilisateur ou l'UID à utiliser pour la suite des opérations,
 mais aussi l'utilisateur au lancement du _container_.
 
-Comme `WORKDIR`, elle peut être utilisée plusieurs fois, par ex. pour repasser à `root`
-ou un autre utilisateur.
+Comme `WORKDIR`, elle peut être utilisée plusieurs fois, par ex.
+pour repasser à `root` ou un autre utilisateur.
 
 ---
 
