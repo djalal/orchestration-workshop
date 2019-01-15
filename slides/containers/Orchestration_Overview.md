@@ -1,189 +1,210 @@
-# Orchestration, an overview
+# Orchestration, aperçu général
 
-In this chapter, we will:
+Dans ce chapitre, nous allons:
 
-* Explain what is orchestration and why we would need it.
+* Expliquer ce qu'est l'orchestration et quand est-ce qu'on en a besoin.
 
-* Present (from a high-level perspective) some orchestrators.
+* Quelques orchestrateurs modernes (d'une perspective générale)
 
-* Show one orchestrator (Kubernetes) in action.
+* Faire la démonstration d'un orchestrateur en action.
 
 ---
 
 class: pic
 
-## What's orchestration?
+## Qu'est-ce que l'orchestration?
 
 ![Joana Carneiro (orchestra conductor)](images/conductor.jpg)
 
 ---
 
-## What's orchestration?
+## Qu'est-ce que l'orchestration?
 
-According to Wikipedia:
+Selon Wikipedia:
 
-*Orchestration describes the __automated__ arrangement,
-coordination, and management of complex computer systems,
-middleware, and services.*
-
---
-
-*[...] orchestration is often discussed in the context of 
-__service-oriented architecture__, __virtualization__, provisioning, 
-Converged Infrastructure and __dynamic datacenter__ topics.*
+*L'orchestration décrit le processus automatique d'organisation,
+de coordination, et de gestion de systèmes informatiques complexes,
+de middleware et de services.*
 
 --
 
-What does that really mean?
+*[...] On parle souvent de cet usage de l'orchestration dans le contexte
+de la __virtualisation__, de la __fourniture de services__
+et des __centres de données dynamiques__.*
+
+--
+
+Qu'est-ce que cela veut dire en réalité?
 
 ---
 
-## Example 1: dynamic cloud instances
+## Exemple 1: instances de _cloud_ dynamiques
 
 --
 
-- Q: do we always use 100% of our servers?
+- Q: est-ce qu'on utilise toujours 100% de nos serveurs?
 
 --
 
-- A: obviously not!
+- R: évidemment non!
 
-.center[![Daily variations of traffic](images/traffic-graph.png)]
-
----
-
-## Example 1: dynamic cloud instances
-
-- Every night, scale down
-  
-  (by shutting down extraneous replicated instances)
-
-- Every morning, scale up
-  
-  (by deploying new copies)
-
-- "Pay for what you use"
-  
-  (i.e. save big $$$ here)
+.center[![Variations quotidiennes de trafic](images/traffic-graph.png)]
 
 ---
 
-## Example 1: dynamic cloud instances
+## Exemple 1: instances de _cloud_ dynamiques
 
-How do we implement this?
+- Chaque nuit, diminuer la capacité
+
+  (en éteignant les instances de réplication superflues)
+
+- Chaque matin, augmenter la capacité
+
+  (en déployant de nouvelles instances)
+
+- "Payez selon l'usage"
+
+  (ie. économiser un bon paquet de $$$)
+
+---
+
+## Exemple 1: instances de _cloud_ dynamiques
+
+Comment implémenter ceci?
 
 - Crontab
-  
-- Autoscaling (save even bigger $$$)
+- Ajustement automatique de capacité (_autoscaling_), économiser un plus gros paquet de $$$.
 
-That's *relatively* easy.
+C'est _relativement_ facile.
 
-Now, how are things for our IAAS provider?
-
----
-
-## Example 2: dynamic datacenter
-
-- Q: what's the #1 cost in a datacenter?
-
---
-
-- A: electricity!
-
---
-
-- Q: what uses electricity?
-
---
-
-- A: servers, obviously
-
-- A: ... and associated cooling
-
---
-
-- Q: do we always use 100% of our servers?
-
---
-
-- A: obviously not!
+Maintenant, comment vont les choses chez notre founisseur IAAS?
 
 ---
 
-## Example 2: dynamic datacenter
+## Exemple 2: _datacenter_ dynamique
 
-- If only we could turn off unused servers during the night...
+- Q: quel est le coût n°1 d'un centre de données?
 
-- Problem: we can only turn off a server if it's totally empty!
-  
-  (i.e. all VMs on it are stopped/moved)
+--
 
-- Solution: *migrate* VMs and shutdown empty servers
-  
-  (e.g. combine two hypervisors with 40% load into 80%+0%,
-  <br/>and shutdown the one at 0%)
+- R: l'électricité!
 
----
+--
 
-## Example 2: dynamic datacenter
+- Q: qui consomme l'électricité?
 
-How do we implement this?
+--
 
-- Shutdown empty hosts (but keep some spare capacity)
+- R: les serveurs, évidemment
 
-- Start hosts again when capacity gets low
+- R: ... et le refroidissement qui l'accompagne
 
-- Ability to "live migrate" VMs
-  
-  (Xen already did this 10+ years ago)
+--
 
-- Rebalance VMs on a regular basis
-  
-  - what if a VM is stopped while we move it?
-  - should we allow provisioning on hosts involved in a migration?
+- Q: est-ce qu'on utilise toujours 100% de nos serveurs?
 
-*Scheduling* becomes more complex.
+--
+
+- R: évidemment pas!
 
 ---
 
-## What is scheduling?
+## Exemple 2: _datacenter_ dynamique
 
-According to Wikipedia (again):
+- Si seulement on pouvait éteindre les serveurs inutilisés la nuit...
 
-*In computing, scheduling is the method by which threads, 
-processes or data flows are given access to system resources.*
+- Problème: on ne peut éteindre un serveur que s'il est toalement vide!
 
-The scheduler is concerned mainly with:
+  (ie. toutes ses VMs sont stoppées/déménagées)
 
-- throughput (total amount or work done per time unit);
-- turnaround time (between submission and completion);
-- response time (between submission and start);
-- waiting time (between job readiness and execution);
-- fairness (appropriate times according to priorities).
+- Solution: *migrer* les Vms et éteindre les serveurs vides
 
-In practice, these goals often conflict.
-
-**"Scheduling" = decide which resources to use.**
+  (par ex. combiner deux hyperviseurs avec 40% de charge en 80%+0%)
+  <br/>et éteindre celui à 0%)
 
 ---
 
-## Exercise 1
+## Exemple 2: _datacenter_ dynamique
 
-- You have:
+Comment on implémente ceci?
 
-  - 5 hypervisors (physical machines)
+- Éteindre les hôtes vides (tout en gardant de la capacité en réserve)
 
-- Each server has:
+- Démarrer les hôtes à nouveau quand la capacité libre diminue trop.
 
-  - 16 GB RAM, 8 cores, 1 TB disk
+- La possibilité de migrer à chaud les VMs
 
-- Each week, your team asks:
+  (Xen pouvait faire ça il y a 10 ans et plus.)
 
-  - one VM with X RAM, Y CPU, Z disk
+- Ré-affecter les VMs de manière régulière
 
-Scheduling = deciding which hypervisor to use for each VM.
+  - et si une VM est stoppée pendant son déménagement?
+  - devons-nous autoriser la création sur des hôtes concernés par une migration?
 
-Difficulty: easy!
+Le *scheduling* (ordonnancement) devient encore plus complexe.
+
+---
+
+## Qu'est-ce que l'ordonnancement
+
+Selon Wikipedia (encore):
+
+*Dans les systèmes d'exploitation, l’ordonnanceur désigne le composant
+du noyau du système d'exploitation choisissant l'ordre d'exécution
+des processus sur les processeurs d'un ordinateur.*
+
+L'ordonnanceur est principalement occupé par:
+- le rythme et l'intensité (montant total de travail réalisé par unité de temps);
+- le temps de complétion (entre la soumission et la complétion);
+- le temps de réponse (entre la soumission et le début);
+- le temps d'attente (entre le moment où le travail est prêt, et son exécution);
+- l'équité (que le temps soit approprié et calé sur les priorités)
+
+En pratique, ces objectifs se téléscopent souvent.
+
+**"Ordonnancement" = décider quelles ressources utiliser.**
+
+---
+
+## Exercice 1
+
+- Vous disposez de:
+
+  - 5 hyperviseurs (machines physiques)
+
+- Chaque serveur possède:
+
+  - 16 Go RAM, 8 coeurs, 1 To de disque
+
+- Chaque semaine, votre équipe exige:
+
+  - une VM avec X RAM, Y CPU et Z disque
+
+Ordonnancement = décider quel hyperviseur utiliser pour chaque VM.
+
+Difficulté: facile!
+
+---
+
+<!-- Warning, two almost identical slides (for img effect) -->
+
+## Exercice 2
+
+- Vous disposez de:
+
+  - 1000+ hyperviseurs (et plus!)
+
+- Chaque serveur dispose de différentes ressources:
+
+  - 8-500 Go de RAM, 4-64 coeurs, 1-100 To disque
+
+- Plusieurs fois par jour, une équipe différente demande:
+
+  - jusqu'à 50 VMs avec différentes caractéristiques
+
+Ordonnancement = décider quel hyperviseur utiliser pour chaque VM.
+
+Difficulté: ???
 
 ---
 
@@ -191,81 +212,53 @@ Difficulty: easy!
 
 ## Exercise 2
 
-- You have:
+- Vous disposez de:
 
-  - 1000+ hypervisors (and counting!)
+  - 1000+ hyperviseurs (et plus!)
 
-- Each server has different resources:
+- Chaque serveur dispose de différentes ressources:
 
-  - 8-500 GB of RAM, 4-64 cores, 1-100 TB disk
+  - 8-500 Go de RAM, 4-64 coeurs, 1-100 To disque
 
-- Multiple times a day, a different team asks for:
+- Plusieurs fois par jour, une équipe différente demande:
 
-  - up to 50 VMs with different characteristics
+  - jusqu'à 50 VMs avec différentes caractéristiques
 
-Scheduling = deciding which hypervisor to use for each VM.
-
-Difficulty: ???
-
----
-
-<!-- Warning, two almost identical slides (for img effect) -->
-
-## Exercise 2
-
-- You have:
-
-  - 1000+ hypervisors (and counting!)
-
-- Each server has different resources:
-
-  - 8-500 GB of RAM, 4-64 cores, 1-100 TB disk
-
-- Multiple times a day, a different team asks for:
-
-  - up to 50 VMs with different characteristics
-
-Scheduling = deciding which hypervisor to use for each VM.
+Ordonnancement = décider quel hyperviseur utiliser pour chaque VM.
 
 ![Troll face](images/trollface.png)
 
 ---
 
-## Exercise 3
+## Exercice 3
 
-- You have machines (physical and/or virtual)
+- Vous disposez de machines (physiques et/ou virtuelles)
 
-- You have containers
+- Vous avez des conteneurs
 
-- You are trying to put the containers on the machines
+- Vous essayez de placer les conteneurs sur les machines
 
-- Sounds familiar?
+- Ça vous rappelle quelque chose?
 
 ---
 
-class: pic
-
-## Scheduling with one resource
+## Ordonnancement à 1 dimension
 
 .center[![Not-so-good bin packing](images/binpacking-1d-1.gif)]
 
-## Can we do better?
+Peut-on faire mieux?
 
 ---
 
-class: pic
-
-## Scheduling with one resource
+## Ordonnancement à 1 dimension
 
 .center[![Better bin packing](images/binpacking-1d-2.gif)]
 
-## Yup!
+Ouais!
 
 ---
 
-class: pic
-
-## Scheduling with two resources
+## Ordonnancement à 2 dimensions
 
 .center[![2D bin packing](images/binpacking-2d.gif)]
 
@@ -273,7 +266,7 @@ class: pic
 
 class: pic
 
-## Scheduling with three resources
+## Ordonnancement à 3 dimensions
 
 .center[![3D bin packing](images/binpacking-3d.gif)]
 
@@ -281,7 +274,7 @@ class: pic
 
 class: pic
 
-## You need to be good at this
+## Vous devez être bon à ce jeu
 
 .center[![Tangram](images/tangram.gif)]
 
@@ -289,7 +282,7 @@ class: pic
 
 class: pic
 
-## But also, you must be quick!
+## Mais pas que, il faut aussi être rapide!
 
 .center[![Tetris](images/tetris-1.png)]
 
@@ -297,7 +290,7 @@ class: pic
 
 class: pic
 
-## And be web scale!
+## Et à l'échelle du web!
 
 .center[![Big tetris](images/tetris-2.gif)]
 
@@ -305,7 +298,7 @@ class: pic
 
 class: pic
 
-## And think outside (?) of the box!
+## Et penser hors (?) des sentiers battus!
 
 .center[![3D tetris](images/tetris-3.png)]
 
@@ -313,128 +306,128 @@ class: pic
 
 class: pic
 
-## Good luck!
+## Bon courage!
 
 .center[![FUUUUUU face](images/fu-face.jpg)]
 
 ---
 
-## TL,DR
+## TL;DR
 
-* Scheduling with multiple resources (dimensions) is hard.
+* L'ordonnancement à plusieurs dimensions (les ressources) est difficile.
 
-* Don't expect to solve the problem with a Tiny Shell Script.
+* Ne vous attendez pas à résoudre le problème avec un Petit Script Shell.
 
-* There are literally tons of research papers written on this.
-
----
-
-## But our orchestrator also needs to manage ...
-
-* Network connectivity (or filtering) between containers.
-
-* Load balancing (external and internal).
-
-* Failure recovery (if a node or a whole datacenter fails).
-
-* Rolling out new versions of our applications.
-
-  (Canary deployments, blue/green deployments...)
-
+* Il y a littéralement des tonnes d'études scientifiques publiées à ce sujet.
 
 ---
 
-## Some orchestrators
+## Mais notre orchestrateur a aussi besoin de gérer ...
 
-We are going to present briefly a few orchestrators.
+* La connectivité réseau (ou le filtrage) entre conteneurs.
 
-There is no "absolute best" orchestrator.
+* La répartition de charge (externe et interne).
 
-It depends on:
+* La récupération sur incident (si un noeud ou un _datacenter_ entier tombe).
 
-- your applications,
+* Le déploiement de nouvelles versions de nos applications.
 
-- your requirements,
+ (Déploiements _canary_, _blue/green_ ...)
 
-- your pre-existing skills...
+
+---
+
+## Quelques orchestrateurs
+
+Nous allons brièvement présenter quelques orchestrateurs.
+
+Il n'existe pas de meilleur orchestrateur dans l'absolu.
+
+Cela dépend de:
+
+ - vos applications,
+
+ - vos contraintes,
+
+ - vos compétences...
 
 ---
 
 ## Nomad
 
-- Open Source project by Hashicorp.
+- Project open-source par Hashicorp.
 
-- Arbitrary scheduler (not just for containers).
+- Ordonnanceur agnostique (pas juste des conteneurs).
 
-- Great if you want to schedule mixed workloads.
+- Très bien si vous avez des charges de travail diverses.
 
-  (VMs, containers, processes...)
+  (VMs, conteneurs, processus...)
 
-- Less integration with the rest of the container ecosystem.
+- Moins d'intégration que le reste de l'écosystème des conteneurs.
 
 ---
 
 ## Mesos
 
-- Open Source project in the Apache Foundation.
+- Projet open-source de la fondation Apache.
 
-- Arbitrary scheduler (not just for containers).
+- Ordonnanceur agnostique (pas juste des conteneurs).
 
-- Two-level scheduler.
+- Ordonnanceur à double niveau.
 
-- Top-level scheduler acts as a resource broker.
+- Le niveau supérieur de l'ordonnanceur agit comme un intermédiaire en ressource.
 
-- Second-level schedulers (aka "frameworks") obtain resources from top-level.
+- Les ordonnanceurs de second niveau (appelés "frameworks") obtiennent leurs ressources du niveau supérieur.
 
-- Frameworks implement various strategies.
+- Les frameworks implémentent des stratégies diverses.
 
-  (Marathon = long running processes; Chronos = run at intervals; ...)
+  (Marathon = processus de longue durée; Chronos = lancement par intervalles; ...)
 
-- Commercial offering through DC/OS my Mesosphere.
+- Une offre commerciale existe à travers DC/OS par Mesosphere.
 
 ---
 
 ## Rancher
 
-- Rancher 1 offered a simple interface for Docker hosts.
+- Rancher 1 offrait une interface simple pour les hôtes Docker.
 
-- Rancher 2 is a complete management platform for Docker and Kubernetes.
+- Rancher 2 est une plate-forme de gestion complète pour Docker et Kubernetes.
 
-- Technically not an orchestrator, but it's a popular option.
+- Techniquement, ce n'est pas un orchestrateur, mais cela reste une option populaire.
 
 ---
 
 ## Swarm
 
-- Tightly integrated with the Docker Engine.
+- Étroitement intégré au Docker Engine.
 
-- Extremely simple to deploy and setup, even in multi-manager (HA) mode.
+- Extrêmement simple à déployer et installer, y compris en mode multi-manager (HA).
 
-- Secure by default.
+- Sécurisé par défaut.
 
-- Strongly opinionated:
+- Choix fortement orientés:
 
-  - smaller set of features,
+ - ensemble de fonctions plus réduit et concentré,
 
-  - easier to operate.
+ - plus facile à administrer.
 
 ---
 
 ## Kubernetes
 
-- Open Source project initiated by Google.
+- Projet open source initié par Google.
 
-- Contributions from many other actors.
+- Contributions de la part de nombreux autres acteurs de l'industrie.
 
-- *De facto* standard for container orchestration.
+- le standard *de facto* pour l'orchestration de conteneurs.
 
-- Many deployment options; some of them very complex.
+- Nombreuses options de déploiement; dont certaines très complexes.
 
-- Reputation: steep learning curve.
+- Réputation: forte courbe d'apprentissage.
 
-- Reality:
+- En réalité:
 
-  - true, if we try to understand *everything*;
+  - c'est le cas, quand on essaie de *tout* comprendre;
 
-  - false, if we focus on what matters.
+  - ce n'est pas vrai, si on se concentre sur ce qui nous intéresse.
 

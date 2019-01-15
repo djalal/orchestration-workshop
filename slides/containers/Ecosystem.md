@@ -1,18 +1,18 @@
-# The container ecosystem
+# L'écosystème de conteneurs
 
-In this chapter, we will talk about a few actors of the container ecosystem.
+Dans ce chapitre, nous aborderons quelques acteurs de l'écosystème de conteneurs.
 
-We have (arbitrarily) decided to focus on two groups:
+Nous avons (par opinion) décidé de nous concentrer sur deux groupes:
 
-- the Docker ecosystem,
+ - l'écosystème Docker,
 
-- the Cloud Native Computing Foundation (CNCF) and its projects.
+ - la CNCF (Cloud Native Computing Foundation) et ses projets.
 
 ---
 
 class: pic
 
-## The Docker ecosystem
+## L'écosystème Docker
 
 ![The Docker ecosystem in 2015](images/docker-ecosystem-2015.png)
 
@@ -20,17 +20,17 @@ class: pic
 
 ## Moby vs. Docker
 
-- Docker Inc. (the company) started Docker (the open source project).
+- Docker Inc. (l'entreprise) a lancé Docker (le projet open-source).
 
-- At some point, it became necessary to differentiate between:
+- A un certain point, il est apparu nécessaire de différencier entre:
 
-  - the open source project (code base, contributors...),
+  - le projet open source (base de code, contributeurs, etc.),
 
-  - the product that we use to run containers (the engine),
+  - le produit utilisé pour lancer les conteneurs (le moteur),
 
-  - the platform that we use to manage containerized applications,
+  - la plate-forme qui exploite les applications conteneurisées,
 
-  - the brand.
+  - la marque.
 
 ---
 
@@ -40,94 +40,90 @@ class: pic
 
 ---
 
-## Exercise in brand management
+## Exercice de gestion de marque
 
 Questions:
 
 --
 
-- What is the brand of the car on the previous slide?
+- Quelle est la marque de la voiture sur la diapo précédente?
 
 --
 
-- What kind of engine does it have?
+- Quel type de moteur embarque-t-elle?
 
 --
 
-- Would you say that it's a safe or unsafe car?
+- Diriez-vous que c'est une voiture sûre ou pas?
 
 --
 
-- Harder question: can you drive from the US West to East coasts with it?
+- Plus dur: peut-on la conduire aux États-Unis de la côte Ouest à la côte Est?
 
 --
 
-The answers to these questions are part of the Tesla brand.
+Les réponses à ces questions font partie de la marque Tesla.
 
 ---
 
-## What if ...
+## Et si ...
 
-- The blueprints for Tesla cars were available for free.
+- Les plans des voitures Tesla étaient disponibles gratuitement.
 
-- You could legally build your own Tesla.
+- Vous pouviez légalement construire votre propre Tesla.
 
-- You were allowed to customize it entirely.
+- Vous étiez autorisé à la personnaliser complètement.
 
-  (Put a combustion engine, drive it with a game pad ...)
+  (Placer un moteur à combustion, la conduire avec une manette de jeu ...)
 
-- You could even sell the customized versions.
-
---
-
-- ... And call your customized version "Tesla".
+- Vous pourriez même en vendre des versions spéciales.
 
 --
 
-Would we give the same answers to the questions on the previous slide?
+- ... Et l'appeler votre version personnalisée de la "Tesla".
+
+--
+
+Est-ce qu'on donnerait les mêmes réponses aux questions sur la diapo précédente?
 
 ---
 
-## From Docker to Moby
+## De Docker à Moby
 
-- Docker Inc. decided to split the brand.
+- Docker Inc. a décidé de scinder la marque.
 
-- Moby is the open source project.
+- Moby est le projet open source
 
-  (= Components and libraries that you can use, reuse, customize, sell ...)
+  (= des composants et bibliothèques à utiliser, recycler, personnaliser, vendre ...)
 
-- Docker is the product.
+- Docker est fabriqué avec Moby.
 
-  (= Software that you can use, buy support contracts ...)
+- Quand Docker Inc. améliore les produits Docker, il améliore Moby.
 
-- Docker is made with Moby.
-
-- When Docker Inc. improves the Docker products, it improves Moby.
-
-  (And vice versa.)
+  (Et vice-versa)
 
 
 ---
 
-## Other examples
+## Autres exemples
 
-- *Read the Docs* is an open source project to generate and host documentation.
+- *Read the Docs* est un projet open source pour générer et héberger des documentations.
 
-- You can host it yourself (on your own servers).
+- Vous pouvez l'héberger vous-même (sur vos propres serveurs).
 
-- You can also get hosted on readthedocs.org.
+- Vous pouvez aussi le faire héberger sur readthedocs.org.
 
-- The maintainers of the open source project often receive
-  support requests from users of the hosted product ...
+- Les mainteneurs du projet open source reçoivent souvent
+  des demandes de support de la part des usagers du produit hébergé...
 
-- ... And the maintainers of the hosted product often
-  receive support requests from users of self-hosted instances.
+- ... et les mainteneurs du produit hébergé reçoivent souvent
+  des demandes de support des usagers d'instances auto-hébergés.
 
-- Another example:
+- Un autre exemple:
 
-  *WordPress.com is a blogging platform that is owned and hosted online by
-  Automattic. It is run on WordPress, an open source piece of software used by
-  bloggers. (Wikipedia)*
+  *Wordpress.com est une plate-forme de blog, possédée et opérée par Automattic.
+  Elle est basée sur le projet open-source Wordpress, un logiciel utilisé par les
+  blogueurs (Wikipedia)*
 
 ---
 
@@ -135,35 +131,35 @@ Would we give the same answers to the questions on the previous slide?
 
 - Docker CE = Community Edition.
 
-- Available on most Linux distros, Mac, Windows.
+- Disponible sur la plupart des distros Linux, Mac, Windows.
 
-- Optimized for developers and ease of use.
+- Optimisé pour les développeurs et facile d'utilisation.
 
-- Docker EE = Enterprise Edition.
+- Docker EE = Entreprise Edition.
 
-- Available only on a subset of Linux distros + Windows servers.
+- Disponible juste dans certaines distros Linux et les serveurs Windows.
 
-  (Only available when there is a strong partnership to offer enterprise-class support.)
+  (Uniquement possible quand il existe un fort partenariat pour offrir un support d'entreprise.)
 
-- Optimized for production use.
+- Optimisé pour un usage en production.
 
-- Comes with additional components: security scanning, RBAC ...
+- Contient des composants additionnels: scan de sécurité, RBAC ...
 
 ---
 
-## The CNCF
+## La CNCF
 
-- Non-profit, part of the Linux Foundation; founded in December 2015. 
+- À but non-lucratif, membre de la Linux Foundation; créée en Décembre 2015.
 
-  *The Cloud Native Computing Foundation builds sustainable ecosystems and fosters
-  a community around a constellation of high-quality projects that orchestrate
-  containers as part of a microservices architecture.*
+  *La Cloud Native Computing Foundation construits des écosystèmes durables et promeut
+  une communauté autour d'une constellation de projets de haute qualité qui orchestre
+  les conteneurs dans une optique d'architecture pour microservices.*
 
-  *CNCF is an open source software foundation dedicated to making cloud-native computing universal and sustainable.*
+  *CNCF est une fondation pour les logiciels open-source dédiée à rendre les infrastructures pour le cloud universelles et durables.*
 
-- Home of Kubernetes (and many other projects now).
+- Là où est né Kubernetes (et bien d'autres projets depuis).
 
-- Funded by corporate memberships.
+- Financé par les cotisations des entreprises privées adhérentes.
 
 ---
 

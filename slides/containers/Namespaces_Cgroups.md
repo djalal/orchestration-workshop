@@ -1,44 +1,44 @@
-# Deep dive into container internals
+# Plongée dans les entrailles des conteneurs
 
-In this chapter, we will explain some of the fundamental building blocks of containers.
+Dans ce chapitre, nous expliquerons certaines des briques fondatrices des conteneurs.
 
-This will give you a solid foundation so you can:
+Cela vous donnera une solide assise pour pouvoir:
 
-- understand "what's going on" in complex situations,
+ - comprendre "ce qui se passe" dans certaines situations complexes,
 
-- anticipate the behavior of containers (performance, security...) in new scenarios,
+ - anticiper le comportement de conteneurs (performance, sécurité, ...) dans de nouveaux scenari,
 
-- implement your own container engine.
+ - implémenter votre propre moteur de conteneur.
 
-The last item should be done for educational purposes only!
-
----
-
-## There is no container code in the Linux kernel
-
-- If we search "container" in the Linux kernel code, we find:
-
-  - generic code to manipulate data structures (like linked lists, etc.),
-
-  - unrelated concepts like "ACPI containers",
-
-  - *nothing* relevant to "our" containers!
-
-- Containers are composed using multiple independent features.
-
-- On Linux, containers rely on "namespaces, cgroups, and some filesystem magic."
-
-- Security also requires features like capabilities, seccomp, LSMs...
+Ce dernier point est à but éducatif seulement!
 
 ---
 
-# Namespaces
+## Pas de code de conteneur dans le noyau Linux
 
-- Provide processes with their own view of the system.
+- Si on cherche _"container"_ dans le code du noyau Linux, on trouve:
 
-- Namespaces limit what you can see (and therefore, what you can use).
+  - du code générique pour manipuler les structures de données (comme des listes liées, etc.),
 
-- These namespaces are available in modern kernels:
+  - des concepts étrangers comme les "conteneurs ACPI",
+
+  - *rien* qui concerne "nos" conteneurs!
+
+- Un conteneur est un assemblage de plusieurs fonctionnalités indépendantes.
+
+- Sur Linux, les conteneurs se basent sur les "namespaces, cgroups et de la magie de système de fichiers".
+
+- Leur sécurité requiert par ailleurs d'autres fonctions telles que les _capabilities_, seccomp, les LSMs, etc.
+
+---
+
+# Espaces de nommage
+
+- Fournissent aux processus leur propre vue du système.
+
+- Un _namespace_ limite ce qui est visible (et donc, ce qui est utilisable).
+
+- Tous ces _namespaces_ sont disponibles dans les noyaux modernes:
 
   - pid
   - net
@@ -47,138 +47,139 @@ The last item should be done for educational purposes only!
   - ipc
   - user
 
-  (We are going to detail them individually.)
+  (Nous allons les détailler un par un.)
 
-- Each process belongs to one namespace of each type.
+- Chaque processus appartient à un _namespace_ de chaque type.
 
 ---
 
-## Namespaces are always active
+## Il existe toujours des _Namespaces_
 
-- Namespaces exist even when you don't use containers.
+- Les espaces de nommage sont actifs même hors des conteneurs.
 
-- This is a bit similar to the UID field in UNIX processes:
+- C'est un peu similaire au champ UID dans les processus UNIX:
 
-  - all processes have the UID field, even if no user exists on the system
+  - tous les processus ont un champ UID, même si aucun utilisateur n'existe dans le système
 
-  - the field always has a value / the value is always defined
+  - ce champ a toujours une valeur / sa valeur est toujours définie
     <br/>
-    (i.e. any process running on the system has some UID)
+    (i.e. tout processus exécuté sur le système a un certain UID)
 
-  - the value of the UID field is used when checking permissions
+  - la valeur du champ UID est utile au moment de vérifier les permissions
     <br/>
-    (the UID field determines which resources the process can access)
+    (le champ UID détermine à quelle ressource le processus peut accéder)
 
-- You can replace "UID field" with "namespace" above and it still works!
+- Si on remplace "champ UID" par _"namespace"_ ci-dessus, tout est vrai!
 
-- In other words: even when you don't use containers,
-  <br/>there is one namespace of each type, containing all the processes on the system.
+- En d'autres termes: même quand vous n'utilisez pas de conteneurs,
+  <br/>il existe un _namespace_ de chaque type, contenant tous les processus du système.
 
 ---
 
 class: extra-details, deep-dive
 
-## Manipulating namespaces
+## Manipuler les _namespaces_
 
-- Namespaces are created with two methods:
+- On crée un _namespace_ avec deux méthodes:
 
-  - the `clone()` system call (used when creating new threads and processes),
+  - l'appel système `clone()` (utilisé lors de la création de nouveaux _threads_ et processus)
 
-  - the `unshare()` system call.
+  - l'appel système `unshare()`.
 
-- The Linux tool `unshare` allows to do that from a shell.
+- La comande Linux `unshare` permet de faire ça depuis un terminal.
 
-- A new process can re-use none / all / some of the namespaces of its parent.
+- Un nouveau processus peut recycler tout ou partie des _namespaces_ de son parent.
 
-- It is possible to "enter" a namespace with the `setns()` system call.
+- Il est possible de "pénétrer" dans un _namespace_ avec l'appel système `setns()`.
 
-- The Linux tool `nsenter` allows to do that from a shell.
+- La commande `nsenter` permet cette opération depuis un terminal.
 
 ---
 
 class: extra-details, deep-dive
 
-## Namespaces lifecycle
+## Cycle de vie des _namespaces_
 
-- When the last process of a namespace exits, the namespace is destroyed.
+- Quand le dernier processus d'un espace de nommage s'arrête, ce dernier est détruit.
 
-- All the associated resources are then removed.
+- Toutes les ressources associées sont alors supprimées.
 
-- Namespaces are materialized by pseudo-files in `/proc/<pid>/ns`.
+- Les _namespaces_ sont matérialisés par des pseudo-fichiers dans `/proc/<pid>/ns`.
 
   ```bash
   ls -l /proc/self/ns
   ```
 
-- It is possible to compare namespaces by checking these files.
+- Il est possible de comparer les _namespaces_ en vérifiant ces fichiers.
 
-  (This helps to answer the question, "are these two processes in the same namespace?")
+  (Cela peut aider à répondre à la question, "est-ce que ces deux processus sont dans le même _namespace_?")
 
-- It is possible to preserve a namespace by bind-mounting its pseudo-file.
+- Il est possible de préserver un _namespace_ via un point de montage de son pseudo-fichier.
 
 ---
 
 class: extra-details, deep-dive
 
-## Namespaces can be used independently
+## Utiliser les espaces de nommage indépendamment
 
-- As mentioned in the previous slides:
+- Comme mentionné plus haut:
 
-  *A new process can re-use none / all / some of the namespaces of its parent.*
+  *Un nouveau processus peut recycler tout ou partie des _namespaces_ de son parent.*
 
-- We are going to use that property in the examples in the next slides.
+- Nous allons exploiter cette propriété dans les exemples des diapos suivantes.
 
-- We are going to present each type of namespace.
+- Nous allons présenter chaque type de _namespace_.
 
-- For each type, we will provide an example using only that namespace.
+- Pour chaque type, nous fournirons un exemple exploitant seulement ce _namespace_.
 
 ---
 
-## UTS namespace
+## _Namespace_ UTS
 
 - gethostname / sethostname
 
-- Allows to set a custom hostname for a container.
+- Permet de configurer un nom d'hôte spécifique pour un conteneur.
 
-- That's (mostly) it!
+- C'est (à peu près) tout!
 
-- Also allows to set the NIS domain.
+- Permet aussi de changer le domaine NIS.
 
-  (If you don't know what a NIS domain is, you don't have to worry about it!)
+  (si vous ne savez pas ce qu'est un domaine NIS, vous n'avez pas à vous en faire!)
 
-- If you're wondering: UTS = UNIX time sharing.
+- Au cas où vous vous poseriez la question: UTS = Unix time sharing.
 
-- This namespace was named like this because of the `struct utsname`,
+- Ce type de _namespace_ tire son nom du code `struct utsname`,
   <br/>
-  which is commonly used to obtain the machine's hostname, architecture, etc.
+  couramment utilisé pour obtenir d'une machine son nom, architecture, etc.
 
-  (The more you know!)
+  (Plus on en apprend!)
 
 ---
 
 class: extra-details, deep-dive
 
-## Creating our first namespace
+## Créer notre premier espace de nommage
 
-Let's use `unshare` to create a new process that will have its own UTS namespace:
+Lançons la commande `unshare` pour créer un nouveau processus
+qui aura son propre _namespace_ UTS:
 
 ```bash
 $ sudo unshare --uts
 ```
 
-- We have to use `sudo` for most `unshare` operations.
+- `sudo` est obligatoire pour la plupart des commandes `unshare`.
 
-- We indicate that we want a new uts namespace, and nothing else.
+- On indique qu'on souhaite un nouveau _namespace_ UTS, et rien d'autre.
 
-- If we don't specify a program to run, a `$SHELL` is started.
+- si on ne précise pas de programme à lancer, un `$SHELL` est démarré.
 
 ---
 
 class: extra-details, deep-dive
 
-## Demonstrating our uts namespace
+## Démonstration de notre _namespace_ UTS
 
-In our new "container", check the hostname, change it, and check it:
+Dans notre nouveau conteneur, vérifiez le nom d'hôte, changez le et vérifiez:
 
 ```bash
  # hostname
@@ -188,63 +189,63 @@ In our new "container", check the hostname, change it, and check it:
  tupperware
 ```
 
-In another shell, check that the machine's hostname hasn't changed:
+Dans un autre terminal, vérifiez que la machine principale a gardé son nom d'origine:
 
 ```bash
 $ hostname
 nodeX
 ```
 
-Exit the "container" with `exit` or `Ctrl-D`.
+Sortez du "conteneur" avec `exit` ou `Ctrl-D`.
 
 ---
 
-## Net namespace overview
+## Aperçu général du _namespace_ Net
 
-- Each network namespace has its own private network stack.
+- Chaque _namespace_ de réseau possède sa propre pile réseau privée.
 
-- The network stack includes:
+- On trouve dans cette pile réseau:
 
-  - network interfaces (including `lo`),
+  - des interfaces réseau (y compris `lo`),
 
-  - routing table**s** (as in `ip rule` etc.),
+  - **des** tables de routage (comme sur `ip rule`, etc.)
 
-  - iptables chains and rules,
+  - des règles et chaines iptables
 
-  - sockets (as seen by `ss`, `netstat`).
+  - des sockets (comme sur `ss`, `netstat`).
 
-- You can move a network interface from a network namespace to another:
+- On peut déplacer une interface réseau d'un _namespace_ réseau à un autre:
   ```bash
   ip link set dev eth0 netns PID
   ```
 
 ---
 
-## Net namespace typical use
+## Usage typique du _namespace_ Net
 
-- Each container is given its own network namespace.
+- Chaque conteneur dispose de son propre espace de nommage réseau.
 
-- For each network namespace (i.e. each container), a `veth` pair is created.
+- Pour chacun de ces _namespaces_ réseau (i.e chaque conteneur), une paire de `veth` est créée.
 
-  (Two `veth` interfaces act as if they were connected with a cross-over cable.)
+  (Deux interfaces `veth` agissent comme si elle étaient connectées par un cable croisé.)
 
-- One `veth` is moved to the container network namespace (and renamed `eth0`).
+- Un `veth` est placé sur le _namespace_ réseau du conteneur (et nommé `eth0`).
 
-- The other `veth` is moved to a bridge on the host (e.g. the `docker0` bridge).
+- L'autre `veth` est placé sur un _bridge_ de l'hôte (par ex. le _bridge_ `docker0`).
 
 ---
 
 class: extra-details
 
-## Creating a network namespace
+## Créer un _namespace_ réseau
 
-Start a new process with its own network namespace:
+Démarrons un nouveau processus dans son propre _namespace_ de type réseau:
 
 ```bash
 $ sudo unshare --net
 ```
 
-See that this new network namespace is unconfigured:
+Constatons que ce _namespace_ réseau n'est pas configuré:
 
 ```bash
  # ping 1.1
@@ -259,15 +260,15 @@ See that this new network namespace is unconfigured:
 
 class: extra-details
 
-## Creating the `veth` interfaces
+## Créer les interfaces `veth`
 
-In another shell (on the host), create a `veth` pair:
+Dans un autre shell (sur l'hôte), créons une paire de `veth`:
 
 ```bash
 $ sudo ip link add name in_host type veth peer name in_netns
 ```
 
-Configure the host side (`in_host`):
+Configurons la partie hôte (`in_host`):
 
 ```bash
 $ sudo ip link set in_host master docker0 up
@@ -277,36 +278,36 @@ $ sudo ip link set in_host master docker0 up
 
 class: extra-details
 
-## Moving the `veth` interface
+## Déplacer l'interface `veth`
 
-*In the process created by `unshare`,* check the PID of our "network container":
+*Dans le processus créé par `unshare`*, vérifier le PID de notre "conteneur réseau":
 
 ```bash
  # echo $$
  533
 ```
 
-*On the host*, move the other side (`in_netns`) to the network namespace:
+*Sur l'hôte*, déplacer l'autre côté (`in_netns`) vers le _namespace_ réseau:
 
 ```bash
 $ sudo ip link set in_netns netns 533
 ```
 
-(Make sure to update "533" with the actual PID obtained above!)
+(Attention à bien remplacer "533" avec le PID réel obtenu précédemment!)
 
 ---
 
 class: extra-details
 
-## Basic network configuration
+## Configuration réseau basique
 
-Let's set up `lo` (the loopback interface):
+Installons `lo` (l'interface loopback):
 
 ```bash
  # ip link set lo up
 ```
 
-Activate the `veth` interface and rename it to `eth0`:
+Activons l'interface `veth` pour la renommer en `eth0`:
 
 ```bash
  # ip link set in_netns name eth0 up
@@ -316,150 +317,149 @@ Activate the `veth` interface and rename it to `eth0`:
 
 class: extra-details
 
-## Allocating IP address and default route
+## Allouer l'adresse IP et la route par défaut
 
-*On the host*, check the address of the Docker bridge:
+*Sur l'hôte*, vérifions l'adresse du _bridge_ Docker:
 
 ```bash
 $ ip addr ls dev docker0
 ```
 
-(It could be something like `172.17.0.1`.)
+(Ça ressemblerait à quelque chose comme `172.17.0.1`.)
 
-Pick an IP address in the middle of the same subnet, e.g. `172.17.0.99`.
+Choisissons une adresse IP dans le même sous-réseau, comme `172.17.0.99`.
 
-*In the process created by `unshare`,* configure the interface:
+*A l'intérieur du processus créé par `unshare`,* configurons l'interface:
 
 ```bash
  # ip addr add 172.17.0.99/24 dev eth0
  # ip route add default via 172.17.0.1
 ```
 
-(Make sure to update the IP addresses if necessary.)
+(Attention à indiquer les bonnes adresses IP si elles diffèrent.)
 
 ---
 
 class: extra-details
 
-## Validating the setup
+## Valider l'installation
 
-Check that we now have connectivity:
+Vérifions que nous avons maintenant un accès réseau:
 
 ```bash
  # ping 1.1
 ```
 
-Note: we were able to take a shortcut, because Docker is running,
-and provides us with a `docker0` bridge and a valid `iptables` setup.
+Note: nous avons pu prendre un raccourci, car Docker tourne,
+et nous fournit une passerelle `docker0` et un environnement `iptables` valide.
 
-If Docker is not running, you will need to take care of this!
+Si Docker n'était pas là, on aurait dû s'occuper de ça aussi!
 
 ---
 
 class: extra-details
 
-## Cleaning up network namespaces
+## Nettoyer les _namespaces_ réseau
 
-- Terminate the process created by `unshare` (with `exit` or `Ctrl-D`).
+- Arrêtez le processus créé par `unshare` (avec `exit` ou `Ctrl-D`).
 
-- Since this was the only process in the network namespace, it is destroyed.
+- Puisque c'était le dernier processus dans l'espace de nommage réseau, ce dernier est détruit.
 
-- All the interfaces in the network namespace are destroyed.
+- Toutes les interfaces de cet espace de nommage sont aussi détruites.
 
-- When a `veth` interface is destroyed, it also destroys the other half of the pair.
+- Quand une interface `veth` est détruite, elle supprime aussi son autre moitié.
 
-- So we don't have anything else to do to clean up!
-
----
-
-## Other ways to use network namespaces
-
-- `--net none` gives an empty network namespace to a container.
-
-  (Effectively isolating it completely from the network.)
-
-- `--net host` means "do not containerize the network".
-
-  (No network namespace is created; the container uses the host network stack.)
-
-- `--net container` means "reuse the network namespace of another container".
-
-  (As a result, both containers share the same interfaces, routes, etc.)
+- Ainsi nous n'avons plus rien d'autre à nettoyer!
 
 ---
 
-## Mnt namespace
+## Autres cas d'usage des _namespaces_ réseau
 
-- Processes can have their own root fs (à la chroot).
+- `--net none` crée un _namespace_ réseau vide pour un conteneur.
 
-- Processes can also have "private" mounts. This allows to:
+  (le rendant complètement isolé du réseau.)
 
-  - isolate `/tmp` (per user, per service...)
+- `--net host` se traduit par "ne pas conteneurisé le réseau".
 
-  - mask `/proc`, `/sys` (for processes that don't need them)
+  (Aucun _namespace_ réseau n'est créé; le conteneur utilise la pile réseau de l'hôte.)
 
-  - mount remote filesystems or sensitive data,
-    <br/>but make it visible only for allowed processes
+- `--net container` signifie "réutilise le _namespace_ réseau d'un autre conteneur".
 
-- Mounts can be totally private, or shared.
+  (Il en résulte que les deux conteneurs partagent les mêmes interfaces, routes, etc.)
 
-- At this point, there is no easy way to pass along a mount
-  from a namespace to another.
+---
+
+## _Namespace_ "Mnt"
+
+- Les processus peuvent avoir leur propre racine de système de fichiers (à la chroot).
+
+- Les processus peuvent avoir leurs propres montages "privés". Cela permet:
+
+  - d'isoler `/tmp` (par utilisateur, par service, etc.)
+
+  - de masquer `/proc`, `/sys` (pour les processus qui n'en veulent pas)
+
+  - de monter des systèmes de fichier distants ou des données sensibles
+    <br/>et les exposer uniquement aux processus autorisés
+
+- Les points de montage peuvent être totalement privés, ou partagés.
+
+- A ce jour, il n'existe pas de moyen simple de transmettre un montage
+  depuis un _namespace_ à un autre.
 
 ---
 
 class: extra-details, deep-dive
 
-## Setting up a private `/tmp`
+## Configurer un `/tmp` privé
 
-Create a new mount namespace:
+Créer un nouveau _namespace_ de montage:
 
 ```bash
 $ sudo unshare --mount
 ```
 
-In that new namespace, mount a brand new `/tmp`:
+Dans ce nouveau _namespace_, monter un tout nouveau `/tmp`:
 
 ```bash
  # mount -t tmpfs none /tmp
 ```
 
-Check the content of `/tmp` in the new namespace, and compare to the host.
+Vérifier le contenu de `/tmp` dans le nouveau _namespace_, et le comparer à l'hôte.
 
-The mount is automatically cleaned up when you exit the process.
+Le montage est automatiquement supprimé quand vous quittez le processus.
 
 ---
 
-## PID namespace
+## _Namespace_ PID
 
-- Processes within a PID namespace only "see" processes
-  in the same PID namespace.
+- Les processus à l'intérieur d'un _namespace_ PID ne peuvent "voir" que les processus dans le même espace de nommage PID.
 
-- Each PID namespace has its own numbering (starting at 1).
+- Chaque _namespace_ PID possède son propre compteur (démarrant à 1).
 
-- When PID 1 goes away, the whole namespace is killed.
+- Quand le PID 1 s'arrête, le _namespace_ complet disparaît.
 
-  (When PID 1 goes away on a normal UNIX system, the kernel panics!)
+  (Sur un système UNIX classique, l'arrêt du PID 1 provoque une panique du noyau!)
 
-- Those namespaces can be nested.
+- Ces _namespaces_ peuvent être imbriqués les uns dans les autres.
 
-- A process ends up having multiple PIDs (one per namespace in which it is nested).
+- Au final, un processus aura plusieurs PIDs (un par _namespace_ où il est imbriqué).
 
 ---
 
 class: extra-details, deep-dive
 
-## PID namespace in action
+## Espace de nommage PID en action
 
-Create a new PID namespace:
+Créer un nouveau _namespace_ PID:
 
 ```bash
 $ sudo unshare --pid --fork
 ```
 
-(We need the `--fork` flag because the PID namespace is special.)
+(On doit ajouter l'option `--fork` car le _namespace_ PID est spécial.)
 
-Check the process tree in the new namespace:
+Vérifier l'arborescence du processus dans le nouveau _namespace_:
 
 ```bash
  # ps faux
@@ -469,39 +469,39 @@ Check the process tree in the new namespace:
 
 class: extra-details, deep-dive
 
-🤔 Why do we see all the processes?!?
+🤔 Mais pourquoi on voit tous les processus alors ?!?
 
 ---
 
 class: extra-details, deep-dive
 
-## PID namespaces and `/proc`
+## _Namespace_ PID et `/proc`
 
-- Tools like `ps` rely on the `/proc` pseudo-filesystem.
+- Les commandes comme `ps` se basent sur le pseudo-dossier `/proc`.
 
-- Our new namespace still has access to the original `/proc`.
+- Notre _namespace_ a toujours accès au `/proc` original.
 
-- Therefore, it still sees host processes.
+- Par conséquent, il voit tous les processus de l'hôte.
 
-- But it cannot affect them.
+- Mais il ne peut pas y toucher.
 
-  (Try to `kill` a process: you will get `No such process`.)
+  (Essayez de `kill` un processus et vous aurez `No such process`.)
 
 ---
 
 class: extra-details, deep-dive
 
-## PID namespaces, take 2
+## Espace de nommage PID, deuxième prise
 
-- This can be solved by mounting `/proc` in the namespace.
+- On peut résoudre ce point en montant `/proc` dans le _namespace_.
 
-- The `unshare` utility provides a convenience flag, `--mount-proc`.
+- La commande `unshare` fournit une option `--mount-proc` bien pratique.
 
-- This flag will mount `/proc` in the namespace.
+- Cette option va monter `/proc` dans le _namespace_.
 
-- It will also unshare the mount namespace, so that this mount is local.
+- Il va aussi départager le _namespace_ de montage, pour qu'il soit uniquement local.
 
-Try it:
+Essayez par vous-même:
 
 ```bash
  $ sudo unshare --pid --fork --mount-proc
@@ -512,178 +512,175 @@ Try it:
 
 class: extra-details
 
-## OK, really, why do we need `--fork`?
+## Bon, franchement, à quoi sert `--fork`?
 
-*It is not necessary to remember all these details.
+*Il n'est pas nécessaire de se rappeler de tous ces détails.
 <br/>
-This is just an illustration of the complexity of namespaces!*
+C'est juste une illustration de la complexité des* namespaces *!*
 
-The `unshare` tool calls the `unshare` syscall, then `exec`s the new binary.
+`unshare` lance un appel système `unshare()`, puis `exec` le nouveau binaire.
 <br/>
-A process calling `unshare` to create new namespaces is moved to the new namespaces...
+Un processus appelant `unshare` pour créer de nouveaux _namespaces_ est placé dans ces _namespaces_... excepté pour le _namespace_ PID.
 <br/>
-... Except for the PID namespace.
-<br/>
-(Because this would change the current PID of the process from X to 1.)
+(car cela changerait le PID du processus en cours de X à 1.)
 
-The processes created by the new binary are placed into the new PID namespace.
-<br/>
-The first one will be PID 1.
-<br/>
-If PID 1 exits, it is not possible to create additional processes in the namespace.
-<br/>
-(Attempting to do so will result in `ENOMEM`.)
 
-Without the `--fork` flag, the first command that we execute will be PID 1 ...
+Les processus créés par le nouveau binaire sont placés dans le nouveau _namespace_ PID.
 <br/>
-... And once it exits, we cannot create more processes in the namespace!
+Le premier aura le PID 1.
+<br/>
+Si le PID 1 quitte, impossible de lancer de nouveaux processus dans ce _namespace_.
+<br/>
+(Toute tentative renverra l'erreur `ENOMEM`.)
 
-Check `man 2 unshare` and `man pid_namespaces` if you want more details.
+Sans l'option `--fork`, la première commande à s'exétuer aura le PID 1 ...
+<br/>
+... et une fois qu'elle quitte, on ne pourra plus créer de processus dans ce _namespace_!
+
+Pour plus de détails, vous pouvez consulter `man 2 unshare` et `man pid_namespaces`.
 
 ---
 
-## IPC namespace
+## _Namespace_ IPC
 
 --
 
-- Does anybody know about IPC?
+- Qui a déjà travaillé sur IPC?
 
 --
 
-- Does anybody *care* about IPC?
+- Qui se *soucie* d'IPC?
 
 --
 
-- Allows a process (or group of processes) to have own:
+- Permet à un processus (ou un groupe) d'avoir leur propre:
 
-  - IPC semaphores
-  - IPC message queues
-  - IPC shared memory
+  - sémaphores IPC
+  - file d'attente IPC
+  - mémoire partagée IPC
 
-  ... without risk of conflict with other instances.
+  ... sans risque de conflit avec les autres instances.
 
-- Older versions of PostgreSQL cared about this.
+- Les anciennes versions de PostgreSQL l'utilisaient.
 
-*No demo for that one.*
+*Pas de démo pour celui-ci.*
 
 ---
 
-## User namespace
+## _Namespace_ user
 
-- Allows to map UID/GID; e.g.:
+- Permet des correspondances sur UID/GID, comme par ex.:
 
-  - UID 0→1999 in container C1 is mapped to UID 10000→11999 on host
-  - UID 0→1999 in container C2 is mapped to UID 12000→13999 on host
+  - UID 0→1999 du conteneur C1 correspond à UID 10000→11999 sur l'hôte
+  - UID 0→1999 in conteneur C2 correspond à UID 12000→13999 sur l'hôte
   - etc.
 
-- UID 0 in the container can still perform privileged operations in the container.
+- L'UID 0 dans le conteneur peut quand même mener des opérations privilégiées à l'intérieur du conteneur.
 
-  (For instance: setting up network interfaces.)
+  (Par exemple: configurer les interfaces réseau.)
 
-- But outside of the container, it is a non-privileged user.
+- Mais en dehors du conteneur, il n'est qu'un utilisateur non-privilégié.
 
-- It also means that the UID in containers becomes unimportant.
+- Cela veut aussi dire que l'UID dans les conteneurs devient peu important.
 
-  (Just use UID 0 in the container, since it gets squashed to a non-privileged user outside.)
+  (Prenez juste l'UID 0 dans le conteneur, puisqu'il sera dégradé en utilisateur
+  non-privilégié en dehors.)
 
-- Ultimately enables better privilege separation in container engines.
+- Rend finalement possible une meilleure séparation des privilèges dans les moteurs de conteneurs.
 
 ---
 
 class: extra-details, deep-dive
 
-## User namespace challenges
+## Défis des _namespace_ d'utilisateur
 
-- UID needs to be mapped when passed between processes or kernel subsystems.
+- L'UID doit être déjà associé au moment d'être transféré entre processus ou sous-systèmes du noyau.
 
-- Filesystem permissions and file ownership are more complicated.
+- Les permissions du système de fichiers et la propriété de fichiers sont plus compliqués.
 
-  .small[(E.g. when the same root filesystem is shared by multiple containers
-  running with different UIDs.)]
+  .small[(Par ex. quand le même système de fichiers racine est partagé entre plusieurs conteneurs avec différents UIDs.)]
 
-- With the Docker Engine:
+- Avec le Docker Engine:
 
-  - some feature combinations are not allowed
+  - certaines combinaisons ne sont pas autorisées.
     <br/>
-    (e.g. user namespace + host network namespace sharing)
+    (par ex. _namespace_ utilisateur + partage du _namespace_ réseau de l'hôte)
 
-  - user namespaces need to be enabled/disabled globally
+  - les _namespaces_ utilisateur doivent être activés/désactivés globalement
     <br/>
-    (when the daemon is started)
+    (au moment de démarrer le démon)
 
-  - container images are stored separately
+  - les images de conteneur sont stockées séparément.
     <br/>
-    (so the first time you toggle user namespaces, you need to re-pull images)
+    (donc la première fois que vous activez les _namespaces_ utilisateur, vous devez re-pull toutes les images.)
 
-*No demo for that one.*
+*Pas de démo pour celui-ci.*
 
 ---
 
-# Control groups
+# Groupes de contrôle
 
-- Control groups provide resource *metering* and *limiting*.
+- Les groupes de contrôle s'occupent de *mesurer* et *limiter* les ressources.
 
-- This covers a number of "usual suspects" like:
+- Cela couvre un certain nombre de "suspects habituels", tels que:
 
-  - memory
+  - mémoire
 
   - CPU
 
   - block I/O
 
-  - network (with cooperation from iptables/tc)
+  - réseau (avec la coopération de tc/iptables)
 
-- And a few exotic ones:
+- Et quelques autres exotiques:
 
-  - huge pages (a special way to allocate memory)
+  - _huge pages_ (une façon spéciale d'allouer la mémoire)
 
-  - RDMA (resources specific to InfiniBand / remote memory transfer)
-
----
-
-## Crowd control
-
-- Control groups also allow to group processes for special operations:
-
-  - freezer (conceptually similar to a "mass-SIGSTOP/SIGCONT")
-
-  - perf_event (gather performance events on multiple processes)
-
-  - cpuset (limit or pin processes to specific CPUs)
-
-- There is a "pids" cgroup to limit the number of processes in a given group.
-
-- There is also a "devices" cgroup to control access to device nodes.
-
-  (i.e. everything in `/dev`.)
+  - RDMA (ressources spécifiques à InfiniBand / transfert de mémoire distante)
 
 ---
 
-## Generalities
+## Contrôle de foules
 
-- Cgroups form a hierarchy (a tree).
+- Les groupes de contrôle permettent aussi des opérations spéciales aux groupes de processus:
 
-- We can create nodes in that hierarchy.
+  - freezer (concept similaire à un "mass-SIGSTOP/SIGCONT")
 
-- We can associate limits to a node.
+  - perf_event (collecte les événements de performance sur plusieurs processus)
 
-- We can move a process (or multiple processes) to a node.
+  - cpuset (limite ou épingle les processus à des CPUs spécifiques)
 
-- The process (or processes) will then respect these limits.
+- Il y a un _cgroup_ "pids" qui limite le nombre de processus d'un groupe donné.
 
-- We can check the current usage of each node.
+- IL y aussi un _cgroup_ "devices" pour contrôler les accès aux noeuds de périphériques.
 
-- In other words: limits are optional (if we only want accounting).
-
-- When a process is created, it is placed in its parent's groups.
+  (i.e. tout ce qui est dans `/dev`.)
 
 ---
 
-## Example
+## Généralités
 
-The numbers are PIDs.
+- Les _cgroups_ forment une hiérarchie (un arbre).
 
-The names are the names of our nodes (arbitrarily chosen).
+- Nous pouvons créer des noeuds dans cette hiérarchie.
+
+- Nous pouvons associer des limites à un noeud.
+
+- Le (ou les) processus vont ensuite respecter ces limites.
+
+- On peut vérifier l'usage courant de chaque noeud.
+
+- En d'autres mots: les limites sont optionnelles (si on veut juste la comptabilité).
+
+- Quand un processus est créé, il est placé dans les groupes de son parent.
+
+---
+
+## Exemple
+
+Les nombres sont des PIDs.
+
+Les noms sont les noms des noeuds (choisi arbitrairement).
 
 .small[
 ```bash
@@ -710,40 +707,40 @@ cpu                      memory
 
 class: extra-details, deep-dive
 
-## Cgroups v1 vs v2
+## _Cgroups_ v1 contre v2
 
-- Cgroups v1 are available on all systems (and widely used).
+- Les _Cgroups_ v1 sont disponibles sur tous les systèmes (et amplement utilisé).
 
-- Cgroups v2 are a huge refactor.
+- Les _Cgroups_ v2 sont une grosse ré-écriture.
 
-  (Development started in Linux 3.10, released in 4.5.)
+  (Développement commencé dans Linux 3.10, publié en 4.5.)
 
-- Cgroups v2 have a number of differences:
+- Les _Cgroups_ v2 ont un nombre de différences:
 
-  - single hierarchy (instead of one tree per controller),
+  - hiérarchie unique (au lieu d'un arbre par contrôleur),
 
-  - processes can only be on leaf nodes (not inner nodes),
+  - les processus peuvent juste être des noeuds finaux (les feuilles, pas de noeuds internes),
 
-  - and of course many improvements / refactorings.
+  - et bien sûr de nombreuses améliorations / correctifs.
 
 ---
 
-## Memory cgroup: accounting
+## _cgroup_ mémoire: comptabilité
 
-- Keeps track of pages used by each group:
+- Suivi des pages utilisées par chaque groupe:
 
-  - file (read/write/mmap from block devices),
-  - anonymous (stack, heap, anonymous mmap),
-  - active (recently accessed),
-  - inactive (candidate for eviction).
+  - fichier (lire/écriture/mmap des blocs de périphériques),
+  - anonyme (pile, _heap_, mmap anonyme),
+  - actif (récemment accédé),
+  - inactif (candidat à l'éviction).
 
-- Each page is "charged" to a group.
+- Chaque page est "facturé" à un groupe.
 
-- Pages can be shared across multiple groups.
+- Les pages peuvent être partagées à travers plusieurs groupes.
 
-  (Example: multiple processes reading from the same files.)
+  (Exemple: plusieurs processus lisant les mêmes fichiers.)
 
-- To view all the counters kept by this cgroup:
+- Pour voir les compteurs conservés par ce _cgroup_:
 
   ```bash
   $ cat /sys/fs/cgroup/memory/memory.stat
@@ -751,115 +748,113 @@ class: extra-details, deep-dive
 
 ---
 
-## Memory cgroup: limits
+## _cgroup_ mémoire: limites
 
-- Each group can have (optional) hard and soft limits.
+- Chaque groupe peut avoir (en option) des limites _hard_ et _soft_.
 
-- Limits can be set for different kinds of memory:
+- Des limites peuvent être placées pour différents types de mémoire:
 
-  - physical memory,
+  - mémoire physique,
 
-  - kernel memory,
+  - mémoire du noyau,
 
-  - total memory (including swap).
-
----
-
-## Soft limits and hard limits
-
-- Soft limits are not enforced.
-
-  (But they influence reclaim under memory pressure.)
-
-- Hard limits *cannot* be exceeded:
-
-  - if a group of processes exceeds a hard limit,
-
-  - and if the kernel cannot reclaim any memory,
-
-  - then the OOM (out-of-memory) killer is triggered,
-
-  - and processes are killed until memory gets below the limit again.
+  - mémoire totale (swap y compris).
 
 ---
 
-class: extra-details, deep-dive
+## Limites _soft_ et _hard_
 
-## Avoiding the OOM killer
+- Les limites _soft_ ne sont pas appliquées.
 
-- For some workloads (databases and stateful systems), killing
-  processes because we run out of memory is not acceptable.
+  (mais elles influencent la récupération sous la pression de mémoire.)
 
-- The "oom-notifier" mechanism helps with that.
+- Les limites _hards_ ne peuvent **pas** être dépassées:
 
-- When "oom-notifier" is enabled and a hard limit is exceeded:
+  - si un groupe de processus dépasse une limite _hard_,
 
-  - all processes in the cgroup are frozen,
+  - et si le noyau ne peut pas récupérér la mémoire,
 
-  - a notification is sent to user space (instead of killing processes),
+  - alors le _killer_ OOM (out-of-memory) est déclenché,
 
-  - user space can then raise limits, migrate containers, etc.,
-
-  - once the memory usage is below the hard limit, unfreeze the cgroup.
+  - et les processus sont tués jusqu'à ce que la mémoire passe sous la limite à nouveau.
 
 ---
 
 class: extra-details, deep-dive
 
-## Overhead of the memory cgroup
+## Éviter le _killer_ OOM
 
-- Each time a process grabs or releases a page, the kernel update counters.
+- Pour certaines taches (bases de données et services à données persistentes),
+  tuer les processus à cause d'un manque de mémoire n'est pas acceptable.
 
-- This adds some overhead.
+- Le mécanisme "oom-notifier" peut nous aider à ce sujet.
 
-- Unfortunately, this cannot be enabled/disabled per process.
+- Quand "oom-notifier" est activé et qu'une limite _hard_ est dépassée:
 
-- It has to be done system-wide, at boot time.
+  - tous les processus de ce _cgroup_ sont gelés,
 
-- Also, when multiple groups use the same page:
+  - une notification est envoyée à l'espace utilisateur (au lieu de supprimer les processus),
 
-  - only the first group gets "charged",
-
-  - but if it stops using it, the "charge" is moved to another group.
+  - une fois que la mémoire s'est rétablie sous la limite _hard_, il dégèle le _cgroup_.
 
 ---
 
 class: extra-details, deep-dive
 
-## Setting up a limit with the memory cgroup
+## Surcharge du _cgroup_ mémoire
 
-Create a new memory cgroup:
+- Chaque fois qu'un processus réserve ou libère une page, le noyau met à jour les compteurs.
+
+- Cela ajoute un délai supplémentaire.
+
+- Hélas, on ne peut pas l'activer/désactiver par processus.
+
+- C'est une configuration au niveau du système, effectuée au démarrage.
+
+- De même, quand plusieurs groupes utilisent la même page:
+
+  - seul le premier groupe est "facturé",
+
+  - mais s'il arrête de l'utiliser, la "facture" est déplacée sur un autre groupe.
+
+---
+
+class: extra-details, deep-dive
+
+## Placer une limite sur le _cgroup_ "mémoire"
+
+Créer un nouveau _cgroup_ mémoire:
 
 ```bash
 $ CG=/sys/fs/cgroup/memory/onehundredmegs
 $ sudo mkdir $CG
 ```
 
-Limit it to approximately 100MB of memory usage:
+Le limiter à approximativement 100Mo d'usage mémoire:
 
 ```bash
 $ sudo tee $CG/memory.memsw.limit_in_bytes <<< 100000000
 ```
 
-Move the current process to that cgroup:
+Déplacer le processus en cours dans ce _cgroup_:
 
 ```bash
 $ sudo tee $CG/tasks <<< $$
 ```
 
-The current process *and all its future children* are now limited.
+Le processus en cours *et tous ses futurs enfants* sont maintenant limités.
 
-(Confused about `<<<`? Look at the next slide!)
+(Troublé(e) par `<<<`? On en parle dans la diapo suivante!)
 
 ---
 
 class: extra-details, deep-dive
 
-## What's `<<<`?
+## Qu'est-ce que `<<<`?
 
-- This is a "here string". (It is a non-POSIX shell extension.)
+- C'est une _"here string_". (C'est une extension du _shell_ non-POSIX.)
 
-- The following commands are equivalent:
+- Les commandes suivantes sont équivalentes:
 
   ```bash
   foo <<< hello
@@ -875,27 +870,27 @@ class: extra-details, deep-dive
   EOF
   ```
 
-- Why did we use that?
+- Pourquoi l'utiliser ici?
 
 ---
 
 class: extra-details, deep-dive
 
-## Writing to cgroups pseudo-files requires root
+## Écrire dans les pseudo-ficheirs _cgroups_ exige d'être _"root"_
 
-Instead of:
+Au lieu de:
 
 ```bash
 sudo tee $CG/tasks <<< $$
 ```
 
-We could have done:
+On aurait pu écrire:
 
 ```bash
 sudo sh -c "echo $$ > $CG/tasks"
 ```
 
-The following commands, however, would be invalid:
+Les commandes suivantes, toutefois, auraient été invalides:
 
 ```bash
 sudo echo $$ > $CG/tasks
@@ -910,9 +905,9 @@ echo $$ > $CG/tasks
 
 class: extra-details, deep-dive
 
-## Testing the memory limit
+## Tester la limite mémoire
 
-Start the Python interpreter:
+Démarrer l'interpréteur Python:
 
 ```bash
 $ python
@@ -922,13 +917,13 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>>
 ```
 
-Allocate 80 megabytes:
+Allouer 80 méga-octets:
 
 ```python
 >>> s = "!" * 1000000 * 80
 ```
 
-Add 20 megabytes more:
+Ajouter 20 méga-octets:
 
 ```python
 >>> t = "!" * 1000000 * 20
@@ -937,188 +932,188 @@ Killed
 
 ---
 
-## CPU cgroup
+## _cgroup_ CPU
 
-- Keeps track of CPU time used by a group of processes.
+- Comptabilise le temps CPU utilisé par un groupe de processus.
 
-  (This is easier and more accurate than `getrusage` and `/proc`.)
+  (C'est plus facile et précis que `getrusage` et `/proc`.)
 
-- Keeps track of usage per CPU as well.
+- Trace de la même manière l'usage par CPU.
 
-  (i.e., "this group of process used X seconds of CPU0 and Y seconds of CPU1".)
+  (ie. "ce groups de processus a utilisé X secondes du CPU0 et Y secs. du CPU1".)
 
-- Allows to set relative weights used by the scheduler.
-
----
-
-## Cpuset cgroup
-
-- Pin groups to specific CPU(s).
-
-- Use-case: reserve CPUs for specific apps.
-
-- Warning: make sure that "default" processes aren't using all CPUs!
-
-- CPU pinning can also avoid performance loss due to cache flushes.
-
-- This is also relevant for NUMA systems.
-
-- Provides extra dials and knobs.
-
-  (Per zone memory pressure, process migration costs...)
+- Autorise la configuration de facteurs de pondération à l'usage de l'ordonnanceur.
 
 ---
 
-## Blkio cgroup
+## _cgroup_ Cpuset
 
-- Keeps track of I/Os for each group:
+- Épingle des groupes à certains CPU(s).
 
-  - per block device
-  - read vs write
-  - sync vs async
+- Cas d'usage: réserver des CPUs pour des applications spécifiques.
 
-- Set throttle (limits) for each group:
+- Avertissement: assurez-vous que les processus par défaut n'utilisent pas tous les CPUs!
 
-  - per block device
-  - read vs write
-  - ops vs bytes
+- Épingler un CPU peut éviter les pertes de performance dûes au vidage de cache.
 
-- Set relative weights for each group.
+- Cela concerne aussi les systèmes NUMA.
 
-- Note: most writes go through the page cache.
-  <br/>(So classic writes will appear to be unthrottled at first.)
+- Fournit des boutons et manettes supplémentaires.
+
+  (pression mémoire par zone, coûts de migration des processus...)
 
 ---
 
-## Net_cls and net_prio cgroup
+## _cgroup_ Blkio
 
-- Only works for egress (outgoing) traffic.
+- Opère le suivi des E/S pour chaque groupe:
 
-- Automatically set traffic class or priority
-  for traffic generated by processes in the group.
+  - par bloc de périphérique
+  - lecture vs écriture
+  - synchrone vs asynchrone
 
-- Net_cls will assign traffic to a class.
+- Placer des régulateurs (limites) pour chaque groupe:
 
-- Classes have to be matched with tc or iptables, otherwise traffic just flows normally.
+  - par bloc de périphérique
+  - lecture vs écriture
+  - opérations vs octets
 
-- Net_prio will assign traffic to a priority.
+- Indiquer des pondérations relatives pour chaque groupe.
 
-- Priorities are used by queuing disciplines.
+- Note: la plupart des écritures passent par le cache de page.
+  <br/>(Donc les écritures classiques apparaîtront d'abord comme non régulées.)
 
 ---
 
-## Devices cgroup
+## _cgroup_ Net_cls et net_prio
 
-- Controls what the group can do on device nodes
+- Fonctionne uniquement pour le trafic _egress_ (sortant).
 
-- Permissions include read/write/mknod
+- Règle automatiquement la classe ou priorité du trafic pour le
+  trafic généré par les processus dans le groupe.
 
-- Typical use:
+- Net_cls va assigner un trafic à une classe.
 
-  - allow `/dev/{tty,zero,random,null}` ...
-  - deny everything else
+- Les classes doivent correspondre à celles dans tc ou iptables, ou bien tout se passera comme si le trafic n'était pas limité.
 
-- A few interesting nodes:
+- Net_prio va assigner une priorité au trafic.
 
-  - `/dev/net/tun` (network interface manipulation)
-  - `/dev/fuse` (filesystems in user space)
-  - `/dev/kvm` (VMs in containers, yay inception!)
+- Les priorités sont utilisées par les _queuing disciplines_ (cf. QoS)
+
+---
+
+## _cgroup_ de périphériques
+
+- Contrôle ce que le groupe peut faire sur les noeuds de périphérique.
+
+- On retrouve des permissions de type read/write/mknod.
+
+- Usage typique:
+
+  - autoriser `/dev/{tty,zero,random,null}` ...
+  - interdire tout le reste
+
+- Quelques noeuds intéressants:
+
+  - `/dev/net/tun` (manipulation de l'interface réseau)
+  - `/dev/fuse` (systèmes de fichiers dans pour utilisateur simple)
+  - `/dev/kvm` (des VMs dans des conteneurs, chouette l'inception!)
   - `/dev/dri` (GPU)
 
 ---
 
-# Security features
+# Fonctions de sécurité
 
-- Namespaces and cgroups are not enough to ensure strong security.
+- Espaces de nommage et _cgroups_ ne sont pas suffisants pour garantir une sécurité forte.
 
-- We need extra mechanisms: capabilities, seccomp, LSMs.
+- Nous avons besoin de mécanismes supplémentaires: capacités, seccomps, LSMs.
 
-- These mechanisms were already used before containers to harden security.
+- Ces mécanismes étaient déjà utilisés avant les conteneurs pour renforcer la sécurité.
 
-- They can be used together with containers.
+- Ils peuvent être combinés aux conteneurs.
 
-- Good container engines will automatically leverage these features.
+- De bons moteurs de conteneurs vont automatiquement exploiter ces fonctions.
 
-  (So that you don't have to worry about it.)
-
----
-
-## Capabilities
-
-- In traditional UNIX, many operations are possible if and only if UID=0 (root).
-
-- Some of these operations are very powerful:
-
-  - changing file ownership, accessing all files ...
-
-- Some of these operations deal with system configuration, but can be abused:
-
-  - setting up network interfaces, mounting filesystems ...
-
-- Some of these operations are not very dangerous but are needed by servers:
-
-  - binding to a port below 1024.
-
-- Capabilities are per-process flags to allow these operations individually.
+  (Pour que vous n'ayez pas à vous en inquiéter.)
 
 ---
 
-## Some capabilities
+## Capacités
 
-- `CAP_CHOWN`: arbitrarily change file ownership and permissions.
+- En UNIX standard, bien des opérations sont possibles si et seulement si UID=0 (root).
 
-- `CAP_DAC_OVERRIDE`: arbitrarily bypass file ownership and permissions.
+- Quelques unes des opérations sont très puissantes:
 
-- `CAP_NET_ADMIN`: configure network interfaces, iptables rules, etc.
+  - changer la propriété des fichiers, accéder à tout fichier ...
 
-- `CAP_NET_BIND_SERVICE`: bind a port below 1024.
+- Parmi ces opérations, certaines traitent de la config. système, mais peuvent être abusées:
 
-See `man capabilities` for the full list and details.
+  - installer des interfaces réseau, monter des systèmes de fichier ...
+
+- Certaines de ces opérations ne sont pas dangereuses en soi, mais requises par les serveurs:
+
+  - ouvrir un port inférieur à 1024.
+
+- Les capacités sont des options réglables par processus pour permettre ces opérations individuellement.
 
 ---
 
-## Using capabilities
+## Quelques capacités
 
-- Container engines will typically drop all "dangerous" capabilities.
+- `CAP_CHOWN`: pour changer arbitrairement le propriétaire de fichiers et leurs permissions.
 
-- You can then re-enable capabilities on a per-container basis, as needed.
+- `CAP_DAC_OVERRIDE`: contourne arbitrairement les accès et propriétaire de fichiers.
 
-- With the Docker engine: `docker run --cap-add ...`
+- `CAP_NET_ADMIN`: autorise la configuration d'interface réseau, de règles iptables, etc.
 
-- If you write your own code to manage capabilities:
+- `CAP_NET_BIND_SERVICE`: pour réserver un port inférieur à 1024.
 
-  - make sure that you understand what each capability does,
+Voir `man capabilities` pour une liste complète et détaillée.
 
-  - read about *ambient* capabilities as well.
+---
+
+## Usage des capacités
+
+- Les moteurs de conteneurs vont typiquement bloquer toute capacité "dangereuse".
+
+- Vous pouvez les ré-activer selon le conteneur, selon les besoins.
+
+- Avec le Docker Engine: `docker run --cap-add ...`
+
+- Si vous écrivez votre propre code pour gérer les capacités:
+
+  - assurez-vous de comprendre ce que fait chaque capacité;
+
+  - informez-vous aussi sur les capacités *ambiantes*.
 
 ---
 
 ## Seccomp
 
-- Seccomp is secure computing.
+- Seccomp signifie _"secure computing"_.
 
-- Achieve high level of security by restricting drastically available syscalls.
+- On obtient un haut niveau de sécurité via une restriction drastique des appels système possibles.
 
-- Original seccomp only allows `read()`, `write()`, `exit()`, `sigreturn()`.
+- Le seccomp de base autorise uniquement `read()`, `write()`, `exit()`, `sigreturn()`.
 
-- The seccomp-bpf extension allows to specify custom filters with BPF rules.
+- L'extension seccomp-bpf permet de spécifier des filtres spéciaux via des règles BPF.
 
-- This allows to filter by syscall, and by parameter.
+- Cela se traduit par un filtre sur les appels système, et leurs paramètres.
 
-- BPF code can perform arbitrarily complex checks, quickly, and safely.
+- Du code BPF est capable d'exécuter des vérifications complexes, rapidement et en sécurité.
 
-- Container engines take care of this so you don't have to.
+- Les moteurs de conteneurs s'occupent de cet aspect pour que vous n'ayez pas à le faire.
 
 ---
 
-## Linux Security Modules
+## Modules de Sécurité Linux
 
-- The most popular ones are SELinux and AppArmor.
+- Les plus populaires sont SELinux et AppArmor.
 
-- Red Hat distros generally use SELinux.
+- Les distros Red Hat embarquent généralement SELinux.
 
-- Debian distros (in particular, Ubuntu) generally use AppArmor.
+- Les distros Debian (dont Ubuntu) utilisent plutôt AppArmor.
 
-- LSMs add a layer of access control to all process operations.
+- Les LSMs ajoutent une couche de contrôle d'accès à toutes les opérations sur processus.
 
-- Container engines take care of this so you don't have to.
+- Les moteurs de conteneurs s'occupent de cet aspect pour que vous n'ayez pas à le faire.
