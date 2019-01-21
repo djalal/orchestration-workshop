@@ -72,7 +72,7 @@ Lors de la mise en service d'un nouvel hôte, `docker-machine` exécute les éta
 
 2) Se connecter à l'hôte via SSH.
 
-3) Installer et configurer Docker sur lhôte.
+3) Installer et configurer Docker sur l'hôte.
 
 Avec le pilote `generic`, on fournit l'adresse IP d'un hôte exitant (au lieu des accès _cloud_), et on saute la première étape.
 

@@ -1,7 +1,7 @@
 
 class: title
 
-# Dockerfile avancés
+# Dockerfiles avancés
 
 ![construction](images/title-advanced-dockerfiles.jpg)
 

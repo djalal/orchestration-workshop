@@ -1,6 +1,6 @@
 # Configuration d'applications
 
-Il y a de nombreuses façons de passer une configuration aux applications containerisées.
+Il y a de nombreuses façons de passer une configuration aux applications conteneurisées.
 
 Il n'y a pas de "bonne manière", cela dépend de plusieurs facteurs, tels que:
 
@@ -8,7 +8,7 @@ Il n'y a pas de "bonne manière", cela dépend de plusieurs facteurs, tels que:
 
 * les paramètres obligatoires et optionnels;
 
-* la visibilité de la configuration (par container, par app, par client, par site, etc.);
+* la visibilité de la configuration (par conteneur, par app, par client, par site, etc.);
 
 * la fréquence de changement de configuration.
 
