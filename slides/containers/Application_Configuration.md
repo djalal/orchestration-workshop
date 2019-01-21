@@ -195,4 +195,4 @@ Par ex.:
 
 - lire le contenu du secret via _stdin_ quand le service démarre;
 
-- passer le secret via un endpoint d'une API
+- passer le secret via un endpoint d'une API.

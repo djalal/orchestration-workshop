@@ -575,16 +575,16 @@ Pour plus de détails, vous pouvez consulter `man 2 unshare` et `man pid_namespa
   - UID 0→1999 in conteneur C2 correspond à UID 12000→13999 sur l'hôte
   - etc.
 
-- L'UID 0 dans le conteneur peut quand même mener des opérations privilégiées à l'intérieur du conteneur.
+- L'UID 0 du conteneur peut quand même y mener des opérations privilégiées.
 
   (Par exemple: configurer les interfaces réseau.)
 
 - Mais en dehors du conteneur, il n'est qu'un utilisateur non-privilégié.
 
-- Cela veut aussi dire que l'UID dans les conteneurs devient peu important.
+- Cela veut aussi dire que l'UID dans les conteneurs devient moins important.
 
-  (Prenez juste l'UID 0 dans le conteneur, puisqu'il sera dégradé en utilisateur
-  non-privilégié en dehors.)
+  (Prenez juste l'UID 0 du conteneur, car il sera rétrogradé en utilisateur
+  lambda en dehors.)
 
 - Rend finalement possible une meilleure séparation des privilèges dans les moteurs de conteneurs.
 

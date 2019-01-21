@@ -649,7 +649,7 @@ Nous pouvons lister les interfaces réseau avec `ifconfig`, `ip a`, ou `ip l`:
 
 Chaque connexion réseau est matérialisée via une interface réseau virtuelle.
 
-Comme nous pouvons le voir, nous pouvons être connecté à plusieurs réseaux en même temps.
+Comme nous pouvons le voir, nous pouvons être connectés à plusieurs réseaux en même temps.
 
 ---
 

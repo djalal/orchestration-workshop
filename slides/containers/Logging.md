@@ -103,7 +103,7 @@ Nous verrons ensuite une méthode particulière en action, avec ELK et les pilot
 
 - Et ce daemon peut être configuré pour écrire dans des fichiers locaux ou transmettrer les _logs_ à travers le réseau.
 
-- Sous le capot, les clients syslogs se connectent à une socket locale UNIX, `/dev/log`.
+- Sous le capot, les clients syslog se connectent à une socket locale UNIX, `/dev/log`.
 
 - On devra donc exposer une socket syslog au conteneur (via un volume ou un point de montage).
 
@@ -294,5 +294,5 @@ si c'est léger, Kafka si vous voulez garantir aucune perte.
 Bonne chance.
 
 Pour en savoir plus sur le pilote GELF, jetez un oeil sur
-[ce bille de blog](
+[ce billet de blog](
 https://jpetazzo.github.io/2017/01/20/docker-logging-gelf/).

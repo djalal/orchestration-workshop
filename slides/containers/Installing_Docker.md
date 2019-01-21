@@ -59,101 +59,101 @@ Nous pouvons distinguer sans ordre de préférence:
 
 class: extra-details
 
-## Docker Inc. packages vs distribution packages
+## Paquets Docker Inc. vs paquets de distribution
 
-* Docker Inc. releases new versions monthly (edge) and quarterly (stable)
+* Docker Inc. publie de nouvelles versions mensuelles (expérimentales) et trimestrielles (stables).
 
-* Releases are immediately available on Docker Inc.'s package repositories
+* Les nouvelles versions sont immédiatement disponibles sur les dépôts de paquets chez Docker Inc.
 
-* Linux distros don't always update to the latest Docker version
+* Les distributions Linux ne mettent pas tout le temps à jour leur version de Docker.
 
-  (Sometimes, updating would break their guidelines for major/minor upgrades)
+  (Parfois, ce faisant, cela casserait leurs règles de mise à jour mineures/majeures)
 
-* Sometimes, some distros have carried packages with custom patches
+* Parfois, des distributions Linux ont publié des paquets avec des modifications spéciales.
 
-* Sometimes, these patches added critical security bugs ☹
+* Parfois, ces modifications ont introduit des bugs de sécurité ☹
 
-* Installing through Docker Inc.'s repositories is a bit of extra work …
+* Installer Docker depuis les dépôts de Docker Inc. demande un poil plus de travail …
 
-  … but it is generally worth it!
+  … mais ça vaut le coup en général!
 
 ---
 
-## Installing Docker on macOS and Windows
+## Installer Docker sur macOS et Windows
 
-* On macOS, the recommended method is to use Docker for Mac:
+* Sur macOS, la méthode recommandée est d'utiliser Docker Desktop pour Mac:
 
-  https://docs.docker.com/docker-for-mac/install/
+  https://hub.docker.com/editions/community/docker-ce-desktop-mac
 
-* On Windows 10 Pro, Enterprise, and Education, you can use Docker for Windows:
+* Sur Windows 10 Pro, Enterprise et Education, on a Docker Desktop pour Windows:
 
-  https://docs.docker.com/docker-for-windows/install/
+  https://hub.docker.com/editions/community/docker-ce-desktop-windows
 
-* On older versions of Windows, you can use the Docker Toolbox:
+* Pour d'anciennes versions de Windows, on peut installer Docker Toolbox:
 
   https://docs.docker.com/toolbox/toolbox_install_windows/
 
-* On Windows Server 2016, you can also install the native engine:
+* Sur Windows 2016, vous pouvez aussi le moteur natif:
 
   https://docs.docker.com/install/windows/docker-ee/
 
 ---
 
-## Docker for Mac and Docker for Windows
+## Docker Desktop pour Mac et Windows
 
-* Special Docker Editions that integrate well with their respective host OS
+* Des éditions spéciales s'intégrant mieux avec leurs systèmes d'exploitation respectifs.
 
-* Provide user-friendly GUI to edit Docker configuration and settings
+* Livré avec une interface conviviale (GUI) pour gérer les paramètres et la configuration.
 
-* Leverage the host OS virtualization subsystem (e.g. the [Hypervisor API](https://developer.apple.com/documentation/hypervisor) on macOS)
+* Exploite la couche de virtualisation de l'OS hôte. (par ex. l'[API Hypervisor](https://developer.apple.com/documentation/hypervisor) sur macOS)
 
-* Installed like normal user applications on the host
+* Elle s'installe comme une application normale sur l'hôte.
 
-* Under the hood, they both run a tiny VM (transparent to our daily use)
+* Sous le capot, les deux applications exécutent une mini VM (usage transparent)
 
-* Access network resources like normal applications
-  <br/>(and therefore, play better with enterprise VPNs and firewalls)
+* Elle accède aux ressources réseau comme les autres applications.
+  <br/>(et pour cela, s'intègre mieux avec les VPNs pros et les pares-feu)
 
-* Support filesystem sharing through volumes (we'll talk about this later)
+* Le système de fichiers est implémenté à travers le partage de volumes (cf. plus loin)
 
-* They only support running one Docker VM at a time ...
+* Les deux éditions supportent juste une seule VM Docker à la fois ...
   <br/>
-  ... but we can use `docker-machine`, the Docker Toolbox, VirtualBox, etc. to get a cluster.
+  ... mais on peut passer par `docker-machine`, Docker Toolbox, VirtualBox, etc. pour monter un _cluster_.
 
 ---
 
-## Running Docker on macOS and Windows
+## Lancer Docker sur macOS et Windows
 
-When you execute `docker version` from the terminal:
+Quand on lance `docker version` depuis le terminal:
 
-* the CLI connects to the Docker Engine over a standard socket,
-* the Docker Engine is, in fact, running in a VM,
-* ... but the CLI doesn't know or care about that,
-* the CLI sends a request using the REST API,
-* the Docker Engine in the VM processes the request,
-* the CLI gets the response and displays it to you.
+* la ligne de commande se connecte au Docker Engine via la socket,
+* le Docker Engine est, en fait, lancé dans une VM,
+* ... mais la ligne de commande ne le sait pas et ne s'en occupe pas,
+* la ligne de commande envoie une requête à l'API REST,
+* le Docker Engine dans la VM traite la requête,
+* la ligne de commande récupère la réponse et vous l'affiche.
 
-All communication with the Docker Engine happens over the API.
+Toute communication avec le Docker Engine passe à travers l'API.
 
-This will also allow to use remote Engines exactly as if they were local.
+Cela rend possible le travail avec des Docker Engine distants comme s'ils étaient en local.
 
 ---
 
-## Important PSA about security
+## Avertissement de sécurité important
 
-* If you have access to the Docker control socket, you can take over the machine
+* Si vous avez accès à la socket de contrôle  de Docker, vous pouvez prendre le contrôle de la machine.
 
-  (Because you can run containers that will access the machine's resources)
+  (Parce que vous pouvez lancer des conteneurs qui ont accès aux ressources machine)
 
-* Therefore, on Linux machines, the `docker` user is equivalent to `root`
+* Par conséquent, l'utilisateur `docker` sur Linux est équivalent à `root`.
 
-* You should restrict access to it like you would protect `root`
+* Vous devriez en restreindre l'accès au même niveau que `root`.
 
-* By default, the Docker control socket belongs to the `docker` group
+* Par défaut, la socket de contrôle de Docker appartient au groupe `docker`.
 
-* You can add trusted users to the `docker` group
+* Vous pouvez y ajouter les utilisateurs de confiance.
 
-* Otherwise, you will have to prefix every `docker` command with `sudo`, e.g.:
+* Dans le cas contraire, vous devrez préfixer chaque commande `docker` avec `sudo`, par ex.:
 
   ```bash
   sudo docker version

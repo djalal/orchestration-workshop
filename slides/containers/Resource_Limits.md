@@ -210,7 +210,7 @@ D'un autre côté, l'application ne sera jamais ralentie à cause du _swap_.
 
 ## Limiter l'usage du disque
 
-- La plupart des pilotes de stockage ne supportent pas la limitation du disque pour conteneurs.
+- La plupart des pilotes de stockage ne supportent pas la limite de disque par conteneur.
 
   (À l'exception de devicemapper, mais cette limite n'est pas simple à régler.)
 
@@ -218,7 +218,7 @@ D'un autre côté, l'application ne sera jamais ralentie à cause du _swap_.
 
 - En pratique, toutefois, ce n'est pas un souci, car:
 
-  - les fichiers de données (pour services persistents) devraient résider dans des volumes,
+  - les données (pour services persistents) devraient occuper des volumes,
 
   - les _assets_ (par ex. images, contenu généré, etc.) devraient résider dans des banques de données ou des volumes,
 

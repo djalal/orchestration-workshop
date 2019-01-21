@@ -15,7 +15,7 @@ A la fin de cette section, vous serez capable de:
 
 * Partager des volumes à travers des conteneurs.
 
-* Partager un dossier du serveur ave un ou plusieurs conteneurs.
+* Partager un dossier du serveur avec un ou plusieurs conteneurs.
 
 ---
 
@@ -69,7 +69,7 @@ Les volumes agissent comme des passerelles vers le système de fichier de l'hôt
 * Quand on fait un `docker commit`, le contenu des volumes n'est pas intégré
   dans l'image résultante.
 
-* Si une instruction `RUN` dans un `Dockerfile`change le contenu d'un volume,
+* Si une instruction `RUN` dans un `Dockerfile` change le contenu d'un volume,
   ces changements ne seront pas non plus enregistrés.
 
 * Si un conteneur est démarré avec l'option `--read-only`, le volume sera
@@ -184,7 +184,7 @@ $ curl localhost:1234
 
 ---
 
-## utiliser un volume d'un autre conteneur
+## Utiliser un volume d'un autre conteneur
 
 * Nous allons modifier le contenu d'un volume depuis un autre conteneur.
 

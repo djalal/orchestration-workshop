@@ -10,7 +10,7 @@ Nous allons:
 * Créer un conteneur à partir d'une image de base.
 
 * Installer un logiciel à la main dans le conteneur, et en
-faire une nouvelle image
+faire une nouvelle image.
 
 * Apprendre de nouvelles commandes: `docker commit`, `docker tag` et `docker diff`.
 
@@ -23,11 +23,11 @@ faire une nouvelle image
 2. Lancer un tas de commandes pour installer et configurer notre logiciel depuis
 l'intérieur du conteneur.
 
-3. (Optionnel) examiner les changements dans le conteneur via `docker diff`.
+3. (en option) examiner les changements dans le conteneur via `docker diff`.
 
 4. Transformer le conteneur en une nouvelle image avec `docker commit`.
 
-5. (Optionnel) ajouter un _tag_ à l'image avec `docker tag`.
+5. (en option) ajouter un _tag_ à l'image avec `docker tag`.
 
 ---
 
@@ -73,7 +73,7 @@ A /usr/bin/figlet
 
 class: x-extra-details
 
-## Docker trace les changements du système de fichier
+## Docker trace les changements du système de fichiers
 
 Comme expliqué auparavant:
 

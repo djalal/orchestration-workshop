@@ -41,7 +41,7 @@ En téléchargeant une image, tous les _layers_ doivent être récupérés.
 | `FROM ubuntu` | Taille de l'image de base | Taille de l'image de base  |
 | `...` | ... | Somme de cette couche <br/>+ toutes les précédentes |
 | `RUN apt-get install somepackage` | Taille des fichiers ajoutés <br/>(e.g. qqes Mo) | Somme de cette couche <br/>+ toutes les couches précédentes|
-| `...` | ... | Somme de cette couche <br/>+ toutes les couches précédentes |
+| `...` | ... | _idem_ |
 | `RUN apt-get remove somepackage` | Env. zéro<br/>(méta-données seules) | Identique à la précédente |
 
 En conséquence, `RUN rm` ne réduit pas la taille de l'image, ni ne libère d'espace disque.
@@ -92,7 +92,7 @@ Les fichiers qui y sont ajoutés, puis supprimés dans le même _layer_, n'augme
 
 ## Dégonflement de _layers_ : pour et contre
 
-Pours:
+Pour:
 
 - fonctionne sur toutes les versions de Docker
 
@@ -133,7 +133,7 @@ Voir par exemple [l'image officielle busybox](https://github.com/docker-library/
 
 ## Compiler les binaires en dehors: pour et contre
 
-Pours:
+Pour:
 
 - l'image finale peut être très petite
 
@@ -174,7 +174,7 @@ Cela peut être réalisé de deux manières (au moins).
 
 ## Aplatir l'image finale: pour et contre
 
-Pours:
+Pour:
 
 - les images à _layer_ unique sont plus légères et rapides à télécharger
 
@@ -217,7 +217,7 @@ Nous allons voir comment ça marche plus en détail.
 
 ---
 
-## _Builds_ Multi-stage en pratique
+## _Builds_ multi-stage en pratique
 
 * Chaque étape est numérotée, en débutant à `0`
 

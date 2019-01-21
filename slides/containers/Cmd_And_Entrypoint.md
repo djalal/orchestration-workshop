@@ -189,7 +189,7 @@ Alors nous utiliserons `ENTRYPOINT` et `CMD` ensemble.
 
 * `ENTRYPOINT` va définir la commade de base pour notre conteneur.
 
-* `CMD`définira les paramètres par défaut pour cette commande.
+* `CMD` définira les paramètres par défaut pour cette commande.
 
 Ils doivent *tous les deux* utiliser la syntaxe JSON.
 

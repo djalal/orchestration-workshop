@@ -1,12 +1,12 @@
-## About these slides
+## À propos de ces diapositives
 
-- All the content is available in a public GitHub repository:
+- Tout le contenu est disponible dans un dépôt public Github:
 
   https://@@GITREPO@@
 
-- You can get updated "builds" of the slides there:
+- Vous pouvez obtenir une version à jour de ces diapos ici (anglais):
 
-  http://container.training/
+  https://container.training/
 
 <!--
 .exercise[
@@ -17,9 +17,9 @@
 
 --
 
-- Typos? Mistakes? Questions? Feel free to hover over the bottom of the slide ...
+- Coquilles? Erreurs? Questions? N'hésitez pas à passer la souris en bas de diapo...
 
-.footnote[.emoji[👇] Try it! The source file will be shown and you can view it on GitHub and fork and edit it.]
+.footnote[.emoji[👇] Essayez! Le code source sera affiché et vous pourrez l'ouvrir dans Github pour le consulter et le corriger.]
 
 <!--
 .exercise[
@@ -31,18 +31,18 @@
 
 class: extra-details
 
-## Extra details
+## Détails supplémentaires
 
-- This slide has a little magnifying glass in the top left corner
+- Cette diapo a une petite loupe dans le coin en haut à gauche.
 
-- This magnifying glass indicates slides that provide extra details
+- Cette loupe signifie que ces diapos apportent des détails supplémentaires.
 
-- Feel free to skip them if:
+- Vous pouvez les zapper si:
 
-  - you are in a hurry
+  - vous êtes pressé(e);
 
-  - you are new to this and want to avoid cognitive overload
+  - vous êtes tout nouveau et vous craignez la surcharge cognitive;
 
-  - you want only the most essential information
+  - vous ne souhaitez que l'essentiel des informations.
 
-- You can review these slides another time if you want, they'll be waiting for you ☺
+- Vous pourrez toujours y revenir une autre fois, ils vous attendront ici ☺

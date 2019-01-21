@@ -32,11 +32,11 @@
 
 - La plupart des outils (CLI, bibliothèques, etc.) passant par l'API Docker peuvent accéder aux variables d'environnement.
 
-- Ces variabless sont:
+- Ces variables sont:
 
- - `DOCKER_HOST` (indique une adresse+port où se connecter, ou le chemin de la socket UNIX)
+ - `DOCKER_HOST` (indique une adresse+port de connexion, ou la socket UNIX)
 
- - `DOCKER_TLS_VERIFY` (indique que l'authentification mutuelle en TLS doit être activée)
+ - `DOCKER_TLS_VERIFY` (active l'authentification mutuelle TLS)
 
  - `DOCKER_CERT_PATH` (chemin vers la paire de clés et certificat à utiliser lors de l'authentification)
 

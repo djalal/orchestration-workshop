@@ -1,35 +1,18 @@
-## Intros
+## Présentations
 
-- This slide should be customized by the tutorial instructor(s).
+- Bonjour, je suis:
 
-- Hello! We are:
+   - .emoji[👨🏾‍🎓] djalal ([@enlamp](https://twitter.com/enlamp), ENLAMP)
 
-   - .emoji[👩🏻‍🏫] Ann O'Nymous ([@...](https://twitter.com/...), Megacorp Inc)
+- Cet atelier se déroulera de 9h à 17h.
 
-   - .emoji[👨🏾‍🎓] Stu Dent ([@...](https://twitter.com/...), University of Wakanda)
+- La pause déjeuner se fera entre 12h et 13h30.
 
- <!-- .dummy[
+  (avec 2 pauses café à 10h30 et 15h!)
 
-   - .emoji[👷🏻‍♀️] AJ ([@s0ulshake](https://twitter.com/s0ulshake), Travis CI)
+- N'hésitez pas à m'interrompre pour vos questions, à n'importe quel moment.
 
-   - .emoji[🚁] Alexandre ([@alexbuisine](https://twitter.com/alexbuisine), Enix SAS)
+- *Surtout quand vous verrez des photos de conteneurs en plein écran!*
 
-   - .emoji[🐳] Jérôme ([@jpetazzo](https://twitter.com/jpetazzo), Enix SAS)
-
-   - .emoji[⛵] Jérémy ([@jeremygarrouste](twitter.com/jeremygarrouste), Inpiwee)
-
-   - .emoji[🎧] Romain ([@rdegez](https://twitter.com/rdegez), Enix SAS)
-
-] -->
-
-- The workshop will run from ...
-
-- There will be a lunch break at ...
-
-  (And coffee breaks!)
-
-- Feel free to interrupt for questions at any time
-
-- *Especially when you see full screen container pictures!*
-
-- Live feedback, questions, help: @@CHAT@@
+- Vos réactions en direct, questions, demande d'aide
+  <br/>sur https://tinyurl.com/docker-w-djalal

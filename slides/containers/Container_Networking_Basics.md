@@ -176,7 +176,7 @@ On peut intégrer les conteneurs au réseau de bien des manières.
 * Activer le *Mode Swarm* pour un déploiement à traver un _cluster_.
   <br/>Le conteneur sera accessible depuis n'importe quel noeud du _cluster_.
 
-En utilisant Docker à travers une couche de gestion supplémentaire comme Mesos ou Kubernetes, ils fournissent en général leur propre mécanismes d'exposition de conteneurs.
+En utilisant Docker à travers une couche de gestion supplémentaire comme Mesos ou Kubernetes, ils fournissent en général leur propre mécanisme d'exposition de conteneurs.
 
 ---
 

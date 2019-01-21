@@ -100,7 +100,7 @@ class: pic
 
 * En 2013, la technologie sous-tenant les conteneurs (cgroups, namespaces, stockage copy-on-write, etc.)
 
-* La popularité croissante de Dcoker et des conteneurs a mis en lumière de nombreux bugs.
+* La popularité croissante de Docker et des conteneurs a mis en lumière de nombreux bugs.
 
 * En conséquence, ces bugs sont corrigés, résultant dans une meilleurs stabilité des conteneurs.
 

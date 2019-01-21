@@ -43,7 +43,7 @@ Voici comment on travaille avec Compose:
 
 * Compose peut lancer les conteneurs en arrière-plan, ou en avant-plan.
 
-* Quand on lance nos conteneurs en avant-plan, leur sortie est agrégé à l'affichage.
+* Quand on lance nos conteneurs en avant-plan, leur sortie est agrégée à l'affichage.
 
 Avant de s'y plonger, voyons un petit exemple de Compose en action.
 
@@ -209,7 +209,7 @@ On peut aussi l'invoquer automatiquement en lançant l'application:
 docker-compose up --build
 ```
 
-Une autre option commine est de démarrer les conteneurs en arrière-plan:
+Une autre option commune est de démarrer les conteneurs en arrière-plan:
 
 ```bash
 docker-compose up -d

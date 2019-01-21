@@ -1,11 +1,11 @@
 class: title, self-paced
 
-Thank you!
+Merci à tous et toutes!
 
 ---
 
 class: title, in-person
 
-That's all, folks! <br/> Questions?
+C'est tout pour aujourd'hui! <br/> Des questions?
 
 ![end](images/end.jpg)

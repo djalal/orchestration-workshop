@@ -23,7 +23,7 @@ Dans ce chapitre, nous apprendrons une nouvelle instruction du Dockerfile: `COPY
 
 ## Compilons du code C
 
-Nous voulons construire un conteneur qui compiles un simple programme "Hello world" écrit en C.
+Nous voulons construire un conteneur qui compile un simple programme "Hello world" écrit en C.
 
 Voici le programme, `hello.c`:
 

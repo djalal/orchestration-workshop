@@ -177,7 +177,7 @@ Examinons chacun d'entre eux.
 L'espace de nom racine est pour les images officielles. Elles y sont placées par Docker Inc.,
 mais sont généralement écrites et maintenues par des tierces parties.
 
-Ces images inclut:
+Ces images incluent:
 
 * De petites images "couteau suisse", telles busybox.
 

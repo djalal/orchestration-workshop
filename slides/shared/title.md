@@ -11,11 +11,10 @@ class: title, in-person
 @@TITLE@@<br/></br>
 
 .footnote[
-**Be kind to the WiFi!**<br/>
+**Allez-y doucement avec le WiFi!**<br/>
 <!-- *Use the 5G network.* -->
-*Don't use your hotspot.*<br/>
-*Don't stream videos or download big files during the workshop[.](https://www.youtube.com/watch?v=h16zyxiwDLY)*<br/>
-*Thank you!*
+*N'utilisez pas votre hotspot.*<br/>
+*Ne chargez pas de vidéos, ne téléchargez pas de gros fichiers pendant la formation[.](https://www.youtube.com/watch?v=h16zyxiwDLY)*<br/>
 
-**Slides: @@SLIDES@@**
+**28 janvier 2019, @djalal E.B, Sochaux**
 ]
