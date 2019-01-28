@@ -1,8 +1,9 @@
-# Our sample application
 
-- We will clone the GitHub repository onto our `node1`
+# Notre application de démo
 
-- The repository also contains scripts and tools that we will use through the workshop
+- Nous allons cloner le dépôt Github sur notre `node1`
+
+- Le dépôt contient aussi les scripts et outils à utiliser à travers la formation.
 
 .exercise[
 
@@ -15,29 +16,31 @@ fi
 ```
 -->
 
-- Clone the repository on `node1`:
+- Cloner le dépôt sur `node1`:
   ```bash
   git clone https://@@GITREPO@@
   ```
 
 ]
 
-(You can also fork the repository on GitHub and clone your fork if you prefer that.)
+(Vous pouvez aussi _forker_ le dépôt sur Github et cloner votre version si vous préférez.)
+
 
 ---
 
-## Downloading and running the application
+## Télécharger et lancer l'application
 
-Let's start this before we look around, as downloading will take a little time...
+
+Démarrons-la avant de s'y plonger, puisque le téléchargement peut prendre un peu de temps...
 
 .exercise[
 
-- Go to the `dockercoins` directory, in the cloned repo:
+- Aller dans le dossier `dockercoins` du dépôt cloné:
   ```bash
   cd ~/container.training/dockercoins
   ```
 
-- Use Compose to build and run all containers:
+- Utiliser Compose pour générer et lancer tous les conteneurs:
   ```bash
   docker-compose up
   ```
@@ -48,63 +51,64 @@ Let's start this before we look around, as downloading will take a little time..
 
 ]
 
-Compose tells Docker to build all container images (pulling
-the corresponding base images), then starts all containers,
-and displays aggregated logs.
+Compose indique à Docker de construire toutes les images de
+conteneurs (en téléchargeant les images de base correspondantes),
+puis de démarrer tous les conteneurs et d'afficher les logs
+agrégés.
 
 ---
 
-## What's this application?
+## Qu'est-ce que cette application?
 
 --
 
-- It is a DockerCoin miner! .emoji[💰🐳📦🚢]
+- C'est un miner de DockerCoin! .emoji[💰🐳📦🚢]
 
 --
 
-- No, you can't buy coffee with DockerCoins
+- Non, on ne paiera pas le café avec des DockerCoins
 
 --
 
-- How DockerCoins works:
+- Comment DockerCoins fonctionne
 
-  - generate a few random bytes
+  - générer quelques octets aléatoires
 
-  - hash these bytes
+  - calculer une somme de hachage
 
-  - increment a counter (to keep track of speed)
+  - incrémenter un compteur (pour suivre la vitesse)
 
-  - repeat forever!
+  - répéter en boucle!
 
 --
 
-- DockerCoins is *not* a cryptocurrency
+- DockerCoins n'est *pas* une crypto-monnaie
 
-  (the only common points are "randomness", "hashing", and "coins" in the name)
+  (les seuls points communs sont "aléatoire", "hachage", et "coins" dans le nom)
 
 ---
 
-## DockerCoins in the microservices era
+## DockerCoins à l'âge des microservices
 
-- DockerCoins is made of 5 services:
+- DockerCoins est composée de 5 services:
 
-  - `rng` = web service generating random bytes
+  - `rng` = un service web générant des octets au hasard
 
-  - `hasher` = web service computing hash of POSTed data
+  - `hasher` = un service web calculant un hachage basé sur les données POST-ées
 
-  - `worker` = background process calling `rng` and `hasher`
+  - `worker` = un processus en arrière-plan utilisant `rng` et `hasher`
 
-  - `webui` = web interface to watch progress
+  - `webui` = une interface web pour le suivi du travail
 
   - `redis` = data store (holds a counter updated by `worker`)
 
-- These 5 services are visible in the application's Compose file,
+- Ces 5 services sont visibles dans le fichier Compose de l'application,
   [docker-compose.yml](
   https://@@GITREPO@@/blob/master/dockercoins/docker-compose.yml)
 
 ---
 
-## How DockerCoins works
+## Comment fonctionne DockerCoins
 
 - `worker` invokes web service `rng` to generate random bytes
 
@@ -122,27 +126,27 @@ and displays aggregated logs.
 
 class: pic
 
-![Diagram showing the 5 containers of the applications](images/dockercoins-diagram.svg)
+![Diagramme montrant les 5 conteneurs de notre application](images/dockercoins-diagram.svg)
 
 ---
 
-## Service discovery in container-land
+## _Service discovery_ au pays des conteneurs
 
-How does each service find out the address of the other ones?
+- Comment chaque service trouve l'adresse des autres?
 
 --
 
-- We do not hard-code IP addresses in the code
+- On ne code pas en dur des adresses IP dans le code.
 
-- We do not hard-code FQDN in the code, either
+- On ne code pas en dur des FQDN dans le code, non plus.
 
-- We just connect to a service name, and container-magic does the rest
+- On se connecte simplement avec un nom de service, et la magie du conteneur fait le reste
 
-  (And by container-magic, we mean "a crafty, dynamic, embedded DNS server")
+  (Par magie du conteneur, nous entendons "l'astucieux DNS embarqué dynamique")
 
 ---
 
-## Example in `worker/worker.py`
+## Exemple dans `worker/worker.py`
 
 ```python
 redis = Redis("`redis`")
@@ -159,7 +163,7 @@ def hash_bytes(data):
                       headers={"Content-Type": "application/octet-stream"})
 ```
 
-(Full source code available [here](
+(Code source complet disponible [ici](
 https://@@GITREPO@@/blob/8279a3bce9398f7c1a53bdd95187c53eda4e6435/dockercoins/worker/worker.py#L17
 ))
 
@@ -167,180 +171,179 @@ https://@@GITREPO@@/blob/8279a3bce9398f7c1a53bdd95187c53eda4e6435/dockercoins/wo
 
 class: extra-details
 
-## Links, naming, and service discovery
+## Liens, nommage et découverte de service
 
-- Containers can have network aliases (resolvable through DNS)
+- Les conteneurs peuvent avoir des alias de réseau (résolus par DNS)
 
-- Compose file version 2+ makes each container reachable through its service name
+- Compose dans sa version 2+ rend chaque conteneur disponible via son nom de service
 
-- Compose file version 1 did require "links" sections
+- Compose en version 1 rendait obligatoire la section "links"
 
-- Network aliases are automatically namespaced
+- Les alias de réseau sont automatiquement préfixé par un espace de nommage
 
-  - you can have multiple apps declaring and using a service named `database`
+  - vous pouvez avoir plusieurs applications déclarées via un service appelé `database`
 
-  - containers in the blue app will resolve `database` to the IP of the blue database
+  - les conteneurs dans l'appli bleue vont atteindre `database` via l'IP de la base de données bleue
 
-  - containers in the green app will resolve `database` to the IP of the green database
+  - les conteneurs dans l'appli verte vont atteindre `database` via l'IP de la base de données verte
 
 ---
 
-## Show me the code!
+## Montrez-moi le code!
 
-- You can check the GitHub repository with all the materials of this workshop:
+- Vous pouvez ouvrir le dépôt Github avec tous les contenus de cet atelier:
   <br/>https://@@GITREPO@@
 
-- The application is in the [dockercoins](
+- Cette application est dans le sous-dossier [dockercoins](
   https://@@GITREPO@@/tree/master/dockercoins)
-  subdirectory
 
-- The Compose file ([docker-compose.yml](
+- Le fichier Compose ([docker-compose.yml](
   https://@@GITREPO@@/blob/master/dockercoins/docker-compose.yml))
-  lists all 5 services
+  liste les 5 services
 
-- `redis` is using an official image from the Docker Hub
+- `redis` utilise une image officielle issue du Docker Hub
 
-- `hasher`, `rng`, `worker`, `webui` are each built from a Dockerfile
+- `hasher`, `rng`, `worker`, `webui` sont générés depuis un Dockerfile
 
-- Each service's Dockerfile and source code is in its own directory
+- Chaque Dockerfile de service et son code source est stocké dans son propre dossier
 
-  (`hasher` is in the [hasher](https://@@GITREPO@@/blob/master/dockercoins/hasher/) directory,
-  `rng` is in the [rng](https://@@GITREPO@@/blob/master/dockercoins/rng/)
-  directory, etc.)
+  (`hasher` est dans le dossier [hasher](https://@@GITREPO@@/blob/master/dockercoins/hasher/),
+  `rng` est dans le dossier [rng](https://@@GITREPO@@/blob/master/dockercoins/rng/), etc.)
 
 ---
 
 class: extra-details
 
-## Compose file format version
+## Version du format de fichier Compose
 
-*This is relevant only if you have used Compose before 2016...*
+*Uniquement pertinent si vous avez utilisé Compose avant 2016...*
 
-- Compose 1.6 introduced support for a new Compose file format (aka "v2")
+- Compose 1.6 a introduit le support d'un nouveau format de fichier Compose (alias "v2")
 
-- Services are no longer at the top level, but under a `services` section
+- Les services ne sont plus au plus haut niveau, mais dans une section `services`.
 
-- There has to be a `version` key at the top level, with value `"2"` (as a string, not an integer)
+- Il doit y avoir une clé `version` tout en haut du fichier, avec la valeur `"2"` (la chaîne de caractères, pas le chiffre)
 
-- Containers are placed on a dedicated network, making links unnecessary
+- Les conteneurs sont placés dans un réseau dédié, rendant les _links_ inutiles
 
-- There are other minor differences, but upgrade is easy and straightforward
-
----
-
-## Our application at work
-
-- On the left-hand side, the "rainbow strip" shows the container names
-
-- On the right-hand side, we see the output of our containers
-
-- We can see the `worker` service making requests to `rng` and `hasher`
-
-- For `rng` and `hasher`, we see HTTP access logs
+- Il existe d'autres différences mineures, mais la mise à jour est facile et assez directe.
 
 ---
 
-## Connecting to the web UI
+## Notre application à l'oeuvre
 
-- "Logs are exciting and fun!" (No-one, ever)
+- A votre gauche, la bande "arc-en-ciel" montrant les noms de conteneurs
 
-- The `webui` container exposes a web dashboard; let's view it
+- A votre droite, nous voyons la sortie standard de nos conteneurs
+
+- On peut voir le service `worker` exécutant des requêtes vers `rng` et `hasher`
+
+- Pour `rng` et `hasher`, on peut lire leur logs d'accès HTTP
+
+---
+
+## Se connecter à l'interface web
+
+- "Les logs, c'est excitant et drôle" (Citation de personne, jamais, vraiment)
+
+- Le conteneur `webui` expose un écran de contrôle web; allons-y voir
 
 .exercise[
 
-- With a web browser, connect to `node1` on port 8000
+- Avec un navigateur, se connecter à `node1` sur le port 8000
 
-- Remember: the `nodeX` aliases are valid only on the nodes themselves
+- Rappel: les alias `nodeX` ne sont valides que sur les noeuds eux-mêmes.
 
-- In your browser, you need to enter the IP address of your node
+- Dans votre navigateur, vous aurez besoin de taper l'adresse IP de votre noeud.
 
 <!-- ```open http://node1:8000``` -->
 
 ]
 
-A drawing area should show up, and after a few seconds, a blue
-graph will appear.
+Une diagramme devrait s'afficher, et après quelques seconde, une courbe en bleu
+va apparaître.
 
 ---
 
 class: self-paced, extra-details
 
-## If the graph doesn't load
+## Si le graphique ne se charge pas
 
-If you just see a `Page not found` error, it might be because your
-Docker Engine is running on a different machine. This can be the case if:
+Si tout ce que vous voyez est une erreur `Page not found`, cela peut être à cause
+de votre Docker Engine qui tourne sur une machine différente. Cela peut être le cas si:
 
-- you are using the Docker Toolbox
+- vous utilisez Docker Toolbox
 
-- you are using a VM (local or remote) created with Docker Machine
+- vous utilisez une VM (locale ou distante) créée avec Docker Machine
 
-- you are controlling a remote Docker Engine
+- vous contrôlez un Docker Engine distant
 
-When you run DockerCoins in development mode, the web UI static files
-are mapped to the container using a volume. Alas, volumes can only
-work on a local environment, or when using Docker4Mac or Docker4Windows.
+Quand vous lancer DockerCoins en mode développement, les fichier statiques
+de l'interface web sont appliqués au conteneur via un volume. Hélas, les
+volumes ne fonctionnent que sur un environnement local, ou quand vous passez
+par Docker for Desktop.
 
-How to fix this?
+Comment corriger cela?
 
-Stop the app with `^C`, edit `dockercoins.yml`, comment out the `volumes` section, and try again.
+Arrêtez l'appli avec `^C`, modifiez `dockercoins.yml`, commentez la section `volumes`, et relancez le tout.
 
 ---
 
 class: extra-details
 
-## Why does the speed seem irregular?
+## Pourquoi le rythme semble irrégulier?
 
-- It *looks like* the speed is approximately 4 hashes/second
+- On *dirait peu ou prou* que la vitesse est de 4 hachage/seconde.
 
-- Or more precisely: 4 hashes/second, with regular dips down to zero
+- Ou plus précisément: 4 hachages/secondes avec des trous reguliers à zéro
 
-- Why?
+- Pourquoi?
 
 --
 
 class: extra-details
 
-- The app actually has a constant, steady speed: 3.33 hashes/second
+- L'appli a en réalité une vitesse constante et régulière de 3.33 hachage/seconde.
   <br/>
-  (which corresponds to 1 hash every 0.3 seconds, for *reasons*)
+  (ce qui correspond à 1 hachage toutes les 0.3 secondes, pour *certaines raisons*)
 
-- Yes, and?
+- Oui, et donc?
 
 ---
 
 class: extra-details
 
-## The reason why this graph is *not awesome*
+## La raison qui fait que ce graphique n'est *pas super*
 
-- The worker doesn't update the counter after every loop, but up to once per second
+- Le worker ne met pas à jour le compteur après chaque boucle, mais au maximum une fois par seconde.
 
-- The speed is computed by the browser, checking the counter about once per second
+- La vitesse est calculée par le navigateur, qui vérifie le compte à peu près une fois par seconde.
 
-- Between two consecutive updates, the counter will increase either by 4, or by 0
+- Entre 2 mise à jours consécutives, le compteur augmentera soit de 4, ou de 0 (zéro).
 
-- The perceived speed will therefore be 4 - 4 - 4 - 0 - 4 - 4 - 0 etc.
+- La vitesse perçue sera donc 4 - 4 - 0 - 4 - 4 - 0, etc.
 
-- What can we conclude from this?
+- Que peut-on conclure de tout cela?
 
 --
 
 class: extra-details
 
-- "I'm clearly incapable of writing good frontend code!" 😀 — Jérôme
+- "Je suis carrément incapable d'écrire du bon code frontend" 😀 — Jérôme
 
 ---
 
-## Stopping the application
+## Arrêter notre application
 
-- If we interrupt Compose (with `^C`), it will politely ask the Docker Engine to stop the app
+- Si nous stoppons Compose (avec `^C`), il demandera poliment au Docker Engine d'arrêter l'appli
 
-- The Docker Engine will send a `TERM` signal to the containers
+- Le Docker Engine va envoyer un signal `TERM` aux conteneurs
 
-- If the containers do not exit in a timely manner, the Engine sends a `KILL` signal
+- Si les conteneurs ne quittent pas assez vite, l'Engine envoie le signal `KILL`
 
 .exercise[
 
-- Stop the application by hitting `^C`
+- Arrêter l'application en tapant `^C`
 
 <!--
 ```keys ^C```
@@ -350,7 +353,5 @@ class: extra-details
 
 --
 
-Some containers exit immediately, others take longer.
-
-The containers that do not handle `SIGTERM` end up being killed after a 10s timeout. If we are very impatient, we can hit `^C` a second time!
-
+Certains conteneurs quittent immédiatement, d'autres prennent plus de temps.
+Les conteneurs qui ne gèrent pas le `SIGTERM` finissent pas être tués après 10 secs. Si nous sommes vraiment impatients, on peut taper `^C` une seconde fois!

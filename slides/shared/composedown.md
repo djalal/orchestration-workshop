@@ -1,10 +1,10 @@
-## Clean up
+## Nettoyage
 
-- Before moving on, let's remove those containers
+- Avant de continuer, supprimons tous ces conteneurs.
 
 .exercise[
 
-- Tell Compose to remove everything:
+- Dire à Compose de tout enlever:
   ```bash
   docker-compose down
   ```

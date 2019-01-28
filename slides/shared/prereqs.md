@@ -1,56 +1,59 @@
-# Pre-requirements
+# Pre-requis
 
-- Be comfortable with the UNIX command line
+- Être à l'aise avec la ligne de commande UNIX
 
-  - navigating directories
+  - se déplacer à travers les dossiers
 
-  - editing files
+  - modifier des fichiers
 
-  - a little bit of bash-fu (environment variables, loops)
+  - un petit peu de bash-fu (variables d'environnement, boucles)
 
-- Some Docker knowledge
 
-  - `docker run`, `docker ps`, `docker build`
+- Un peu de savoir-faire sur Docker
 
-  - ideally, you know how to write a Dockerfile and build it
-    <br/>
-    (even if it's a `FROM` line and a couple of `RUN` commands)
+ - `docker run`, `docker ps`, `docker build`
 
-- It's totally OK if you are not a Docker expert!
+ - idéalement, vous savez comment écrire un Dockerfile et le générer.
+   <br/>
+   (même si c'est une ligne `FROM` et une paire de commandes `RUN`)
+
+- C'est totalement autorisé de ne pas être un expert Docker!
+
 
 ---
 
 class: title
 
-*Tell me and I forget.*
+*Raconte moi et j'oublie.*
 <br/>
-*Teach me and I remember.*
+*Apprends-moi et je me souviens.*
 <br/>
-*Involve me and I learn.*
+*Implique moi et j'apprends.*
 
-Misattributed to Benjamin Franklin
+Attribué par erreur à Benjamin Franklin
 
-[(Probably inspired by Chinese Confucian philosopher Xunzi)](https://www.barrypopik.com/index.php/new_york_city/entry/tell_me_and_i_forget_teach_me_and_i_may_remember_involve_me_and_i_will_lear/)
+[(Plus probablement inspiré du philosophe chinois confucianiste Xunzi)](https://www.barrypopik.com/index.php/new_york_city/entry/tell_me_and_i_forget_teach_me_and_i_may_remember_involve_me_and_i_will_lear/)
 
 ---
 
 ## Hands-on sections
+## Sections pratiques
 
-- The whole workshop is hands-on
+- Cet atelier est entièrement pratique
 
-- We are going to build, ship, and run containers!
+- Nous allons construire, livrer et exécuter des conteneurs!
 
-- You are invited to reproduce all the demos
+- Vous être invité(e) à reproduire toutes les démos
 
-- All hands-on sections are clearly identified, like the gray rectangle below
+- Les sections "pratique" sont clairement identifiées, via le rectangle gris ci-dessous
 
 .exercise[
 
-- This is the stuff you're supposed to do!
+- C'est le genre de trucs que vous êtes censé faire!
 
-- Go to @@SLIDES@@ to view these slides
+- Allez à @@SLIDES@@ pour voir ces diapos
 
-- Join the chat room: @@CHAT@@
+- Joignez-vous au salon de chat: @@CHAT@@
 
 <!-- ```open @@SLIDES@@``` -->
 
@@ -60,71 +63,73 @@ Misattributed to Benjamin Franklin
 
 class: in-person
 
-## Where are we going to run our containers?
+## Où allons-nous lancer nos conteneurs?
 
 ---
 
 class: in-person, pic
 
-![You get a cluster](images/you-get-a-cluster.jpg)
+![Tu gagnes un cluster!](images/you-get-a-cluster.jpg)
 
 ---
 
 class: in-person
 
-## You get a cluster of cloud VMs
+## Vous avez votre propre cluster de VMs dans le cloud
 
-- Each person gets a private cluster of cloud VMs (not shared with anybody else)
+- Chaque personne aura son cluster privé de VMs dans le cloud (partagé avec personne d'autre)
 
-- They'll remain up for the duration of the workshop
+- Les VMs resterons allumées toute la durée de la formation
 
-- You should have a little card with login+password+IP addresses
+- Vous devez avoir une petite card avec identifiant+mot de passe+adresses IP
 
-- You can automatically SSH from one VM to another
+- Vous pouvez automatiquement SSH d'une VM à une autre
 
-- The nodes have aliases: `node1`, `node2`, etc.
+- Les serveurs ont des alias: `node1`, `node2`, etc.
 
 ---
 
 class: in-person
 
 ## Why don't we run containers locally?
+## Pourquoi ne pas lancer nos conteneurs en local?
 
-- Installing that stuff can be hard on some machines
+- Installer cet outillage peut être difficile sur certaines machines
 
-  (32 bits CPU or OS... Laptops without administrator access... etc.)
+  (CPU ou OS à 32bits... Portables sans accès admin, etc.)
 
-- *"The whole team downloaded all these container images from the WiFi!
-  <br/>... and it went great!"* (Literally no-one ever)
+- *Toute l'équipe a téléchargé ces images de conteneurs depuis le WiFi!
+  <br/>... et tout s'est bien passé* (litérallement personne)
 
-- All you need is a computer (or even a phone or tablet!), with:
+- Tout ce dont vous avez besoin est un ordinateur (ou même une tablette), avec:
 
-  - an internet connection
+  - une connexion internet
 
-  - a web browser
+  - un navigateur web
 
-  - an SSH client
+  - un client SSH
 
 ---
 
 class: in-person
 
-## SSH clients
+## Clients SSH
 
-- On Linux, OS X, FreeBSD... you are probably all set
+- Sur Linux, OS X, FreeBSD... vous être sûrement déjà prêt(e)
 
-- On Windows, get one of these:
+- Sur Windows, récupérez un de ces logiciels:
 
   - [putty](http://www.putty.org/)
   - Microsoft [Win32 OpenSSH](https://github.com/PowerShell/Win32-OpenSSH/wiki/Install-Win32-OpenSSH)
   - [Git BASH](https://git-for-windows.github.io/)
   - [MobaXterm](http://mobaxterm.mobatek.net/)
 
-- On Android, [JuiceSSH](https://juicessh.com/)
-  ([Play Store](https://play.google.com/store/apps/details?id=com.sonelli.juicessh))
-  works pretty well
 
-- Nice-to-have: [Mosh](https://mosh.org/) instead of SSH, if your internet connection tends to lose packets
+- Sur Android, [JuiceSSH](https://juicessh.com/)
+  ([Play Store](https://play.google.com/store/apps/details?id=com.sonelli.juicessh))
+  marche plutôt pas mal.
+
+- Petit bonus pour: [Mosh](https://mosh.org/) en lieu et place de SSH, si votre connexion internet à tendance à perdre des paquets.
 
 ---
 
@@ -174,11 +179,11 @@ class: in-person, extra-details
 
 class: in-person
 
-## Connecting to our lab environment
+## Se connecter à notre environnement de test
 
 .exercise[
 
-- Log into the first VM (`node1`) with your SSH client
+- Connectez-vous sur la première VM (`node1`) avec votre client SSH
 
 <!--
 ```bash
@@ -196,24 +201,24 @@ fi
 ```
 -->
 
-- Check that you can SSH (without password) to `node2`:
+- Vérifiez que vous pouvez passer sur `node2` sans mot de passe:
   ```bash
   ssh node2
   ```
-- Type `exit` or `^D` to come back to `node1`
+- Tapez `exit` ou `^D` pour revenir à `node1`
 
 <!-- ```bash exit``` -->
 
 ]
 
-If anything goes wrong — ask for help!
+Si quoique ce soit va mal - appelez à l'aide!
 
 ---
 
 ## Doing or re-doing the workshop on your own?
 
 - Use something like
-  [Play-With-Docker](http://play-with-docker.com/) or
+  [Play-With-Docker](https://play-with-docker.com/) or
   [Play-With-Kubernetes](https://training.play-with-kubernetes.com/)
 
   Zero setup effort; but environment are short-lived and
@@ -257,24 +262,25 @@ You will need a Docker ID to use Play-With-Docker.
 ---
 
 ## We will (mostly) interact with node1 only
+## On travaillera (surtout) avec node1
 
-*These remarks apply only when using multiple nodes, of course.*
+*Ces remarques s'appliquent uniquement en cas de serveurs multiples, bien sûr.*
 
-- Unless instructed, **all commands must be run from the first VM, `node1`**
+- Sauf contre-indication expresse, **toutes les commandes sont lancées depuis la première VM, `node1`**
 
-- We will only checkout/copy the code on `node1`
+- Tout code sera récupéré sur `node1` uniquement.
 
-- During normal operations, we do not need access to the other nodes
+- En administration classique, nous n'avons pas besoin d'accéder aux autres serveurs.
 
-- If we had to troubleshoot issues, we would use a combination of:
+- Si nous devions diagnostiquer une panne, on utiliserait tout ou partie de:
 
-  - SSH (to access system logs, daemon status...)
-  
-  - Docker API (to check running containers and container engine status)
+  - SSH (pour accéder aux logs de système, statut du _daemon_, etc.)
+
+  - l'API Docker (pour vérifier les conteneurs lancés, et l'état du moteur de conteneurs)
 
 ---
 
-## Terminals
+## Terminaux
 
 Once in a while, the instructions will say:
 <br/>"Open a new terminal."

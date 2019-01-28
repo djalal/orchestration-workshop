@@ -1,35 +1,33 @@
-# Swarm mode
+# Mode Swarm
 
-- Since version 1.12, the Docker Engine embeds SwarmKit
+- Depuis la version 1.12, le Docker Engine embarque SwarmKit
 
-- All the SwarmKit features are "asleep" until you enable "Swarm mode"
+- Toutes les fonctions SwarmKit sont mise en "sommeil" jusqu'à activer le "Mode Swarm"
 
-- Examples of Swarm Mode commands:
+- Exemples de commandes Swarm Mode:
 
-  - `docker swarm` (enable Swarm mode; join a Swarm; adjust cluster parameters)
+  - `docker swarm` (active le mode Swarm; rejoint un Swarm; ajuste les paramètres du cluster)
 
-  - `docker node` (view nodes; promote/demote managers; manage nodes)
+  - `docker node` (affiche les nodes; désigne les managers; gère les nodes)
 
-  - `docker service` (create and manage services)
+  - `docker service` (crée et gère les services)
 
-???
+- L'API Docker expose les mêmes concepts
 
-- The Docker API exposes the same concepts
-
-- The SwarmKit API is also exposed (on a separate socket)
+- L'API SwarmKit est aussi exposée (sur une socket séparée)
 
 ---
 
-## Swarm mode needs to be explicitly activated
+## Le mode Swarm doit être activé expressément
 
-- By default, all this new code is inactive
+- Par défaut, tout ce code nouveau est inactif
 
-- Swarm mode can be enabled, "unlocking" SwarmKit functions
-  <br/>(services, out-of-the-box overlay networks, etc.)
+- Le mode Swarm doit être activé, "déverrouillant" ainsi les fonctions SwarmKit
+  <br/>(services, réseaux superposés prêts à l'emploi, etc.)
 
 .exercise[
 
-- Try a Swarm-specific command:
+- Essayer une commande spéciale Swarm:
   ```bash
   docker node ls
   ```
@@ -40,7 +38,7 @@
 
 --
 
-You will get an error message:
+Vous aurez un message d'erreur:
 ```
 Error response from daemon: This node is not a swarm manager. [...]
 ```

@@ -1,98 +1,98 @@
 # SwarmKit
 
-- [SwarmKit](https://github.com/docker/swarmkit) is an open source
-  toolkit to build multi-node systems
+- [SwarmKit](https://github.com/docker/swarmkit) est un projet open source
+  sous forme de boîte à outils pour monter des systèmes multi-noeud.
 
-- It is a reusable library, like libcontainer, libnetwork, vpnkit ...
+- C'est une bibliothèque réutilisable, comme libcontainer, libnetwork, vpnkit ...
 
-- It is a plumbing part of the Docker ecosystem
+- C'est un des composants qui font la plomberie de l'éco-système Docker
 
 --
 
-.footnote[.emoji[🐳] Did you know that кит means "whale" in Russian?]
+.footnote[.emoji[🐳] Saviez-vous que кит veut dire "baleine" en russe?]
 
 ---
 
-## SwarmKit features
+## Fonctionnalités de SwarmKit
 
-- Highly-available, distributed store based on [Raft](
+- Base de données distribuée, hautement disponible basée sur [Raft](
   https://en.wikipedia.org/wiki/Raft_%28computer_science%29)
-  <br/>(avoids depending on an external store: easier to deploy; higher performance)
+  <br/>(évite la dépendance à une base externe, plus simple à déployer, meilleure performance)
 
-- Dynamic reconfiguration of Raft without interrupting cluster operations
+- Reconfiguration dynamique de Raft sans interruption des opérations sur le cluster.
 
-- *Services* managed with a *declarative API*
-  <br/>(implementing *desired state* and *reconciliation loop*)
+- *Services* gérés avec une *API déclarative*
+  <br/>(implémentant l'*état cible* et une *boucle de réconciliation*)  @@@TRAD
 
-- Integration with overlay networks and load balancing
+- Intégré avec les réseaux superposés et la répartition de charge
 
-- Strong emphasis on security:
+- Accent important sur la sécurité:
 
-  - automatic TLS keying and signing; automatic cert rotation
-  - full encryption of the data plane; automatic key rotation
-  - least privilege architecture (single-node compromise ≠ cluster compromise)
-  - on-disk encryption with optional passphrase
+  - génération automatic des clés et signatures TLS; rotation automatique des certificats
+  - chiffrement complet du plan de données; rotation automatique des clés
+  - architecture du privilège moindre (faille d'un noeud ≠ faille du cluster)
+  - chiffrement sur disque avec phrase de passe optionnelle
 
 ---
 
 class: extra-details
 
 ## Where is the key/value store?
+## Où est la base de données clé-valeur
 
-- Many orchestration systems use a key/value store backed by a consensus algorithm
+- Bien des systèmes d'orchestration utilisent une base clé-valeur exploitée par un algorithme de consensus
   <br/>
-  (k8s→etcd→Raft, mesos→zookeeper→ZAB, etc.)
+  (k8s->etcs->Raft, mesos->zookeeper->ZAB, etc.)
 
-- SwarmKit implements the Raft algorithm directly
+- SwarmKit implémente l'algorithme Raft directement
+ (Nomad est similaire en ce point, merci à [@cbednarski](https://twitter.com/@cbednarski),
+  [@diptanu](https://twitter.com/diptanu) entre autres de l'avoir rappelé!)
+
+- Analogie offert par [@aluzzardi](https://twitter.com/aluzzardi):
+
+  *C'est comme les B-trees et les SGBD. Ce sont différentes couches,
+  souvent associées. Mais on n'a pas besoin de lancer un serveur SQL
+  complet, si on a juste besoin d'indexer quelques données.*
+
+- Par conséquent, l'orchestrateur a directement accès à la donnée
   <br/>
-  (Nomad is similar; thanks [@cbednarski](https://twitter.com/@cbednarski),
-  [@diptanu](https://twitter.com/diptanu) and others for pointing it out!)
+  (l'original de la donnée est stocké dans la mémoire de l'orchestrateur)
 
-- Analogy courtesy of [@aluzzardi](https://twitter.com/aluzzardi):
-
-  *It's like B-Trees and RDBMS. They are different layers, often
-  associated. But you don't need to bring up a full SQL server when
-  all you need is to index some data.*
-
-- As a result, the orchestrator has direct access to the data
-  <br/>
-  (the main copy of the data is stored in the orchestrator's memory)
-
-- Simpler, easier to deploy and operate; also faster
+- Plus simple, facile à déployer et administrer; et aussi plus rapide
 
 ---
 
-## SwarmKit concepts (1/2)
+## Concepts de SwarmKit (1/2)
 
-- A *cluster* will be at least one *node* (preferably more)
+- Un *cluster* est composé d'au moins une *node* (plus de préférence)
 
-- A *node* can be a *manager* or a *worker*
+- Une *node* peut prendre le rôle de *manager* ou *worker*
 
-- A *manager* actively takes part in the Raft consensus, and keeps the Raft log
+- Un *manager* prend une part active dans le consensus Raft, et conserve le log du Raft
 
-- You can talk to a *manager* using the SwarmKit API
+- On peut dialoguer avec un *manager* en utilisant l'API SwarmKit
 
-- One *manager* is elected as the *leader*; other managers merely forward requests to it
+- Un *manager* est élu en tant que *leader*; les autres managers ne font que lui transmettre les demandes
 
-- The *workers* get their instructions from the *managers*
+- Les *workers* prennet leurs ordres des *managers*
 
-- Both *workers* and *managers* can run containers
+- Tous (*workers* et *managers*) peuvent faire tourner des conteneurs
 
 ---
 
 ## Illustration
 
-On the next slide:
+Sur la prochaine diapo:
 
-- whales = nodes (workers and managers)
+- baleines = noeuds (workers et managers)
 
-- monkeys = managers
+- singes = managers
 
-- purple monkey = leader
+- singe violet = leader
 
-- grey monkeys = followers
+- singes gris = suiveurs
 
-- dotted triangle = raft protocol
+- triangle en pointillés = protocole Raft
 
 ---
 
@@ -102,19 +102,19 @@ class: pic
 
 ---
 
-## SwarmKit concepts (2/2)
+## Concepts de SwarmKit (2/2)
 
-- The *managers* expose the SwarmKit API
+- Les *managers* exposent l'API SwarmKit
 
-- Using the API, you can indicate that you want to run a *service*
+- Via cette API, on peut demander à lancer un *service*
 
-- A *service* is specified by its *desired state*: which image, how many instances...
+- Un *service* est spécifié par son *état souhaité*: quelle image, combien d'instances, etc.
 
-- The *leader* uses different subsystems to break down services into *tasks*:
-  <br/>orchestrator, scheduler, allocator, dispatcher
+- Le *leader* utilise différent sous-systèmes pour décomposer le services en *tasks*:
+  <br/>orchestrateur, ordonnanceur, allocateur, répartiteur
 
-- A *task* corresponds to a specific container, assigned to a specific *node*
+- Une *task* correspond à un conteneur spécifique, assigné à une *node* spécifique
 
-- *Nodes* know which *tasks* should be running, and will start or stop containers accordingly (through the Docker Engine API)
+- Les *Nodes* savent quelles *tasks* devraient tourner, et feront lancer et stopper leurs conteneurs en accord (via l'API du Docker Engine)
 
-You can refer to the [NOMENCLATURE](https://github.com/docker/swarmkit/blob/master/design/nomenclature.md) in the SwarmKit repo for more details.
+Vous pouvez vous référer à la [NOMENCLATURE](https://github.com/docker/swarmkit/blob/master/design/nomenclature.md) du dépôt SwarmKit pour plus de détails.

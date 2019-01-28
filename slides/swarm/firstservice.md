@@ -1,17 +1,17 @@
-# Running our first Swarm service
+# Lancer notre premier service Swarm
 
-- How do we run services? Simplified version:
+- Comment lancer des services? Version courte:
 
   `docker run` → `docker service create`
 
 .exercise[
 
-- Create a service featuring an Alpine container pinging Google resolvers:
+- Créer un service basé sur un conteneur Alpine qui _ping_ les serveurs de Google:
   ```bash
   docker service create --name pingpong alpine ping 8.8.8.8
   ```
 
-- Check the result:
+- Vérifier le résultat:
   ```bash
   docker service ps pingpong
   ```
@@ -20,45 +20,45 @@
 
 ---
 
-## Checking service logs
+## Consulter les logs de service
 
-(New in Docker Engine 17.05)
+(Nouveau dans Docker Engine 17.05)
 
-- Just like `docker logs` shows the output of a specific local container ...
+- Tout comme `docker logs` affiche la sortie d'un conteneur local spécifique...
 
-- ... `docker service logs` shows the output of all the containers of a specific service
+- ... `docker service logs` montre les logs de tous les conteneurs d'un certain service
 
 .exercise[
 
-- Check the output of our ping command:
+- Vérifier la sortie de notre commande ping:
   ```bash
   docker service logs pingpong
   ```
 
 ]
 
-Flags `--follow` and `--tail` are available, as well as a few others.
+Les options `--follow` et `--tail` sont disponibles, ainsi que quelques autres.
 
-Note: by default, when a container is destroyed (e.g. when scaling down), its logs are lost.
+Note: par défaut, quand un conteneur est détruit (par ex. en baisse de chaerge), ses logs sont perdus.
 
 ---
 
 class: extra-details
 
-## Looking up where our container is running
+## Chercher où tourne notre conteneur
 
-- The `docker service ps` command told us where our container was scheduled
+- La commande `docker service ps` va nous dire où est placé notre conteneur
 
 .exercise[
 
-- Look up the `NODE` on which the container is running:
+- Trouver quel `NODE` fait tourner notre conteneur:
   ```bash
   docker service ps pingpong
   ```
 
-- If you use Play-With-Docker, switch to that node's tab, or set `DOCKER_HOST`
+- Sur Play-With-Docker, cliquer sur l'onglet de cette node, ou passer par `DOCKER_HOST`
 
-- Otherwise, `ssh` into that node or use `$(eval docker-machine env node...)`
+- Autrement, se connecter avec `ssh` sur cette ou lancer `$(eval docker-machine env node...)`
 
 ]
 
@@ -66,23 +66,23 @@ class: extra-details
 
 class: extra-details
 
-## Viewing the logs of the container
+## Afficher les logs du conteneur
 
 .exercise[
 
-- See that the container is running and check its ID:
+- Constater que le conteneur tourne bien, et récupérer son ID:
   ```bash
   docker ps
   ```
 
-- View its logs:
+- Afficher ses logs:
   ```bash
   docker logs containerID
   ```
 
   <!-- ```wait No such container: containerID``` -->
 
-- Go back to `node1` afterwards
+- Retourner sur `node1` après coup
 
 ]
 

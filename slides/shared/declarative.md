@@ -1,63 +1,63 @@
-# Declarative vs imperative
+# Déclaratif vs Impératif
 
-- Our container orchestrator puts a very strong emphasis on being *declarative*
+- Notre orchestrateur de conteneurs insiste fortement sur sa nature *déclarative*
 
-- Declarative:
+- Déclaratif:
 
-  *I would like a cup of tea.*
+  *Je voudrais une tasse de thé*
 
-- Imperative:
+- Impératif:
 
-  *Boil some water. Pour it in a teapot. Add tea leaves. Steep for a while. Serve in a cup.*
-
---
-
-- Declarative seems simpler at first ... 
+  *Faire bouillir de l'eau. Verser dans la théière. Ajouter les feuilles de thé. Infuser un moment. Servir dans une tasse.*
 
 --
 
-- ... As long as you know how to brew tea
+- Le mode déclaratif semble plus simple au début...
+
+--
+
+- ... tant qu'on sait comment préparer du thé
+
 
 ---
 
-## Declarative vs imperative
+## Déclaratif vs Impératif
 
-- What declarative would really be:
+- Ce que le mode déclaratif devrait vraiment être:
 
-  *I want a cup of tea, obtained by pouring an infusion¹ of tea leaves in a cup.*
-
---
-
-  *¹An infusion is obtained by letting the object steep a few minutes in hot² water.*
+  *Je voudrais une tasse de thé, obtenue en versant une infusion¹ de feuilles de thé dans une tasse.*
 
 --
 
-  *²Hot liquid is obtained by pouring it in an appropriate container³ and setting it on a stove.*
+  *¹Une infusion est obtenue en laissant l'objet infuser quelques minutes dans l'eau chaude².*
 
 --
 
-  *³Ah, finally, containers! Something we know about. Let's get to work, shall we?*
+  *²Liquide chaud obtenu en le versant dans un contenant³ approprié et le placer sur la gazinière.*
 
 --
 
-.footnote[Did you know there was an [ISO standard](https://en.wikipedia.org/wiki/ISO_3103)
-specifying how to brew tea?]
+  *³Ah, finalement, des conteneurs! Quelque chose qu'on maitrise. Mettons-nous au boulot, n'est-ce pas?*
+
+--
+
+.footnote[Saviez-vous qu'il existait une [norme ISO](https://fr.wikipedia.org/wiki/ISO_3103) spécifiant comment infuser le thé?]
 
 ---
 
-## Declarative vs imperative
+## Déclaratif vs Impératif
 
-- Imperative systems:
+- Système impératifs:
 
-  - simpler
+  - plus simple
 
-  - if a task is interrupted, we have to restart from scratch
+  - si une tache est interrompue, on doit la redémarrer de zéro
 
-- Declarative systems:
+- Système déclaratifs:
 
-  - if a task is interrupted (or if we show up to the party half-way through),
-    we can figure out what's missing and do only what's necessary
+  - si une tache est interrompue (ou si on arrive en plein milieu de la fête),
+    on peut déduire ce qu'il  manque, et on complète juste par ce qui est nécessaire.
 
-  - we need to be able to *observe* the system
+  - on doit être en mesure *d'observer* le système
 
-  - ... and compute a "diff" between *what we have* and *what we want*
+  - ... et de calculer un "diff" entre *ce qui tourne en ce moment* et *ce que nous souhaitons*

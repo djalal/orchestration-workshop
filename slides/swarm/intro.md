@@ -1,40 +1,40 @@
-## A brief introduction
 
-- This was initially written by [Jérôme Petazzoni](https://twitter.com/jpetazzo) to support in-person,
-  instructor-led workshops and tutorials
-  
-- Over time, [multiple contributors](https://@@GITREPO@@/graphs/contributors) also helped to improve these materials — thank you!
+## Une brève introduction
 
-- You can also follow along on your own, at your own pace
+- Ce cours a été écrit à l'origine comme support à des ateliers en présentiel
 
-- We included as much information as possible in these slides
+- Ce contenu est maintenu par [Jérôme Petazzoni](https://twitter.com/jpetazzo) et [de nombreux contributeurs](https://@@GITREPO@@/graphs/contributors)
 
-- We recommend having a mentor to help you ...
+- Vous pouvez aussi le parcourir à votre propre rythme.
 
-- ... Or be comfortable spending some time reading the Docker
- [documentation](https://docs.docker.com/) ...
+- Nous avons inclus autant d'information que possibles dans les diapositives.
 
-- ... And looking for answers in the [Docker forums](forums.docker.com),
-  [StackOverflow](http://stackoverflow.com/questions/tagged/docker),
-  and other outlets
+- Nous vous recommandons d'avoir un instructeur pour vous aider...
+
+- ... sauf si vous êtes à l'aise avec la lecture minutieuse
+de la [documentation](https://docs.docker.com/) Docker...
+
+- ... et avec la recherche de réponses dans les [forums Docker](forums.docker.com),
+  [StackOverflow](https://stackoverflow.com/questions/tagged/docker),
+  et autres boutiques.
 
 ---
 
 class: self-paced
 
-## Hands on, you shall practice
+## À vos mains, prêts, pratique!
 
-- Nobody ever became a Jedi by spending their lives reading Wookiepedia
+- Personne n'est devenu un Jedi en passant sa vie sur Wookiepedia.
 
-- Likewise, it will take more than merely *reading* these slides
-  to make you an expert
+- De même, cela demande plus que la simple *lecture* de ces diapositives
+  pour faire de vous un expert.
 
-- These slides include *tons* of exercises and examples
+- Ces diapositives contiennent des *tonnes* d'exercices et d'exemples.
 
-- They assume that you have access to some Docker nodes
+- Cela sous-entend que vous avez accès à une machine contenant Docker.
 
-- If you are attending a workshop or tutorial:
-  <br/>you will be given specific instructions to access your cluster
+- Si vous assistez à un atelier ou une formation:
+  <br/>on vous donnera des instructions spécifiques pour accéder à une VM.
 
-- If you are doing this on your own:
-  <br/>the first chapter will give you various options to get your own cluster
+- Si vous abordez ce cours tout seul:
+  <br/>on vous dira comment installer Docker ou accéder à un environnement Docker.

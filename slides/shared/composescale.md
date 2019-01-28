@@ -1,39 +1,40 @@
-## Restarting in the background
+## Relancer en arrière-plan
 
-- Many flags and commands of Compose are modeled after those of `docker`
+- Bien des options et des commandes dans Compose sont inspirées par celle de `docker`
 
 .exercise[
 
-- Start the app in the background with the `-d` option:
+- Démarrer l'appli en arrière-plan avec l'option `-d`:
   ```bash
   docker-compose up -d
   ```
 
-- Check that our app is running with the `ps` command:
+- Vérifier que notre appli est lancée avec la commande `ps`:
   ```bash
   docker-compose ps
   ```
 
 ]
 
-`docker-compose ps` also shows the ports exposed by the application.
+`docker-compose ps` montre aussi les ports exposés par l'application.
 
 ---
 
 class: extra-details
 
-## Viewing logs
+## Afficher les logs
 
-- The `docker-compose logs` command works like `docker logs`
+- La commande `docker-compose logs` marche comme `docker logs`
+
 
 .exercise[
 
-- View all logs since container creation and exit when done:
+- Afficher tous les logs depuis la naissance du conteneur, et sortir juste après:
   ```bash
   docker-compose logs
   ```
 
-- Stream container logs, starting at the last 10 lines for each container:
+- Suivre le flux de logs du conteneur, en commençant par les 10 dernières lignes de chaque conteneur:
   ```bash
   docker-compose logs --tail 10 --follow
   ```
@@ -45,31 +46,31 @@ class: extra-details
 
 ]
 
-Tip: use `^S` and `^Q` to pause/resume log output.
+Astuce: taper `^S` et `^Q` pour suspendre/reprendre l'affichage des logs.
 
 ---
 
-## Scaling up the application
+## Montée en chage de l'application
 
-- Our goal is to make that performance graph go up (without changing a line of code!)
+- Notre but est de faire monter ce graphique de performance (sans changer une ligne de code!)
 
 --
 
-- Before trying to scale the application, we'll figure out if we need more resources
+- Avant d'essayer de faire monter en charge l'application, voyons si plus de ressources sont nécessaires
 
-  (CPU, RAM...)
+  (CPU, RAM ...)
 
-- For that, we will use good old UNIX tools on our Docker node
+- Pour ça, nous allons lancer de bons vieux outils UNIX sur notre noeud Docker.
 
 ---
 
-## Looking at resource usage
+## Examiner l'usage de ressources
 
-- Let's look at CPU, memory, and I/O usage
+- Jetons un oeil au CPU, à la mémoire et aux E/S
 
 .exercise[
 
-- run `top` to see CPU and memory usage (you should see idle cycles)
+- lancer `top` pour voir l'usage CPU et mémoire (on devrait voir des cycles de repos)
 
 <!--
 ```bash top```
@@ -78,8 +79,8 @@ Tip: use `^S` and `^Q` to pause/resume log output.
 ```keys ^C```
 -->
 
-- run `vmstat 1` to see I/O usage (si/so/bi/bo)
-  <br/>(the 4 numbers should be almost zero, except `bo` for logging)
+- lancer `vmstat 1` pour voir l'usage des entrées/sorties (si/so/bi/bo)
+  <br/>(les 4 nombres devraient être quasiment à zéro, excepté `bo` pour le logging)
 
 <!--
 ```bash vmstat 1```
@@ -90,82 +91,82 @@ Tip: use `^S` and `^Q` to pause/resume log output.
 
 ]
 
-We have available resources.
+Nous avons des ressources disponibles.
 
-- Why?
-- How can we use them?
+- Pourquoi?
+- Comment les exploiter?
 
 ---
 
-## Scaling workers on a single node
+## Escalader les workers sur un seul noeud
 
-- Docker Compose supports scaling
-- Let's scale `worker` and see what happens!
+- Docker Compose supporte la mise à l'échelle
+- Escaladons `worker` et voyons ce qu'il se passe!
 
 .exercise[
 
-- Start one more `worker` container:
+- Démarrer un conteneur `worker` supplémentaire:
   ```bash
   docker-compose up -d --scale worker=2
   ```
 
-- Look at the performance graph (it should show a x2 improvement)
+- Examiner le graphique de performance (on devrait voir un doublement)
 
-- Look at the aggregated logs of our containers (`worker_2` should show up)
+- Examiner les logs agrégés de nos conteneurs (`worker_2` devrait y apparaître)
 
-- Look at the impact on CPU load with e.g. top (it should be negligible)
+- Examiner l'impact sur la charge de CPU avec par ex. top (il devrait être négligable)
 
 ]
 
 ---
 
-## Adding more workers
+## Cumuler les workers
 
-- Great, let's add more workers and call it a day, then!
+- Super, ajoutons encore plus de workers alors, et le tour est joué!
 
 .exercise[
 
-- Start eight more `worker` containers:
+- Démarrer huit conteneurs de `worker` de plus:
   ```bash
   docker-compose up -d --scale worker=10
   ```
 
-- Look at the performance graph: does it show a x10 improvement?
+- Examiner le graphique de performance: est-ce que l'amélioration est x10?
 
-- Look at the aggregated logs of our containers
+- Examiner les logs agrégés de nos conteneurs
 
-- Look at the impact on CPU load and memory usage
+- Examiner l'impact sur la charge CPU et la mémoire
 
 ]
 
 ---
 
-# Identifying bottlenecks
+# Identifier les goulots d'étranglement
 
-- You should have seen a 3x speed bump (not 10x)
+- Vous devriez constater un facteur de vitesse x3 (pas x10)
 
-- Adding workers didn't result in linear improvement
+- Ajouter des workers ne s'est pas traduit pas un gain linéaire.
 
-- *Something else* is slowing us down
-
---
-
-- ... But what?
+- *Quelque chose* d'autre nous ralentit donc.
 
 --
 
-- The code doesn't have instrumentation
+- ... Mais quoi?
 
-- Let's use state-of-the-art HTTP performance analysis!
-  <br/>(i.e. good old tools like `ab`, `httping`...)
+--
+
+- Le code ne dispose d'aucun appareillage de mesure.
+
+- Sortons donc notre analyseur de performance HTTP dernier cri!
+  <br/>(i.e les bons vieux outils comme `ab`, `httping`, etc.)
 
 ---
 
-## Accessing internal services
+## Accéder aux services internes
 
-- `rng` and `hasher` are exposed on ports 8001 and 8002
+- `rng` et `hasher` sont exposés sur les ports 8001 et 8002
 
-- This is declared in the Compose file:
+- C'est déclaré ainsi dans le fichier Compose:
 
   ```yaml
     ...
@@ -183,38 +184,38 @@ We have available resources.
 
 ---
 
-## Measuring latency under load
+## Mesurer la latence sous contrainte
 
-We will use `httping`.
+Nous utiliserons pour cela `httping`.
 
 .exercise[
 
-- Check the latency of `rng`:
+- Vérifier la latence de `rng`:
   ```bash
   httping -c 3 localhost:8001
   ```
 
-- Check the latency of `hasher`:
+- Vérifier la latence de `hasher`:
   ```bash
   httping -c 3 localhost:8002
   ```
 
 ]
 
-`rng` has a much higher latency than `hasher`.
+`rng` révèle une latence bien plus grande que `hasher`.
 
 ---
 
-## Let's draw hasty conclusions
+## Hasardons-nous à des conclusions hâtives
 
-- The bottleneck seems to be `rng`
+- Le goulot d'étranglement semble être `rng`.
 
-- *What if* we don't have enough entropy and can't generate enough random numbers?
+- Et si *à tout hasard*, nous n'avions pas assez d'entropie, et qu'on ne pouvait générer assez de nombres aléatoires?
 
-- We need to scale out the `rng` service on multiple machines!
+- On doit escalader le service `rng` sur plusieurs machines!
 
-Note: this is a fiction! We have enough entropy. But we need a pretext to scale out.
+Note: ceci est une fiction! Nous avons assez d'entropie. Mais on a besoin d'un prétexte pour monter en charge.
 
-(In fact, the code of `rng` uses `/dev/urandom`, which never runs out of entropy...
+(En réalité, le code de `rng` exploite `/dev/urandom`, qui n'est jamais à court d'entropie...)
 <br/>
-...and is [just as good as `/dev/random`](http://www.slideshare.net/PacSecJP/filippo-plain-simple-reality-of-entropy).)
+...et c'est [tout aussi bon que `/dev/random`](https://www.slideshare.net/PacSecJP/filippo-plain-simple-reality-of-entropy).)

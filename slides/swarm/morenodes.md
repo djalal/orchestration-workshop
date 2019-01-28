@@ -1,24 +1,22 @@
-## Adding more manager nodes
+## Ajouter plus de nodes manager
 
-- Right now, we have only one manager (node1)
+- Jusqu'ici, on a juste un *manager* (node1)
 
-- If we lose it, we lose quorum - and that's *very bad!*
+- Si on le perd, on perd le quorum, et c'est *très grave!*
 
-- Containers running on other nodes will be fine ...
+- Les conteneurs sur les autres nodes n'auront pas de problème...
 
-- But we won't be able to get or set anything related to the cluster
+- Si le *manager* est parti pour de bon, on va devoir réparer à la main!
 
-- If the manager is permanently gone, we will have to do a manual repair!
-
-- Nobody wants to do that ... so let's make our cluster highly available
+- Personne ne veut faire ça... donc passons en haute disponibilité
 
 ---
 
 class: self-paced
 
-## Adding more managers
+## Ajouter plus de managers
 
-With Play-With-Docker:
+Avec Play-With-Docker:
 
 ```bash
 TOKEN=$(docker swarm join-token -q manager)
@@ -33,83 +31,83 @@ unset DOCKER_HOST
 
 class: in-person
 
-## Building our full cluster
+## Monter un cluster complet
 
-- Let's get the token, and use a one-liner for the remaining node with SSH
+- Récupérons le *token*, et lançons la commande sur la dernière node avec SSH
 
 .exercise[
 
-- Obtain the manager token:
+- Obtenir le jeton *manager*:
   ```bash
   TOKEN=$(docker swarm join-token -q manager)
   ```
 
-- Add the remaining node:
+- Ajouter la node qui reste:
   ```bash
     ssh node3 docker swarm join --token $TOKEN node1:2377
   ```
 
 ]
 
-[That was easy.](https://www.youtube.com/watch?v=3YmMNpbFjp0)
+[C'était facile.](https://www.youtube.com/watch?v=3YmMNpbFjp0)
 
 ---
 
-## Controlling the Swarm from other nodes
+## Contrôler le Swarm depuis d'autres nodes
 
 .exercise[
 
-- Try the following command on a few different nodes:
+- Essayer la commande suivante sur les différentes nodes:
   ```bash
   docker node ls
   ```
 
 ]
 
-On manager nodes:
-<br/>you will see the list of nodes, with a `*` denoting
-the node you're talking to.
+Sur les noeuds *manager*:
+<br/>vous verrez la liste des _nodes_, avec un `*`,
+indiquant la _node_ qui répond.
 
-On non-manager nodes:
-<br/>you will get an error message telling you that
-the node is not a manager.
+Sur les _nodes_ non-manager:
+<br/>un message d'erreur s'affichera vous disant que
+cette node n'est pas un *manager*.
 
-As we saw earlier, you can only control the Swarm through a manager node.
+Comme vu plus haut, on ne peut contrôler le Swarm que depuis une node *manager*.
 
 ---
 
 class: self-paced
 
-## Play-With-Docker node status icon
+## L'icône de statut des nodes sur Play-With-Docker
 
-- If you're using Play-With-Docker, you get node status icons
+- Si vous passez via Play-With-Docker, vous verrez des icones de statut par node.
 
-- Node status icons are displayed left of the node name
+- Les icônes de statut sont affichées à gauche du nom de chaque node.
 
-  - No icon = no Swarm mode detected
-  - Solid blue icon = Swarm manager detected
-  - Blue outline icon = Swarm worker detected
+  - Sans icône = pas de mode Swarm détecté
+  - Icône bleue remplie = *manager* Swarm
+  - Icône blanche à bord bleu = *worker* Swarm
 
-![Play-With-Docker icons](images/pwd-icons.png)
+![Icône Play-With-Docker icons](images/pwd-icons.png)
 
 ---
 
-## Dynamically changing the role of a node
+## Changer le rôle d'un noeud à la volée
 
-- We can change the role of a node on the fly:
+- On peut changer le rôle d'une node dynamiquement:
 
-  `docker node promote nodeX` → make nodeX a manager
+  `docker node promote nodeX` → passer nodeX en *manager*
   <br/>
-  `docker node demote nodeX` → make nodeX a worker
+  `docker node demote nodeX` → passer nodeX en *worker*
 
 .exercise[
 
-- See the current list of nodes:
+- Afficher la liste courante des noeuds:
   ```
   docker node ls
   ```
 
-- Promote any worker node to be a manager:
+- Promouvoir tout *worker* en *manager*
   ```
   docker node promote <node_name_or_id>
   ```
@@ -118,98 +116,98 @@ class: self-paced
 
 ---
 
-## How many managers do we need?
+## Combien de managers sont conseillés?
 
-- 2N+1 nodes can (and will) tolerate N failures
-  <br/>(you can have an even number of managers, but there is no point)
+- 2N+1 noeuds peuvent (et vont) résister à N pannes
+  <br/>(vous pouvez mettre un nombre pairs de *managers* mais ça n'a aucun intérêt)
 
 --
 
-- 1 manager = no failure
+- 1 manager = pas de tolérance de panne
 
-- 3 managers = 1 failure
+- 3 managers = tolérance d'une panne
 
-- 5 managers = 2 failures (or 1 failure during 1 maintenance)
+- 5 managers = tolérance de 2 panne (ou 1 panne pendant 1 maintenance)
 
-- 7 managers and more = now you might be overdoing it for most designs
+- 7 managers ou plus = là vous forcez peut-être un peu sur l'archi
 
 .footnote[
 
- see [Docker's admin guide](https://docs.docker.com/engine/swarm/admin_guide/#add-manager-nodes-for-fault-tolerance) 
- on node failure and datacenter redundancy
+ voir [Docker's admin guide](https://docs.docker.com/engine/swarm/admin_guide/#add-manager-nodes-for-fault-tolerance)
+ à propos des pannes de nodes et la redondance en centre de données
 
 ]
 
 ---
 
-## Why not have *all* nodes be managers?
+## Pourquoi ne pas mettre *toutes* les nodes en *manager*?
 
-- With Raft, writes have to go to (and be acknowledged by) all nodes
+- Avec Raft, les écritures doivent atteindre (et être confirmés par) tous les noeuds.
 
-- Thus, it's harder to reach consensus in larger groups
+- Par conséquent, c'est plus dur d'atteindre un consensus dans des groupes plus grands.
 
-- Only one manager is Leader (writable), so more managers ≠ more capacity
+- Un seul *manager* est *Leader* (en écriture), donc "plus de managers ≠ plus de capacité"
 
-- Managers should be &#60; 10ms latency from each other
+- Les *managers* devraient être &#60; 10ms  de latence entre eux
 
-- These design parameters lead us to recommended designs
+- Ces facteurs de conceptions nous amènent à de meilleurs designs
 
 ---
 
-## What would McGyver do?
+## Que ferait McGyver à notre place?
 
-- Keep managers in one region (multi-zone/datacenter/rack)
+- Garder les *managers* dans une région (ou multi-zone/centre de données/rack)
 
-- Groups of 3 or 5 nodes: all are managers. Beyond 5, separate out managers and workers
+- Groupe de 3 à 5 noeuds: tous en *managers*. Au-delà de 5, séparer les *managers* et *workers*
 
-- Groups of 10-100 nodes: pick 5 "stable" nodes to be managers
+- Groupe de 10-100 noeuds: prendre 5 noeuds "stables" pour être les *managers*
 
-- Groups of more than 100 nodes: watch your managers' CPU and RAM
+- Groupe de plus de 100 noeuds: surveiller le CPU et la RAM des managers
 
-  - 16GB memory or more, 4 CPU's or more, SSD's for Raft I/O
-  - otherwise, break down your nodes in multiple smaller clusters
+  - 16Go de mémoire ou plus, 4 CPUs au moins, disque SSD pour les E/S du Raft
+  - autrement, répartir vos noeuds en plusieurs clusters plus petits
 
 .footnote[
 
-  Cloud pro-tip: use separate auto-scaling groups for managers and workers
+  Astuce de pro du cloud: utiliser des groupes *auto-scalings* distincts pour les *managers* et *workers*
 
-  See docker's "[Running Docker at scale](http://success.docker.com/article/running-docker-ee-at-scale)" document
+  Voir le document chez Docker Inc. "[Running Docker at scale](http://success.docker.com/article/running-docker-ee-at-scale)"
 ]
 ---
 
-## What's the upper limit?
+## Quelle est la limite maximum?
 
-- We don't know!
+- On n'en sait rien!
 
-- Internal testing at Docker Inc.: 1000-10000 nodes is fine
+- Tests internes chez Docker Inc.: 1000 à 10000 noeuds sans problème
 
-  - deployed to a single cloud region
+  - déployés sur une région de _cloud_
 
-  - one of the main take-aways was *"you're gonna need a bigger manager"*
+  - une des principales leçons était *"vous allez avoir besoin d'un plus gros manager"*
 
-- Testing by the community: [4700 heterogeneous nodes all over the 'net](https://sematext.com/blog/2016/11/14/docker-swarm-lessons-from-swarm3k/)
+- Tests menés par la communauté: [4700 noeuds hétérogènes à travers le net](https://sematext.com/blog/2016/11/14/docker-swarm-lessons-from-swarm3k/)
 
-  - it just works, assuming they have the resources
+  - ça marche et c'est tout, à condition d'avoir les ressources nécessaires
 
-  - more nodes require manager CPU and networking; more containers require RAM
+  - plus de nodes demandent plus de CPU et réseau pour le *manager*; plus de conteneurs demande plus de RAM
 
-  - scheduling of large jobs (70,000 containers) is slow, though ([getting better](https://github.com/moby/moby/pull/37372)!)
+  - l'orchestration à très large échelle (70 000 conteneurs) est lente et difficile ([mais ça s'arrange](https://github.com/moby/moby/pull/37372)!)
 
 ---
 
-## Real-life deployment methods
+## Méthodes de déploiements dans la vie réelle
 
 --
 
-Running commands manually over SSH
+Lancer les commandes à la main via SSH
 
 --
 
-  (lol jk)
+  (mdr je blague)
 
 --
 
-- Using your favorite configuration management tool
+- Exploiter votre outil de gestion de configuration préféré
 
 - [Docker for AWS](https://docs.docker.com/docker-for-aws/#quickstart)
 
