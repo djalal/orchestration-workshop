@@ -69,7 +69,7 @@ Nous verrons ensuite une méthode particulière en action, avec ELK et les pilot
 - On lance un exécutable tel que `filebeat` dans un autre conteneur accédant au même volume.
 
   (`filebeat` lit en continu les fichiers de _logs_ locaux, comme `tail -f`,
-  et les envoit dans un système central tel que ElasticSearch.)
+  et les envoie dans un système central tel que ElasticSearch.)
 
 - On peut aussi passer par un point de montage, par ex. `-v /var/log/containers/www:/var/log/tomcat`.
 

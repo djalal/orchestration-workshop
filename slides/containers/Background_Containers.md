@@ -213,9 +213,9 @@ Il y a deux façons de stopper notre conteneur détaché;
 La première arrête le conteneur immédiatement, en utilisant
 le signal `KILL`.
 
-La seconde est plus douce. Elle envoit un signal `TERM`, et
+La seconde est plus douce. Elle envoie un signal `TERM`, et
 après 10 secondes, si le conteneur n'est pas arrêté,
-il envoit `KILL`.
+il envoie `KILL`.
 
 Rappel: le signal `KILL` ne peut être intercepté, et terminera
 le conteneur de force.
@@ -233,12 +233,12 @@ $ docker stop 47d6
 
 Cela va prendre 10 secondes:
 
-* Docker envoit le signal TERM;
+* Docker envoie le signal TERM;
 * le conteneur ne réagit pas à ce signal
   (c'est un simple script Shell sans gestion
   de signal spécifique);
 * 10 secondes plus tard, puisque le conteneur est
-toujours actif, Docker envoit le signal KILL;
+toujours actif, Docker envoie le signal KILL;
 * ceci neutralise le conteneur.
 
 ---
