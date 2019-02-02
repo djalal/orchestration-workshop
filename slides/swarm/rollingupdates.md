@@ -1,34 +1,33 @@
-# Rolling updates
+# Mises à jour progressive
 
-- Let's force an update on hasher to watch it update
+- Essayons de forcer une mise à jour de _hasher_ pour examiner le processus.
 
 .exercise[
 
-- First lets scale up hasher to 7 replicas:
+- Escalader d'abord _hasher_ à 7 replicas:
   ```bash
   docker service scale dockercoins_hasher=7
   ```
 
-- Force a rolling update (replace containers) to different image:
+- Forcer une mise à jour progresive (qui remplace les conteneurs) vers une image différente:
   ```bash
   docker service update --image 127.0.0.1:5000/hasher:v0.1 dockercoins_hasher
   ```
 
 ]
 
-- You can run `docker events` in a separate `node1` shell to see Swarm actions
+- Vous pouvez lancer `docker events` sur un autre terminal de `node1` pour voir les actions du Swarm.
 
-- You can use `--force` to replace containers without a config change
+- Vous pouvez forcer `--force` pour remplacer les conteneurs sans changer la configuration.
 
 ---
 
-## Changing the upgrade policy
+## Changer la politique de mise à jour
 
-- We can change many options on how updates happen
-
+- On peut jouer sur plein d'options sur les profils de mise à jour.
 .exercise[
 
-- Change the parallelism to 2, and the max failed container updates to 25%:
+- Changer le parallélisme à 2, et le taux d'échec maximum à 25%:
   ```bash
     docker service update --update-parallelism 2 \
       --update-max-failure-ratio .25 dockercoins_hasher
@@ -36,17 +35,17 @@
 
 ]
 
-- No containers were replaced, this is called a "no op" change 
+- Aucun conteneur n'a été remplacé, c'est ce qu'on appelle une mise à jour "sans op".
 
-- Service metadata-only changes don't require orchestrator operations
+- Les _patch_ de méta-données pures n'exigent aucune opération de l'orchestrateur
 
 ---
 
-## Changing the policy in the Compose file
+## Changer les règles depuis le fichier Compose
 
-- The policy can also be updated in the Compose file
+- Cette même politique peut aussi apparaître dans le fichier Compose.
 
-- This is done by adding an `update_config` key under the `deploy` key:
+- On le fait en ajoutant une clé `update_config` sous la clé `deploy`:
 
   ```yaml
     deploy:
@@ -58,64 +57,64 @@
 
 ---
 
-## Rolling back
+## Retour arrière
 
-- At any time (e.g. before the upgrade is complete), we can rollback:
+- A n'importe quel moment (par ex. avant la fin de la mise à jour), on peut tout annuler:
 
-  - by editing the Compose file and redeploying
+  - en modifiant le fichier Compose et relancer une mise à jour
 
-  - by using the special `--rollback` flag with `service update`
+  - en utilisant l'option `--rollback` de `service update`
 
-  - by using `docker service rollback`
+  - en utilisant `docker service rollback`
 
 .exercise[
 
-- Try to rollback the webui service:
+- Essayer d'annuler la mise à jour du service _webui_
   ```bash
   docker service rollback dockercoins_webui
   ```
 
 ]
 
-What happens with the web UI graph?
+Que se passe-t-il avec le graphique de l'interface web?
 
 ---
 
-## The fine print with rollback
+## Les subtilités du _rollback_
 
-- Rollback reverts to the previous service definition
+- Le retour arrière annule la dernière définition du service
 
-  - see `PreviousSpec` in `docker service inspect <servicename>`
+  - voir `PreviousSpec` dans `docker service inspect <nom_du_service>`
 
-- If we visualize successive updates as a stack:
+- Si nous nous représentons les mises à jour comme une pile:
 
-  - it doesn't "pop" the latest update
+  - ça ne va pas "dépiler" la dernière mise à jour
 
-  - it "pushes" a copy of the previous update on top
+  - cela va "empiler" une copie de la dernière mise à jour tout en haut de la pile
 
-  - ergo, rolling back twice does nothing
+  - _ergo_, opérer deux retours arrière successifs ne change rien.
 
-- "Service definition" includes rollout cadence
+- La "définition de service" inclut la cadence de déploiement.
 
-- Each `docker service update` command = a new service definition
+- Chaque commande `docker service update` = une nouvelle définition de service
 
 ---
 
 class: extra-details
 
-## Timeline of an upgrade
+## Chronologie d'une mise à jour
 
-- SwarmKit will upgrade N instances at a time
-  <br/>(following the `update-parallelism` parameter)
+- SwarmKit va mettre à jour N instances à la fois
+  <br/>(suivant la valeur de l'option `update-parallelism`)
 
-- New tasks are created, and their desired state is set to `Ready`
-  <br/>.small[(this pulls the image if necessary, ensures resource availability, creates the container ... without starting it)]
+- De nouvelles tâches sont créées, et leur état souhaité est réglé à `Ready`
+  <br/>.small[(cela va télécharger l'image si nécessaire, s'assurer de la disponibilité des ressources, créer le conteneur ... sans encore le démarrer)]
 
-- If the new tasks fail to get to `Ready` state, go back to the previous step
-  <br/>.small[(SwarmKit will try again and again, until the situation is addressed or desired state is updated)]
+- Si une nouvelle tâche échoue à atteindre le statut `Ready`, retour à l'étape précédente
+  <br/>.small[(SwarmKit va persister à essayer, jusqu'à dépannage du problème, ou si l'état souhaité est mis à jour)]
 
-- When the new tasks are `Ready`, it sets the old tasks desired state to `Shutdown`
+- Quand de nouvelles tâches sont `Ready`, les anciennes sont passées en `Shutdown`
 
-- When the old tasks are `Shutdown`, it starts the new tasks
+- Quand d'anciennes tâches sont `Shutdown`, le Swarm en démarre de nouvelles
 
-- Then it waits for the `update-delay`, and continues with the next batch of instances
+- Puis il attend le délai indiqué dans `update-delay`, et poursuit avec le prochain groupe d'instances.

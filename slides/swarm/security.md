@@ -1,16 +1,16 @@
-# Secrets management and encryption at rest
+# Gestion des secrets et chiffrement au repos
 
-(New in Docker Engine 1.13)
+(Nouveau dans Docker Engine 1.13)
 
-- Secrets management = selectively and securely bring secrets to services
+- Gestion des secrets = lier les secrets et les services quand il le faut, et en toute sécurité
 
-- Encryption at rest = protect against storage theft or prying
+- Chiffrement au repos = protéger contre le vol de données et l'espionnage
 
-- Remember:
+- Rappelez-vous:
 
-  - control plane is authenticated through mutual TLS, certs rotated every 90 days
+  - le plan de contrôle est authentifié via un TLS mutuel, dont les certificats sont renouvelés tous les 90 jours
 
-  - control plane is encrypted with AES-GCM, keys rotated every 12 hours
+  - le plan de contrôle est chiffré en AES-GCM, et ses clés sont renouvelées toutes les 12 heures.
 
-  - data plane is not encrypted by default (for performance reasons),
-    <br/>but we saw earlier how to enable that with a single flag
+  - le plan de données n'est pas chiffré par défaut (pour raison de performance),
+    <br/>mais nous avons vu plus haut comment l'activer avec une seule option

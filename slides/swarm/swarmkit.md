@@ -28,7 +28,7 @@
 
 - Accent important sur la sécurité:
 
-  - génération automatic des clés et signatures TLS; rotation automatique des certificats
+  - génération automatique des clés et signatures TLS; rotation automatique des certificats
   - chiffrement complet du plan de données; rotation automatique des clés
   - architecture du privilège moindre (faille d'un noeud ≠ faille du cluster)
   - chiffrement sur disque avec phrase de passe optionnelle
@@ -37,7 +37,6 @@
 
 class: extra-details
 
-## Where is the key/value store?
 ## Où est la base de données clé-valeur
 
 - Bien des systèmes d'orchestration utilisent une base clé-valeur exploitée par un algorithme de consensus

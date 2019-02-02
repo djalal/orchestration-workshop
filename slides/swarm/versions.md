@@ -1,4 +1,3 @@
-## Brand new versions!
 ## Toutes nouvelles versions!
 
 - Engine 18.09
@@ -30,7 +29,7 @@
 
 - Docker CE maintient ses versions pendant au moins 4 mois
 
-- Docker CE maintient ses versions pendant au moins 12 mois
+- Docker EE maintient ses versions pendant au moins 12 mois
 
 - Pour plus de détails, consultez le [billet de blog d'annonce de Docker EE](https://blog.docker.com/2017/03/docker-enterprise-edition/)
 
@@ -58,19 +57,19 @@ class: extra-details
 
 ## Pourquoi?
 
-- More readable for enterprise users
+- Plus lisible pour les entreprises
 
-  (i.e. the very nice folks who are kind enough to pay us big $$$ for our stuff)
+  (i.e. les gentilles personnes qui sont assez sympas pour payer grassement nos services)
 
-- No impact for the community
+- Pas d'impact sur la communauté
 
-  (beyond CE/EE suffix and version numbering change)
+  (en dehors du suffixe CE/EE et du changement de versioning)
 
-- Both trains leverage the same open source components
+- Les deux lignes exploitent les mêmes composants open source
 
-  (containerd, libcontainer, SwarmKit...)
+  (containerd, libcontainer, swarmkit...)
 
-- More predictable release schedule (see next slide)
+- Calendrier de mise à jour plus prévisible (voir diapo suivante)
 
 ---
 
@@ -88,13 +87,13 @@ class: pic
 | 2016 |  1.10 | DNS dynamique embarqué
 | 2016 |  1.11 | Répartition de charge DNS simple (_round robin_)
 | 2016 |  1.12 | Mode Swarm, maillage de routage, réseaux chiffrés, _healthchecks_
-| 2017 |  1.13 | _Stacks_, réseaux attachabless, aplatissement d'image et compression
+| 2017 |  1.13 | _Stacks_, réseaux attachables, aplatissement d'image et compression
 | 2017 |  1.13 | Swarm mode pour Windows Server 2016
 | 2017 | 17.03 | Secrets, Raft chiffré
-| 2017 | 17.04 | Retour arrière de mise à jour, préférences de placement (contraintes non fatales)
-| 2017 | 17.06 | Configs swarm, événéments par noeud/service, _build_ multi-étapes, logs de services
+| 2017 | 17.04 | Retour arrière (_rollback_), préférences de placement ( non coercitives)
+| 2017 | 17.06 | Configs swarm, _events_ avancés, _build_ multi-étapes, logs de services
 | 2017 | 17.06 | Réseaux superposés Swarm, secrets pour Windows Server 2016
-| 2017 | 17.09 | chown pour ADD/COPY, _start\_pediod_, signal de stop, stockage overlay2 par défaut
+| 2017 | 17.09 | chown pour ADD/COPY, _start\_period_, signal de stop, overlay2 par défaut
 | 2017 | 17.12 | containerd, isolation Hyper-V, maillage de routage pour Windows
 | 2018 | 18.03 | Modèles pour secrets/configs, _stacks_ à multiple yamls, LCOW
-| 2018 | 18.03 | Déploiement de stack natif pour Kubernetes, `docker trust`, tmpfs, CLI pour _manifest_
+| 2018 | 18.03 | Support stack natif pour K8S, `docker trust`, tmpfs, CLI pour _manifest_

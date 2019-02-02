@@ -39,7 +39,7 @@
 
 Les options `--follow` et `--tail` sont disponibles, ainsi que quelques autres.
 
-Note: par défaut, quand un conteneur est détruit (par ex. en baisse de chaerge), ses logs sont perdus.
+Note: par défaut, quand un conteneur est détruit (par ex. en baisse de charge), ses logs sont perdus.
 
 ---
 
@@ -88,18 +88,18 @@ class: extra-details
 
 ---
 
-## Scale our service
+## Dimensionner notre service
 
-- Services can be scaled in a pinch with the `docker service update` command
+- Les services peuvent monter en charge avec une pincée de `docker service update`
 
 .exercise[
 
-- Scale the service to ensure 2 copies per node:
+- Escalader le service pour assurer 2 clones par node:
   ```bash
   docker service update pingpong --replicas 6
   ```
 
-- Check that we have two containers on the current node:
+- Vérifier que nous avons bien 2 conteneurs sur la node en cours:
   ```bash
   docker ps
   ```
@@ -108,70 +108,69 @@ class: extra-details
 
 ---
 
-## Monitoring deployment progress with `--detach`
+## Suivre le progrès du déploiement avec `--detach`
 
-(New in Docker Engine 17.10)
+(Nouveauté du Docker Engine 17.10)
 
-- The CLI monitors commands that create/update/delete services
+- La ligne de commande surveille les commandes qui créent/modifient/suppriment les services.
 
-- In effect, `--detach=false` is the default
+- En pratique, `--detach=false` est la valeur par défaut
 
-  - synchronous operation
-  - the CLI will monitor and display the progress of our request
-  - it exits only when the operation is complete
-  - Ctrl-C to detach at anytime
+  - opération synchrone
+  - le ligne de commande affiche la progression de notre requête
+  - elle sort uniquement  si l'opération est terminée
+  - Ctrl-C permet de récupérer la main à tout moment
 
 - `--detach=true`
 
-  - asynchronous operation
-  - the CLI just submits our request
-  - it exits as soon as the request is committed into Raft
+  - opération asynchrone
+  - la ligne de commande ne fait qu'envoyer notre requête
+  - elle sort dès que la requête a été écrite dans Raft
 
 ---
 
-## To `--detach` or not to `--detach`
+## `--detach` ou ne pas `--detach`, là est la question
 
 - `--detach=false`
 
-  - great when experimenting, to see what's going on
-
-  - also great when orchestrating complex deployments
-    <br/>(when you want to wait for a service to be ready before starting another)
+  - super en apprentissage, pour voir ce qui se passe
+  - pas mal aussi lors de déploiements complexes à orchestrer
+    <br/>(quand on veut attendre qu'un service se lance, avant de démarrer le suivant)
 
 - `--detach=true`
 
-  - great for independent operations that can be parallelized
+  - super pour des opérations indépendantes qui peuvent être parallélisées.
 
-  - great in headless scripts (where nobody's watching anyway)
+  - super pour des scripts non-interactifs (où personne ne regarde de toute façon)
 
-.warning[`--detach=true` does not complete *faster*. It just *doesn't wait* for completion.]
+.warning[`--detach=true` ne va *pas plus vite*. C'est juste qu'il *n'attend pas* la fin d'exécution.]
 
 ---
 
 class: extra-details
 
-## `--detach` over time
+## Évolutions de `--detach`
 
-- Docker Engine 17.10 and later: the default is `--detach=false`
+- Docker Engine 17.10 et plus: par défaut en `--detach=false`
 
-- From Docker Engine 17.05 to 17.09: the default is `--detach=true`
+- A partir de Docker Engine 17.05 à 17.09: par défaut en `--detach=true`
 
-- Prior to Docker 17.05: `--detach` doesn't exist
+- Avant Docker 17.05: `--detach` n'existait pas.
 
- (You can watch progress with e.g. `watch docker service ps <serviceID>`)
+ (Vous pouvez le remplacer par ex. avec `watch docker service ps <serviceID>`)
 
 ---
 
-## `--detach` in action
+## `--detach` en action
 
 .exercise[
 
-- Scale the service to ensure 3 copies per node:
+- Escalader le service pour garantir 3 conteneurs par node:
   ```bash
   docker service update pingpong --replicas 9 --detach=false
   ```
 
-- And then to 4 copies per node:
+- Et monter ensuite à 4 replicas par node:
   ```bash
   docker service update pingpong --replicas 12 --detach=true
   ```
@@ -180,32 +179,32 @@ class: extra-details
 
 ---
 
-## Expose a service
+## Exposer un service
 
-- Services can be exposed, with two special properties:
+- Exposer un service est possible, avec deux propriétés spéciales:
 
-  - the public port is available on *every node of the Swarm*,
+  - le port public est disponible sur *chaque node du Swarm*,
 
-  - requests coming on the public port are load balanced across all instances.
+  - les requêtes provenant du port public sont réparties entre toutes les instances.
 
-- This is achieved with option `-p/--publish`; as an approximation:
+- Techniquement, on utilise l'option `-p/--publish`; pour faire vite:
 
   `docker run -p → docker service create -p`
 
-- If you indicate a single port number, it will be mapped on a port
-  starting at 30000
-  <br/>(vs. 32768 for single container mapping)
+- Si vous indiquer un seul numéro de port, il sera mappé sur un port démarrant
+  à 30000
+  <br/>(vs. 32768 pour un mappage de conteneur unique)
 
-- You can indicate two port numbers to set the public port number
-  <br/>(just like with `docker run -p`)
+- On peut indiquer deux numéros de port pour configurer le numéro de port public
+  <br/>(tout comme avec `docker run -p`)
 
 ---
 
-## Expose ElasticSearch on its default port
+## Exposer ElasticSearch sur son port par défaut
 
 .exercise[
 
-- Create an ElasticSearch service (and give it a name while we're at it):
+- Créer un service ElasticSearch (et lui donner un nom tant qu'on y est):
   ```bash
   docker service create --name search --publish 9200:9200 --replicas 5 \
          elasticsearch`:2`
@@ -213,67 +212,67 @@ class: extra-details
 
 ]
 
-Note: don't forget the **:2**!
+Note: ne pas oublier le _tag_ **:2**!
 
-The latest version of the ElasticSearch image won't start without mandatory configuration.
+La dernière version de l'image ElasticSearch ne peut démarrer sans une configuration obligatoire.
 
 ---
 
-## Tasks lifecycle
+## Cycle de vie des tâches
 
-- During the deployment, you will be able to see multiple states:
+- Pendant un déploiement, vous pourrez voir les étapes suivantes:
 
-  - assigned (the task has been assigned to a specific node)
+  - _assigned_, la _task_ a été assignée à un noeud spécifique
 
-  - preparing (this mostly means "pulling the image")
+  - _preparing_, qui se résume à "téléchargement de l'image"
 
-  - starting
+  - _starting_
 
-  - running
+  - _running_
 
-- When a task is terminated (stopped, killed...) it cannot be restarted
+- Quand une tâche est terminée (_stopped_, _killed_, etc.) elle ne peut être redémarrée
 
-  (A replacement task will be created)
+  (Une tâche de remplacement sera créée)
 
 ---
 
 class: extra-details, pic
 
-![diagram showing what happens during docker service create, courtesy of @aluzzardi](images/docker-service-create.svg)
+![diagramme affichant les évenements durant docker service create, par @aluzzardi](images/docker-service-create.svg)
 
 ---
 
-## Test our service
+## Tester notre service
 
-- We mapped port 9200 on the nodes, to port 9200 in the containers
+- Nous avons attaché le port 9200 sur les _nodes_ au port 9200 des conteneurs.
 
-- Let's try to reach that port!
+- Essayons de communiquer avec ce port!
 
 .exercise[
 
 <!-- Give it a few seconds to be ready ```bash sleep 5``` -->
 
-- Try the following command:
+- Lancer la commande suivante:
   ```bash
-  curl localhost:9200
+  curl 127.0.0.1:9200
   ```
 
 ]
 
-(If you get `Connection refused`: congratulations, you are very fast indeed! Just try again.)
+(Si vous recevez un `Connection refused`: félicitations, vous êtes vraiment rapide! Essayez encore.)
 
-ElasticSearch serves a little JSON document with some basic information
-about this instance; including a randomly-generated super-hero name.
+ElasticSearch renvoie un petit doc. JSON avec des informations de base
+sur cette instance; y compris un nom de super-héros aléatoire.
 
 ---
 
-## Test the load balancing
+## Tester la répartition de charge
 
-- If we repeat our `curl` command multiple times, we will see different names
+- Si on répète notre commande `curl` encore et encore, on lire plusieurs noms.
 
 .exercise[
 
-- Send 10 requests, and see which instances serve them:
+- Envoyer 10 requêtes, et voir quelles instances répondent:
   ```bash
     for N in $(seq 1 10); do
       curl -s localhost:9200 | jq .name
@@ -282,24 +281,24 @@ about this instance; including a randomly-generated super-hero name.
 
 ]
 
-Note: if you don't have `jq` on your Play-With-Docker instance, just install it:
+Note: si vous n'avez pas `jq` sur votre instance PWD, il suffit de l'installer:
 ```
 apk add --no-cache jq
 ```
 
 ---
 
-## Load balancing results
+## Résultats du répartiteur de charge
 
-Traffic is handled by our clusters [routing mesh](
-https://docs.docker.com/engine/swarm/ingress/).
+Le trafic est géré par le [maillage de routage](
+https://docs.docker.com/engine/swarm/ingress/) de notre cluster
 
-Each request is served by one of the instances, in rotation.
+Chaque requête est tour à tour transférée à une des instances.
 
-Note: if you try to access the service from your browser,
-you will probably see the same
-instance name over and over, because your browser (unlike curl) will try
-to re-use the same connection.
+Note: si vous essayez d'accéder au service depuis un navigateur,
+vous verrez probablement la même instance encore et encore,
+c'est parce que votre navigateur (contrairement à curl) essaiera
+de ré-utiliser la même connexion.
 
 ---
 
@@ -309,30 +308,30 @@ class: pic
 
 ---
 
-## Under the hood of the routing mesh
+## Sous le capot du _routing mesh_
 
-- Load balancing is done by IPVS
+- La répartition de charge est réalisée avec IPVS
 
-- IPVS is a high-performance, in-kernel load balancer
+- IPVS est un répartiteur de charge de haute performance, interne au noyau
 
-- It's been around for a long time (merged in the kernel since 2.4)
+- Il existe depuis quelque temps déjà (introduit dans la version 2.4)
 
-- Each node runs a local load balancer
+- Chaque noeud exécute un répartiteur de charge local
 
-  (Allowing connections to be routed directly to the destination,
-  without extra hops)
+  (Ce qui permet aux connections d'être routées directement à leur
+  destination, sans sauts superflus)
 
 ---
 
-## Managing inbound traffic
+## Gérer le trafic entrant (ingress)
 
-There are many ways to deal with inbound traffic on a Swarm cluster.
+Il y a bien des manières de s'occuper du trafic entrant dans un cluster SWarm.
 
-- Put all (or a subset) of your nodes in a DNS `A` record (good for web clients)
+- Placer tout (ou partie) des noeuds dans un champ `A` du DNS (marche bien pour les clients web)
 
-- Assign your nodes (or a subset) to an external load balancer (ELB, etc.)
+- Assigner tout ou partie des nodes à un répartiteur de charge externe (ELB, etc.)
 
-- Use a virtual IP and make sure that it is assigned to an "alive" node
+- Utiliser une IP virtuelle et s'assurer qu'elle est assignée à une node "vivante"
 
 - etc.
 
@@ -340,106 +339,103 @@ There are many ways to deal with inbound traffic on a Swarm cluster.
 
 class: pic
 
-![external LB](images/ingress-lb.png)
+![LB externe](images/ingress-lb.png)
 
 ---
 
-## Managing HTTP traffic
+## Gérer le trafic HTTP
 
-- The TCP routing mesh doesn't parse HTTP headers
+- Le _routing mesh_ TCP n'interprète par les en-tête HTTP
 
-- If you want to place multiple HTTP services on port 80/443, you need something more
+- Si on veut placer plusieurs services HTTP sur le port 80/443, il nous manque un truc.
 
-- You can set up NGINX or HAProxy on port 80/443 to route connections to the correct
-  Service, but they need to be "Swarm aware" to dynamically update configs
-
---
-
-- Docker EE provides its own [Layer 7 routing](https://docs.docker.com/ee/ucp/interlock/)
-
-  - Service labels like `com.docker.lb.hosts=<FQDN>` are detected automatically via Docker 
-  API and dynamically update the configuration
+- On peut installer NGINX ou HAProxy sur le port 80/443 pour router les requêtes vers le bon service,
+mais ils auraient besoin d'écouter le Swarm pour ajuster leur config.
 
 --
 
-- Two common open source options:
+- Docker EE fournit son propre [routeur de niveau 7](https://docs.docker.com/ee/ucp/interlock/)
 
-  - [Traefik](https://traefik.io/) - popular, many features, requires running on managers, 
-  needs key/value for HA
-  
-  - [Docker Flow Proxy](http://proxy.dockerflow.com/) - uses HAProxy, made for 
-  Swarm by Docker Captain [@vfarcic](https://twitter.com/vfarcic)
+  - Les labels de service comme `com.docker.lb.hosts=<FQDN>` sont détectés automatiquement via l'API Docker et mettent à jour leur configuration à la volée.
+
+--
+
+- Deux options open source populaires:
+
+  - [Traefik](https://traefik.io/) - reconnu, riche de fonctions, requiert de tourner sur les *managers* (par défaut), nécessite une DB clé-valeur pour la haute disponibilité.
+
+  - [Docker Flow Proxy](http://proxy.dockerflow.com/) - utilise HAProxy, orienté Swarm, par [@vfarcic](https://twitter.com/vfarcic)
 
 ---
 
 class: btw-labels
 
-## You should use labels
+## Vous devriez utiliser les labels
 
-- Labels are a great way to attach arbitrary information to services
+- "Labelliser": verbe, par ex. attacher des informations arbitraires aux services
 
-- Examples:
+- Exemples:
 
-  - HTTP vhost of a web app or web service
+  - le vhost HTTP d'une web app ou d'un service web
 
-  - backup schedule for a stateful service
+  - planifier la sauvegarde de service à données persistentes
 
-  - owner of a service (for billing, paging...)
+  - propriétaire d'un service (pour la facturation, l'astreinte, etc.)
 
-  - correlate Swarm objects together (services, volumes, configs, secrets, etc.)
+  - grouper les objets Swarm entre eux (services, volumes, configs, secrets, etc.)
 
 ---
 
-## Pro-tip for ingress traffic management
+## Astuce de pro pour gérer le trafic _ingress_
 
-- It is possible to use *local* networks with Swarm services
+- Il est possible d'utiliser un réseau *local* avec les services Swarm
 
-- This means that you can do something like this:
+- Cela signifie qu'on peut faire quelque chose comme:
   ```bash
   docker service create --network host --mode global traefik ...
   ```
 
-  (This runs the `traefik` load balancer on each node of your cluster, in the `host` network)
+  (Ça va lancer le _load balancer_ `traefik` sur chaque noeud de votre cluster, sur le reseau `host`)
 
-- This gives you native performance (no iptables, no proxy, no nothing!)
+- On y gagne une performance native (pas de iptables, ni proxy, ni rien!)
 
-- The load balancer will "see" the clients' IP addresses
+- Le _répartiteur de charge_ "verra" les adresses IP des clients
 
-- But: a container cannot simultaneously be in the `host` network and another network
+- Mais: le conteneur ne peut être en même temps dans le réseau `host`et dans un autre.
 
-  (You will have to route traffic to containers using exposed ports or UNIX sockets)
+  (Vous devrez router le trafic aux conteneurs via des ports exposés ou des sockets UNIX)
 
 ---
 
 class: extra-details
 
-## Using local networks (`host`, `macvlan` ...)
+## Utiliser les réseaux locaux (`host`, `macvlan`...)
 
-- It is possible to connect services to local networks
+- Il est possible de connecter les services aux réseaux locaux
 
-- Using the `host` network is fairly straightforward
+- Passer par le réseau `host` est plutôt simple
 
-  (With the caveats described on the previous slide)
+  (Avec les réserves décrites dans la diapo précédente)
 
-- Other network drivers are a bit more complicated
+- Pour d'autres pilotes réseaux, c'est un poil plus compliqué
 
-  (IP allocation may have to be coordinated between nodes)
+  (l'allocation d'IP peut nécessiter une coordination entre les nodes)
 
-- See for instance [this guide](
+- Voir par exemple [ce guide](
   https://docs.docker.com/engine/userguide/networking/get-started-macvlan/
-  ) to get started on `macvlan`
+  ) pour bien démarrer avec `macvlan`
 
-- See [this PR](https://github.com/moby/moby/pull/32981) for more information about local network drivers in Swarm mode
+- Voir [cette PR](https://github.com/moby/moby/pull/32981) pour plus d'information sur les pilotes réseaux locaux dans le mode Swarm
 
 ---
 
-## Visualize container placement
+## Visualiser le placement de conteneurs
 
-- Let's leverage the Docker API!
+- Jouons avec l'API Docker!
 
 .exercise[
 
-- Run this simple-yet-beautiful visualization app:
+- Lancer cette appli simple-mais-sympa de visualisation:
   ```bash
   cd ~/container.training/stacks
   docker-compose -f visualizer.yml up -d
@@ -451,39 +447,39 @@ class: extra-details
 
 ---
 
-## Connect to the visualization webapp
+## Se connecter à la web app de visualisation
 
-- It runs a web server on port 8080
+- Elle fait tourner un serveur web sur le port 8080
 
 .exercise[
 
-- Point your browser to port 8080 of your node1's public ip
+- Faire pointer le navigateur sur le port 8080 de votre node1 (son adresse IP)
 
-  (If you use Play-With-Docker, click on the (8080) badge)
+  (Sur Play-With-Docker, cliquez sur le bouton (8080))
 
   <!-- ```open http://node1:8080``` -->
 
 ]
 
-- The webapp updates the display automatically (you don't need to reload the page)
+- L'appli web met à jour l'affichage à la volée (pas besoin de recharger la page)
 
-- It only shows Swarm services (not standalone containers)
+- Elle affiche juste les services Swarm (pas les conteneurs indépendants)
 
-- It shows when nodes go down
+- Elle indique quand les noeuds sont disponibles ou pas.
 
-- It has some glitches (it's not Carrier-Grade Enterprise-Compliant ISO-9001 software)
+- Il y reste quelques couacs (ce n'est pas du logiciel de Classe-Entreprise, ISO-9001, à résistance thermo-nucléaire)
 
 ---
 
-## Why This Is More Important Than You Think
+## Pourquoi c'est plus important que ce qu'on croit
 
-- The visualizer accesses the Docker API *from within a container*
+- Le visualiseur accède à l'API Docker *de l'intérieur du conteneur*
 
-- This is a common pattern: run container management tools *in containers*
+- C'est un motif courant: lancer des outils de managements *dans un conteneur*
 
-- Instead of viewing your cluster, this could take care of logging, metrics, autoscaling ...
+- Au lieu d'afficher notre cluster, on pourrait traiter les logs, les métriques, la montée en charge automatique...
 
-- We can run it within a service, too! We won't do it yet, but the command would look like:
+- On peut le lancer en tant que service, aussi! On ne le fera pas tout de suite, mais la commande ressemblerait à:
 
   ```bash
     docker service create \
@@ -493,29 +489,29 @@ class: extra-details
 
 .footnote[
 
-Credits: the visualization code was written by
+Crédits: le code de visualization code a été écrit par
 [Francisco Miranda](https://github.com/maroshii).
 
-[Mano Marks](https://twitter.com/manomarks) adapted
-it to Swarm and maintains it.
+[Mano Marks](https://twitter.com/manomarks) l'a adapté
+au Swarm et le maintient.
 
 ]
 
 ---
 
-## Terminate our services
+## Nettoyer nos services
 
-- Before moving on, we will remove those services
+- Avant de poursuivre, on va supprimer ces services
 
-- `docker service rm` can accept multiple services names or IDs
+- `docker service rm` accepte plusieurs noms ou IDs de services
 
-- `docker service ls` can accept the `-q` flag
+- `docker service ls` accepte l'option `-q`
 
-- A Shell snippet a day keeps the cruft away
+- Un bout de code Shell par jour éloigne la dette technique pour toujours.
 
 .exercise[
 
-- Remove all services with this one liner:
+- Supprimer tous les services avec cette commande:
   ```bash
   docker service ls -q | xargs docker service rm
   ```

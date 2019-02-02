@@ -114,7 +114,7 @@ class: extra-details
 
 - On précisera le _circuit du plan de données_ avec `--data-path-addr`
 
-  (Cela sera utilisé pour le trafi entre conteneurs)
+  (Cela sera utilisé pour le trafic entre conteneurs)
 
 - Les deux options acceptent soit une adresse IP, ou un nom d'interface
 
@@ -170,7 +170,7 @@ Swarm: active
 
 ---
 
-## Lancer notre première commande en mode Swarm
+## Notre première commande en mode Swarm
 
 - Essayons exactement la même commande que précédemment
 
@@ -311,7 +311,7 @@ Les _tokens_ d'entrée ont deux parties:
 
  - une clé secrète (empêchant les nodes non autorisées d'entrer)
 
- - une empreint digitale du certificat racine du CA (empêchant les attaques _MITM_)
+ - une empreinte digitale du certificat racine du CA (empêchant les attaques _MITM_)
 
 Si un _token_ est compromis, on peut en changer instantanément avec:
 ```
@@ -326,7 +326,7 @@ class: under-the-hood
 
 Quand une _node_ rejoint le Swarm:
 
-- on lui délivre sa propre paires de clés, signée par le CA racine
+- on lui délivre sa propre paire de clés, signée par le CA racine
 
 - si cette node est un _manager_:
 

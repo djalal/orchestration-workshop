@@ -1,54 +1,54 @@
-# Least privilege model
+# Modèle du moindre privilège
 
-- All the important data is stored in the "Raft log"
+- Toute la donnée importante est stockée dans le "journal Raft"
 
-- Managers nodes have read/write access to this data
+- Les noeuds des _managers_ y ont accès en lecture/écriture
 
-- Workers nodes have no access to this data
+- les noeuds type _workers_ n'ont aucun accès à cette donnée
 
-- Workers only receive the minimum amount of data that they need:
+- Les _workers_ ne font que recevoir le strict nécessaire pour savoir:
 
-  - which services to run
-  - network configuration information for these services
-  - credentials for these services
+  - quels services exécuter
+  - quelle configuration réseau installer pour ces services
+  - quels secrets fournir à ces services
 
-- Compromising a worker node does not give access to the full cluster
+- Faire tomber un noeud _worker_ ne donne pas accès au cluster en entier
+---
+
+## Que puis-je faire si j'arrive à contrôler un _worker_?
+
+- Je peux m'introduire dans les conteneurs lancés sur ce noeud
+
+- Je peux accéder à la configuration et aux secrets utilisés par ces conteneurs
+
+- Je peux inspecter le trafic réseau entre ces conteneurs
+
+- Je ne peux pas inspecter ou interrompre le trafic réseau des autres conteneurs
+
+  (la config réseau est fournie par les _managers_; le _spoofing_ d'ARP est impossible)
+
+- Je ne peux pas déduire la topologie du cluster et sa taille
+
+- Je peux uniquement collecter les adresses IP des managers.
 
 ---
 
-## What can I do if I compromise a worker node?
+## Directives pour l'isolation de processus
 
-- I can enter the containers running on that node
+- Définir des niveaux de sécurité
 
-- I can access the configuration and credentials used by these containers
+- Définir des zones de sécurité
 
-- I can inspect the network traffic of these containers
+- Placer les _managers_ dans la plus haute zone de sécurité
 
-- I cannot inspect or disrupt the network traffic of other containers
+- S'assurer que les applicatifs d'un certain niveau de sécurité ne tournent que sur une certaine zone
 
-  (network information is provided by manager nodes; ARP spoofing is not possible)
-
-- I cannot infer the topology of the cluster and its number of nodes
-
-- I can only learn the IP addresses of the manager nodes
+- Forcer ce comportement peut se faire via un [plugin d'autorisation](https://docs.docker.com/engine/extend/plugins_authorization/)
 
 ---
 
-## Guidelines for workload isolation
+## Aller plus loin dans la sécurité de conteneur
 
-- Define security levels
-
-- Define security zones
-
-- Put managers in the highest security zone
-
-- Enforce workloads of a given security level to run in a given zone
-
-- Enforcement can be done with [Authorization Plugins](https://docs.docker.com/engine/extend/plugins_authorization/)
-
----
-
-## Learning more about container security
 
 .blackbelt[DC17US: Securing Containers, One Patch At A Time
 ([video](https://www.youtube.com/watch?v=jZSs1RHwcqo&list=PLkA60AVN3hh-biQ6SCtBJ-WVTyBmmYho8&index=4))]

@@ -127,7 +127,7 @@ class: self-paced
 
 - 3 managers = tolérance d'une panne
 
-- 5 managers = tolérance de 2 panne (ou 1 panne pendant 1 maintenance)
+- 5 managers = tolérance de 2 pannes (ou 1 panne pendant 1 maintenance)
 
 - 7 managers ou plus = là vous forcez peut-être un peu sur l'archi
 
@@ -140,9 +140,9 @@ class: self-paced
 
 ---
 
-## Pourquoi ne pas mettre *toutes* les nodes en *manager*?
+## Pourquoi ne pas passer *toutes* les nodes en *manager*?
 
-- Avec Raft, les écritures doivent atteindre (et être confirmés par) tous les noeuds.
+- Avec Raft, les écritures doivent atteindre (et être confirmées par) tous les noeuds.
 
 - Par conséquent, c'est plus dur d'atteindre un consensus dans des groupes plus grands.
 

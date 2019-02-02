@@ -1,22 +1,22 @@
-# Updating services
+# Mettre à jour les services
 
-- We want to make changes to the web UI
+- On doit mettre à jour l'interface web.
 
-- The process is as follows:
+- Pour ce faire, le processus est comme suit:
 
-  - edit code
+  - _patcher_ le code
 
-  - build new image
+  - générer une nouvelle image (_build_)
 
-  - ship new image
+  - stocker cette image à distance (_ship_)
 
-  - run new image
+  - lancer la nouvelle version (_run_)
 
 ---
 
-## Updating a single service with `service update`
+## Modifier un seul service avec `service update`
 
-- To update a single service, we could do the following:
+- Pour mettre à jour un seul service, on pourrait procéder comme suit:
   ```bash
   export REGISTRY=127.0.0.1:5000
   export TAG=v0.2
@@ -26,15 +26,15 @@
   docker service update dockercoins_webui --image $IMAGE
   ```
 
-- Make sure to tag properly your images: update the `TAG` at each iteration
+- Assurez-vous de mettre le bon _tag_ sur l'image: modifier le `TAG` à chaque itération
 
-  (When you check which images are running, you want these tags to be uniquely identifiable)
+  (Quand vous allez vérifier quelles images tournent, on a intérêt à disposer de _tags_ uniques et explicites)
 
 ---
 
-## Updating services with `stack deploy`
+## Modifier nos services avec `stack deploy`
 
-- With the Compose integration, all we have to do is:
+- Avec l'intégration de Compose, tout ce que nous avons à faire est:
   ```bash
   export TAG=v0.2
   docker-compose -f composefile.yml build
@@ -44,21 +44,21 @@
 
 --
 
-- That's exactly what we used earlier to deploy the app
+- C'est exactement ce que nous avons utilisé plus tôt pour déployer l'appli
 
-- We don't need to learn new commands!
+- Pas besoin d'apprendre de nouvelles commandes!
 
-- It will diff each service and only update ones that changed
+- Docker va calculer la différence pour chaque service et ne mettre à jour que ce qui a changé.
 
 ---
 
-## Changing the code
+## _Patcher_ le code
 
-- Let's make the numbers on the Y axis bigger!
+- Essayons d'agrandir les chiffres sur l'axe Y!
 
 .exercise[
 
-- Update the size of text on our webui:
+- Mettre à jour la taille du texte sur notre _webui_
   ```bash
   sed -i "s/15px/50px/" dockercoins/webui/files/index.html
   ```
@@ -67,18 +67,18 @@
 
 ---
 
-## Build, ship, and run our changes
+## Générer, livrer et lancer nos changements
 
-- Four steps:
+- Quatre étapes:
 
-  1. Set (and export!) the `TAG` environment variable
+  1. Définir (et exporter!) la variable d'envionnement `TAG`
   2. `docker-compose build`
   3. `docker-compose push`
   4. `docker stack deploy`
 
 .exercise[
 
-- Build, ship, and run:
+- Générer, livrer et lancer:
   ```bash
   export TAG=v0.2
   docker-compose -f dockercoins.yml build
@@ -88,16 +88,16 @@
 
 ]
 
-- Because we're tagging all images in this demo v0.2, deploy will update all apps, FYI
+- Pour info: puisque nous changeons le _tag_ sur toutes les images dans cette démo v0.2, le _deploy_ va relancer tous les services.
 
 ---
 
-## Viewing our changes
+## Tester nos changements
 
-- Wait at least 10 seconds (for the new version to be deployed)
+- Attendez au moins 10 secondes (pour laisser arriver la nouvelle version)
 
-- Then reload the web UI
+- Puis rechargez l'interface web
 
-- Or just mash "reload" frantically
+- Ou pianoter frénétiquement sur F5 (Cmd-R sur Mac)
 
-- ... Eventually the legend on the left will be bigger!
+- ... le texte de la légende sur la gauche finira par grossir!

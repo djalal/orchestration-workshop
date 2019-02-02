@@ -1,28 +1,28 @@
 name: cicd
 
-# CI/CD for Docker and orchestration
+# CI/CD avec Docker et l'orchestration
 
-A quick note about continuous integration and deployment
+Une note rapide à propos de l'intégration rapide et du déploiement
 
-- This lab won't have you building out CI/CD pipelines
+- Vous n'allez pas monter dans cet atelier vos propres automatisations CI/CD
 
-- We're cheating a bit by building images on server hosts and not in CI tool
+- On va tricher un peu en générant les images sur les serveurs hôtes et non sur l'outil "CI".
 
-- Docker and orchestration works with all the CI and deployment tools
+- Docker et l'orchestration fonctionne avec tous les outils de CI et de déploiement.
 
 ---
 
-## CI/CD general process 
+## Processus générique CI/CD
 
-- Have your CI build your images, run tests *in them*, then push to registry
+- En premier, c'est à la CI de _build_ les images, puis de lancer les tests *à l'intérieur*, avant de les pousser vers la _Registry_
 
-- If you security scan, do it then on your images after tests but before push
+- En cas de scan de sécurité, faites-le sur les images générées, après les tests mais avant de les pousser.
 
-- Optionally, have CI do continuous deployment if build/test/push is successful
+- En option, déployer en continu depuis votre CI, si les phases de build/test/push passent
 
-- CD tool would SSH into nodes, or use docker cli against remote engine
+- L'outil de CD accèderait ensuite aux noeuds via SSH, ou exploiterait la ligne de commande Docker pour discuter avec le moteur de conteneur distant.
 
-- If supported, it could use docker engine TCP API (swarm API is built-in)
+- Si disponible, on passerait par l'API TCP du Docker Engine (où l'API Swarm vit aussi)
 
 - Docker KBase [Development Pipeline Best Practices](https://success.docker.com/article/dev-pipeline)
 

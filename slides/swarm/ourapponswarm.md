@@ -1,27 +1,28 @@
-# Our app on Swarm
 
-In this part, we will:
+# Notre appli sur Swarm
 
-- **build** images for our app,
+Dans cette partie, nous allons:
 
-- **ship** these images with a registry,
+- **générer** les images pour notre appli,
 
-- **run** services using these images.
+- **envoyer** ces images dans un registre,
+
+- **lancer** les services basés sur ces images.
 
 ---
 
-## Why do we need to ship our images?
+## Pourquoi le besoin de transférer nos images?
 
-- When we do `docker-compose up`, images are built for our services
+- Avec `docker-compose up`, les images sont générées pour nos services
 
-- These images are present only on the local node
+- Ces images sont présentes uniquement sur la node locale
 
-- We need these images to be distributed on the whole Swarm
+- Nous avons besoin de distribuer ces images à travers tout le Swarm
 
-- The easiest way to achieve that is to use a Docker registry
+- Le plus simple pour ceci est d'utiliser un Registry Docker
 
-- Once our images are on a registry, we can reference them when
-  creating our services
+- Une fois nos images transférées sur un registre, nous les téléchargeons
+au moment de créer nos services.
 
 ---
 
@@ -42,15 +43,15 @@ We just have to adapt this to our application, which has 4 services!
 
 ---
 
-## The plan
+## Le plan
 
-- Build on our local node (`node1`)
+- Lancer un _build_ sur notre node locale (`node1`)
 
-- Tag images so that they are named `localhost:5000/servicename`
+- Étiquetter les images pour les nommer `localhost:5000/<nom-du-service>`
 
-- Upload them to a registry
+- Téléverser sur le registre
 
-- Create services using the images
+- Créer les services grâce à ces images
 
 ---
 

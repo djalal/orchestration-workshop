@@ -1,39 +1,39 @@
 name: healthchecks
 
-# Health checks and auto-rollbacks
+# Healthcheck et _rollback_ automatique
 
-(New in Docker Engine 1.12)
+(Nouveau depuis Docker Engine 1.12)
 
-- Commands that are executed on regular intervals in a container
+- Des commandes exécutées à intervalles réguliers dans un conteneur.
 
-- Must return 0 or 1 to indicate "all is good" or "something's wrong"
+- Doit retourner 0 ou 1 pour indiquer "Tout va bien" ou "Quelque chose "
 
-- Must execute quickly (timeouts = failures)
+- Doit s'exécuter rapidement (_timeout_ == erreurs)
 
-- Example:
+- Exemple:
   ```bash
   curl -f http://localhost/_ping || false
   ```
-  - the `-f` flag ensures that `curl` returns non-zero for 404 and similar errors
-  - `|| false` ensures that any non-zero exit status gets mapped to 1
-  - `curl` must be installed in the container that is being checked
+  - l'option `-f` s'assure que `curl` retourne un statut non-nul pour 404 et autres erreurs
+  - `|| false` garantit que tout code de sortie non nul se traduira par 1
+  - `curl` doit être installé dans le conteneur à vérifier
 
 ---
 
-## Defining health checks
+## Définir ses _health checks_
 
-- In a Dockerfile, with the [HEALTHCHECK](https://docs.docker.com/engine/reference/builder/#healthcheck) instruction
+- Dans un Dockerfile, avec l'instruction [HEALTHCHECK](https://docs.docker.com/engine/reference/builder/#healthcheck)
   ```
   HEALTHCHECK --interval=1s --timeout=3s CMD curl -f http://localhost/ || false
   ```
 
-- From the command line, when running containers or services
+- Depuis la ligne de commande, en lançant conteneurs ou services
   ```
   docker run --health-cmd "curl -f http://localhost/ || false" ...
   docker service create --health-cmd "curl -f http://localhost/ || false" ...
   ```
 
-- In Compose files, with a per-service [healthcheck](https://docs.docker.com/compose/compose-file/#healthcheck) section
+- Depuis les fichiers Compose, avec une section [healthcheck](https://docs.docker.com/compose/compose-file/#healthcheck) par service
   ```yaml
     www:
       image: hellowebapp
@@ -44,28 +44,28 @@ name: healthchecks
 
 ---
 
-## Using health checks
+## Utiliser les _health checks_
 
-- With `docker run`, health checks are purely informative
+- Avec `docker run`, tout contrôle de santé est purement informatif
 
-  - `docker ps` shows health status
+  - `docker ps` affiche le dernier "bilan" de santé
 
-  - `docker inspect` has extra details (including health check command output)
+  - `docker inspect` détaille certaines infos (comme la commande utilisée pour le contrôle)
 
-- With `docker service`:
+- Avec `docker service`:
 
-  - unhealthy tasks are terminated (i.e. the service is restarted)
+  - les tâches en mauvaise santé sont supprimées (i.e le service est redémarré)
 
-  - failed deployments can be rolled back automatically
-    <br/>(by setting *at least* the flag `--update-failure-action rollback`)
+  - les déploiements en échec peuvent être annulés automatiquement
+    <br/>(en spécifiant *au moins* l'option `--update-failure-action rollback`)
 
 ---
 
-## Enabling health checks and auto-rollbacks
+## Activer les contrôles de santé et les _rollback_ auto
 
-Here is a comprehensive example using the CLI:
+Voici un exemple complet utilisant la ligne de commande:
 
-.sall[
+.small[
 ```bash
 docker service update \
   --update-delay 5s \
@@ -81,15 +81,15 @@ docker service update \
   --health-cmd "curl -f http://localhost/ || exit 1" \
   --health-interval 2s \
   --health-retries 1 \
-  --image yourimage:newversion yourservice
+  --image votre-image:nouvelle-version votre_service
 ```
 ]
 
 ---
 
-## Implementing auto-rollback in practice
+## Implémenter le _rollback_ automatique en pratique
 
-We will use the following Compose file (`stacks/dockercoins+healthcheck.yml`):
+Nous utiliserons comme exemple le fichier Compose suivant (`stacks/dockercoins+healthcheck.yml`):
 
 ```yaml
 ...
@@ -111,42 +111,42 @@ We will use the following Compose file (`stacks/dockercoins+healthcheck.yml`):
 
 ---
 
-## Enabling auto-rollback in dockercoins
+## Activer l'auto-_rollback_ dans `dockercoins`
 
-We need to update our services with a healthcheck.
+On a d'abord besoin d'indiquer un _healthcheck_ pour nos services.
 
 .exercise[
 
-- Go to the `stacks` directory:
+- Entrer dans le dossier `stacks`:
   ```bash
   cd ~/container.training/stacks
   ```
 
-- Deploy the updated stack with healthchecks built-in:
+- Déployer la _stack_ mise à jour avec les _healthchecks_ intégrés
   ```bash
-  docker stack deploy --compose-file dockercoins+healthcheck.yml dockercoins 
+  docker stack deploy --compose-file dockercoins+healthcheck.yml dockercoins
   ```
 
 ]
 
 ---
 
-## Visualizing an automated rollback
+## Visualiser un _rollback_ automatisé
 
-- Here's a good example of why healthchecks are necessary
+- Voici un bon exemple de l'importance des _healthchecks_
 
-- This breaking change will prevent the app from listening on the correct port
+- Dans cette nouvelle version, une erreur va empêcher l'appli d'écouter sur le port correct
 
-- The container still runs fine, it just won't accept connections on port 80
+- Le conteneur va bien se lancer, sauf qu'aucune connexion sur le port 80 n'est possible
 
 .exercise[
 
-- Change the HTTP listening port:
+- Changer le port HTTP à écouter:
   ```bash
   sed -i "s/80/81/" dockercoins/hasher/hasher.rb
   ```
 
-- Build, ship, and run the new image:
+- Générer, livrer, et exécuter la nouvelle image:
   ```bash
   export TAG=v0.3
   docker-compose -f dockercoins+healthcheck.yml build
@@ -158,7 +158,7 @@ We need to update our services with a healthcheck.
 
 ---
 
-## CLI flags for health checks and rollbacks
+## Options de la CLI pour _health checks_ et _rollbacks_
 
 .small[
 ```

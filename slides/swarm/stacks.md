@@ -1,72 +1,72 @@
 class: btp-manual
 
-## Integration with Compose
+## Intégration avec Compose
 
-- We saw how to manually build, tag, and push images to a registry
+- On a vu comment _build_ à la main, étiquetter et pousser les images dans un registre.
 
-- But ...
-
---
-
-class: btp-manual
-
-*"I'm so glad that my deployment relies on ten nautic miles of Shell scripts"*
-
-*(No-one, ever)*
+- Mais ...
 
 --
 
 class: btp-manual
 
-- Let's see how we can streamline this process!
+*Je suis tellement content que mon déploiement se base sur des scripts Shell de taille astronomique*
+
+*(par M. Personne, vraiment)*
+
+--
+
+class: btp-manual
+
+- Voyons voir comment simplifier ce processus!
 
 ---
 
-# Swarm Stacks
+# Les _Stacks_ Swarm
 
-- Compose is great for local development
+- Compose est super pour le développement local
 
-- It can also be used to manage image lifecycle
+- On peut aussi gérer le cycle de vie des images avec
 
-  (i.e. build images and push them to a registry)
+  (i.e générer les images et les pousser dans un registre)
 
-- Compose files *v2* are great for local development
+- Les fichiers Compose en *v2* sont bons dans le développement local
 
-- Compose files *v3* can also be used for production deployments!
-
----
-
-## Compose file version 3
-
-(New in Docker Engine 1.13)
-
-- Almost identical to version 2
-
-- Can be directly used by a Swarm cluster through `docker stack ...` commands
-
-- Introduces a `deploy` section to pass Swarm-specific parameters
-
-- Resource limits are moved to this `deploy` section
-
-- See [here](https://github.com/aanand/docker.github.io/blob/8524552f99e5b58452fcb1403e1c273385988b71/compose/compose-file.md#upgrading) for the complete list of changes
-
-- Supersedes *Distributed Application Bundles*
-
-  (JSON payload describing an application; could be generated from a Compose file)
+- Les fichiers Compose en *v3* sont orientés vers le déploiement en production!
 
 ---
 
-## Our first stack
+## Fichier Compose version 3
 
-We need a registry to move images around.
+(Nouveau dans Docker Engine 1.13)
 
-Without a stack file, it would be deployed with the following command:
+- Pratiquement identique à la version 2
+
+- Peut être directement appliqué à un cluster Swarm avec les commandes `docker stack ...`
+
+- Introduit une section `deploy` pour spécifier les options Swarm
+
+- Les limites de ressources sont placées dans cette section `deploy`
+
+- Voir [ici](https://github.com/docker/docker.github.io/blob/master/compose/compose-file/compose-versioning.md#upgrading) pour une liste complète de changements
+
+- Supplante les *Distributed Application Bundles*
+
+  (Un format JSON décrivant une application; pouvait à l'origine être généré depuis un fichier Compose)
+
+---
+
+## Notre première _stack_
+
+On a besoin d'un registre pour déplacer les images de point en point.
+
+Sans ce fichier _stack_, on devrait taper les commandes suivantes:
 
 ```bash
 docker service create --publish 5000:5000 registry
 ```
 
-Now, we are going to deploy it with the following stack file:
+Dès lors, nous allons le déployer avec le fichier de _stack_ suivant:
 
 ```yaml
 version: "3"
@@ -80,18 +80,18 @@ services:
 
 ---
 
-## Checking our stack files
+## Vérifier nos fichiers _stack_
 
-- All the stack files that we will use are in the `stacks` directory
+- Tous les fichiers _stack_ que nous utiliserons sont stockés dans le dossier `stacks`
 
 .exercise[
 
-- Go to the `stacks` directory:
+- Aller dans le dossier `stack`:
   ```bash
   cd ~/container.training/stacks
   ```
 
-- Check `registry.yml`:
+- Parcourir `registry.yml`
   ```bash
   cat registry.yml
   ```
@@ -100,19 +100,19 @@ services:
 
 ---
 
-## Deploying our first stack
+## Déployer notre première _stack_
 
-- All stack manipulation commands start with `docker stack`
+- Toutes les commandes de manipulation de _stacks_ commencent avec `docker stack`
 
-- Under the hood, they map to `docker service` commands
+- En coulisses, ça se traduit par des commandes `docker service`
 
-- Stacks have a *name* (which also serves as a namespace)
+- Une _stack_ porte un nom principal (qui sert aussi de _namespace_)
 
-- Stacks are specified with the aforementioned Compose file format version 3
+- Une _stack_ est portée avant tout par un fichier Compose de version 3 comme dit plus haut
 
 .exercise[
 
-- Deploy our local registry:
+- Déployer notre registre local:
   ```bash
   docker stack deploy --compose-file registry.yml registry
   ```
@@ -121,18 +121,18 @@ services:
 
 ---
 
-## Inspecting stacks
+## Inspecter les _stacks_
 
-- `docker stack ps` shows the detailed state of all services of a stack
+- `docker stack ps` affiche l'état détaillé de tous les services d'une _stack_
 
 .exercise[
 
-- Check that our registry is running correctly:
+- Vérifier que notre registre tourne correctement:
   ```bash
   docker stack ps registry
   ```
 
-- Confirm that we get the same output with the following command:
+- Confirmer que nous avons le même affichage avec la commande:
   ```bash
   docker service ps registry_registry
   ```
@@ -143,66 +143,66 @@ services:
 
 class: btp-manual
 
-## Specifics of stack deployment
+## Particularités d'un déploiement de _stack_
 
-Our registry is not *exactly* identical to the one deployed with `docker service create`!
+Notre registre n'est pas *exactement* identique à celui déployé par `docker service create`!
 
-- Each stack gets its own overlay network
+- Chaque _stack_ possède sont propre réseau superposé (_overlay_)
 
-- Services of the task are connected to this network
-  <br/>(unless specified differently in the Compose file)
+- Les services de la _stack_ sont connectés à ce réseau
+  <br/>(sauf si spécifié autrement dans le fichier Compose)
 
-- Services get network aliases matching their name in the Compose file
-  <br/>(just like when Compose brings up an app specified in a v2 file)
+- Les services récupèrent des alias de réseau correspondant à leur nom dans le fichier COmpose
+  <br/>(tout comme quand Compose lance une appli en version 2)
 
-- Services are explicitly named `<stack_name>_<service_name>`
+- Les services sont nommés explicitement `<nom_de_stack>_<nom_de_service>`
 
-- Services and tasks also get an internal label indicating which stack they belong to
+- Les services et tâches récupèrent aussi un label interne indiquant à quelle _stack_ ils appartiennent
 
 ---
 
 class: btp-auto
 
-## Testing our local registry
+## Tester notre registre local
 
-- Connecting to port 5000 *on any node of the cluster* routes us to the registry
+- Accéder au port 5000 *de n'importe quelle node* nous redirige vers le registre
 
-- Therefore, we can use `localhost:5000` or `127.0.0.1:5000` as our registry
+- Par conséquent, on peut indiquer `localhost:5000` ou `127.0.0.1:5000` comme notre registre
 
 .exercise[
 
-- Issue the following API request to the registry:
+- Envoyer la requête API qui suit au registre:
   ```bash
   curl 127.0.0.1:5000/v2/_catalog
   ```
 
 ]
 
-It should return:
+Ça devrait renvoyer:
 
 ```json
 {"repositories":[]}
 ```
 
-If that doesn't work, retry a few times; perhaps the container is still starting.
+Si ça ne marche pas, ré-essayer encore; le conteneur est peut-être en cours de démarrage.
 
 ---
 
 class: btp-auto
 
-## Pushing an image to our local registry
+## Pousser une image vers notre registre local
 
-- We can retag a small image, and push it to the registry
+- On peut re-_tag_ une petite image, et la pousser vers le registre.
 
 .exercise[
 
-- Make sure we have the busybox image, and retag it:
+- Charger l'image busybox, et la re-_tag_:
   ```bash
   docker pull busybox
   docker tag busybox 127.0.0.1:5000/busybox
   ```
 
-- Push it:
+- La transférer:
   ```bash
   docker push 127.0.0.1:5000/busybox
   ```
@@ -213,41 +213,41 @@ class: btp-auto
 
 class: btp-auto
 
-## Checking what's on our local registry
+## Vérifier ce qui est dans notre registre local
 
-- The registry API has endpoints to query what's there
+- L'API Registre a des points d'entrée pour sélectionner son contenu.
 
 .exercise[
 
-- Ensure that our busybox image is now in the local registry:
+- S'assurer que notre image busybox est maintenant dans notre registre local:
   ```bash
   curl http://127.0.0.1:5000/v2/_catalog
   ```
 
 ]
 
-The curl command should now output:
+La commande curl devrait maintenant afficher:
 ```json
 "repositories":["busybox"]}
 ```
 
 ---
 
-## Building and pushing stack services
+## Générer et pousser les services d'une _stack_
 
-- When using Compose file version 2 and above, you can specify *both* `build` and `image`
+- Avec le fichier Compose version 2 et plus, vous pouvez spécifier *à la fois* `build` et `image`
 
-- When both keys are present:
+- Quand les deux clés sont utilisées:
 
-  - Compose does "business as usual" (uses `build`)
+  - Compose fait "comme si de rien n'était" (activer le `build`)
 
-  - but the resulting image is named as indicated by the `image` key
+  - mais l'image résultante sera nommée selon la valeur de la clé `image`
     <br/>
-    (instead of `<projectname>_<servicename>:latest`)
+    (au lieu de `<nom-du-projet>_<nom-du-service>:latest`)
 
-  - it can be pushed to a registry with `docker-compose push`
+  - avec l'avantage qu'on peut la pousser dans un registry avec `docker-compose push`
 
-- Example:
+- Exemple:
 
   ```yaml
     webfront:
@@ -257,11 +257,11 @@ The curl command should now output:
 
 ---
 
-## Using Compose to build and push images
+## Utiliser Compose pour générer et pousser les images
 
 .exercise[
 
-- Try it:
+- Essayer:
   ```bash
   docker-compose -f dockercoins.yml build
   docker-compose -f dockercoins.yml push
@@ -269,7 +269,7 @@ The curl command should now output:
 
 ]
 
-Let's have a look at the `dockercoins.yml` file while this is building and pushing.
+Voyons voir à quoi ressemble le fichier `dockercoins.yml` pendant que les images sont construites et poussées.
 
 ---
 
@@ -296,32 +296,32 @@ services:
 
 ---
 
-## Deploying the application
+## Déployer l'application
 
-- Now that the images are on the registry, we can deploy our application stack
+- Maintenant que les images sont sur le registre, on peut déployer notre _stack_ applicative.
 
 .exercise[
 
-- Create the application stack:
+- Créer la _stack_ applicative:
   ```bash
   docker stack deploy --compose-file dockercoins.yml dockercoins
   ```
 
 ]
 
-We can now connect to any of our nodes on port 8000, and we will see the familiar hashing speed graph.
+On peut maintenant se connecter à n'importe quel noeud sur le port 8000, et revoir le graphe familier du hachage.
 
 ---
 
-## Maintaining multiple environments
+## Maintenir plusieurs environnements
 
-There are many ways to handle variations between environments.
+Plusieurs méthodes existent pour gérer les variations entre environnements.
 
-- Compose loads `docker-compose.yml` and (if it exists) `docker-compose.override.yml`
+- Compose charge `docker-compose.yml` et (s'il existe) `docker-compose.override.yml`
 
-- Compose can load alternate file(s) by setting the `-f` flag or the `COMPOSE_FILE` environment variable
+- Compose va charger plusieurs fichiers en accumulant l'option `-f` ou la variable d'environnement `COMPOSE_FILE`
 
-- Compose files can *extend* other Compose files, selectively including services:
+- Les fichiers Compose peuvent *étendre* d'autres fichier Compose, pour y inclure des services:
 
   ```yaml
     web:
@@ -330,44 +330,44 @@ There are many ways to handle variations between environments.
         service: webapp
   ```
 
-See [this documentation page](https://docs.docker.com/compose/extends/) for more details about these techniques.
+Voir [cette page de documentation](https://docs.docker.com/compose/extends/) pour plus de détails sur ces techniques.
 
 ---
 
 class: extra-details
 
-## Good to know ...
+## Bon à savoir ...
 
-- Compose file version 3 adds the `deploy` section
+- Un fichier Compose en version 3 comporte une section `deploy`
 
-- Further versions (3.1, ...) add more features (secrets, configs ...)
+- Les versions plus récentes (3.1, ...) ajoutent plus de fonctions (secrets, configs, etc.)
 
-- You can re-run `docker stack deploy` to update a stack
+- Mettre à jour la _stack_ consiste à relancer `docker stack deploy`
 
-- You can make manual changes with `docker service update` ...
+- On peut changer le service à coups de `docker service update` ...
 
-- ... But they will be wiped out each time you `docker stack deploy`
+- ... Mais tout changement sera annulé après chaque `docker stack deploy`
 
-  (That's the intended behavior, when one thinks about it!)
+  (C'est le comportement attendu, si on y réfléchit bien!)
 
-- `extends` doesn't work with `docker stack deploy`
+- `extends` ne marche pas avec `docker stack deploy`
 
-  (But you can use `docker-compose config` to "flatten" your configuration)
+  (Mais vous pouvez passer par `docker-compose config` pour "applatir" votre conf)
 
 ---
 
-## Summary
+## Résumé
 
-- We've seen how to set up a Swarm
+- On a vu comment installer un Swarm
 
-- We've used it to host our own registry
+- On l'a utilisé pour héberger notre propre _Registry_
 
-- We've built our app container images
+- On a généré nos images de conteneurs
 
-- We've used the registry to host those images
+- On a utilisé la _Registry_ pour héberger ces images
 
-- We've deployed and scaled our application
+- On a déployé et escaladé notre application
 
-- We've seen how to use Compose to streamline deployments
+- On a vu comment exploiter Compose pour simplifier les déploiements
 
-- Awesome job, team!
+- Super boulot à toute l'équipe!

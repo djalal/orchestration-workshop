@@ -1,41 +1,41 @@
-## A reminder about *scope*
+## Un rappel sur la *visibilité*
 
-- Out of the box, Docker API access is "all or nothing"
+- A l'installation, l'accès à l'API Docker est "tout ou rien"
 
-- When someone has access to the Docker API, they can access *everything*
+- Quand quelqu'un accès à l'API Docker, il peut faire *n'importe quoi*
 
-- If your developers are using the Docker API to deploy on the dev cluster ...
+- Si vos développeurs utilisent l'API Docker pour déployer sur le cluster de dev...
 
-  ... and the dev cluster is the same as the prod cluster ...
+  ... et que le cluster de dev est le même que le cluster de prod ...
 
-  ... it means that your devs have access to your production data, passwords, etc.
+  ... ça revient à donner aux devs l'accès aux données de production, mots de passe, etc.
 
-- This can easily be avoided
+- C'est assez simple d'éviter ça.
 
 ---
 
-## Fine-grained API access control
+## Contrôle d'accès à l'API plus fin
 
-A few solutions, by increasing order of flexibility:
+Quelques solutions, par ordre croissant de flexibilité:
 
-- Use separate clusters for different security perimeters
+- Installer plusieurs clusters avec différent périmètre de sécurité
 
-  (And different credentials for each cluster)
-
---
-
-- Add an extra layer of abstraction (sudo scripts, hooks, or full-blown PAAS)
+  (et différents identifiants d'accès pour chacun)
 
 --
 
-- Enable [authorization plugins]
+- Ajouter une couche supplémentaire d'abstraction (scripts sudo, _hooks_, ou un vrai PAAS)
 
-  - each API request is vetted by your plugin(s)
+--
 
-  - by default, the *subject name* in the client TLS certificate is used as user name
+- Activer les [plugins d'autorisation]
 
-  - example: [user and permission management] in [UCP]
+  - chaque requête vers l'API est filtrée par un ou plusieurs plugins(s)
 
-[authorization plugins]: https://docs.docker.com/engine/extend/plugins_authorization/
+  - par défaut, le champ *subject name* du certificat TLS client est utilisé comme identifiant
+
+  - exemple: [user and permission management] dans [UCP]
+
+[plugins d'autorisation]: https://docs.docker.com/engine/extend/plugins_authorization/
 [UCP]: https://docs.docker.com/datacenter/ucp/2.1/guides/
 [user and permission management]: https://docs.docker.com/datacenter/ucp/2.1/guides/admin/manage-users/

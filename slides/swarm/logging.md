@@ -1,77 +1,78 @@
 name: logging
 
-# Centralized logging
+# _Logs_ centralisés
 
-- We want to send all our container logs to a central place
+- On veut pouvoir envoyer tous nos _logs_ de conteneur à un service central
+
+- Si ce service pouvait offrir une jolie interface web, ce serait bien.
 
 - If that place could offer a nice web dashboard too, that'd be nice
 
 --
 
-- We are going to deploy an ELK stack
+- Nous allons déployer la suite ELK.
 
-- It will accept logs over a GELF socket
+- Elle acceptera les _logs_ via une socket GELF.
 
-- We will update our services to send logs through the GELF logging driver
-
----
-
-# Setting up ELK to store container logs
-
-*Important foreword: this is not an "official" or "recommended"
-setup; it is just an example. We used ELK in this demo because
-it's a popular setup and we keep being asked about it; but you
-will have equal success with Fluent or other logging stacks!*
-
-What we will do:
-
-- Spin up an ELK stack with services
-
-- Gaze at the spiffy Kibana web UI
-
-- Manually send a few log entries using one-shot containers
-
-- Set our containers up to send their logs to Logstash
+- Nous allons configurer nos services avec le pilote de log `gelf`.
 
 ---
 
-## What's in an ELK stack?
+# Installer ELK pour stocker les _logs_ de conteneur
 
-- ELK is three components:
+*Avant-propos important: ce n'est pas une installation "officielle" ou
+"recommandée"; juste un exemple. Nous avons choisi ELK pour cette
+démo par sa popularité et les demandes qu'il suscite; mais vous serez
+aussi gagnant avec Fluent ou d'autres solutions de journalisation!*
 
-  - ElasticSearch (to store and index log entries)
+Ce qu'on va faire:
 
-  - Logstash (to receive log entries from various
-    sources, process them, and forward them to various
-    destinations)
+- Lancer une suite ELK via des services
 
-  - Kibana (to view/search log entries with a nice UI)
+- Admirer le chic de l'interface Kibana
 
-- The only component that we will configure is Logstash
+- Envoyer quelques logs à la main avec des conteneurs temporaires
 
-- We will accept log entries using the GELF protocol
+- Configurer nos conteneurs pour envoyer leurs logs à Logstash
 
-- Log entries will be stored in ElasticSearch,
-  <br/>and displayed on Logstash's stdout for debugging
+---
+
+## Qu'est-ce qu'il y a dans la solution ELK?
+
+- ELK, c'est trois composants:
+
+  - ElasticSearch, pour stocker et indexer les messages de _log_;
+
+  - Logstash, qui reçoit les messages de diverses sources, les traite,
+    et les transmets à diverses destinations;
+
+  - Kibana, pour afficher/chercher les messages dans une jolie interface.
+
+- Le seul composant que nous allons configurer est Logstash.
+
+- Nous accepterons des messages de _log_ au format GELF.
+
+- Les messages seront stockés dans ElasticSearch,
+  <br/> et affichés dans la sortie standard de Logstash pour débogage.
 
 ---
 
 class: elk-manual
 
-## Setting up ELK
+## Installer ELK
 
-- We need three containers: ElasticSearch, Logstash, Kibana
+- On aura besoin de trois conteneurs: ElasticSearch, Logstash, Kibana
 
-- We will place them on a common network, `logging`
+- On les placera dans un réseau commun, `logging`
 
 .exercise[
 
-- Create the network:
+- Déclarer le réseau:
   ```bash
   docker network create --driver overlay logging
   ```
 
-- Create the ElasticSearch service:
+- Déclarer le service ElasticSearch:
   ```bash
   docker service create --network logging --name elasticsearch elasticsearch:2.4
   ```
@@ -82,20 +83,20 @@ class: elk-manual
 
 class: elk-manual
 
-## Setting up Kibana
+## Installer Kibana
 
-- Kibana exposes the web UI
+- Kibana expose une interface web
 
-- Its default port (5601) needs to be published
+- Son port par défaut (5601) doit être publié.
 
-- It needs a tiny bit of configuration: the address of the ElasticSearch service
+- Il a besoin d'une touche de config: l'adresse du service ES
 
-- We don't want Kibana logs to show up in Kibana (it would create clutter)
-  <br/>so we tell Logspout to ignore them
+- On ne voudrait pas des logs Kibana dans l'interface (cela ajouterait de la pollution)
+  <br/>on va donc dir à Logstash de les ignorer
 
 .exercise[
 
-- Create the Kibana service:
+- Déclarer le service Kibana:
   ```bash
   docker service create --network logging --name kibana --publish 5601:5601 \
          -e ELASTICSEARCH_URL=http://elasticsearch:9200 kibana:4.6
@@ -107,17 +108,17 @@ class: elk-manual
 
 class: elk-manual
 
-## Setting up Logstash
+## Installer Logstash
 
-- Logstash needs some configuration to listen to GELF messages and send them to ElasticSearch
+- Logstash exige une config pour recevoir les messages GELF et les envoyer dans ES.
 
-- We could author a custom image bundling this configuration
+- On pourrait générer notre propre image avec la bonne configuration.
 
-- We can also pass the [configuration](https://@@GITREPO@@/blob/master/elk/logstash.conf) on the command line
+- On peut aussi passer la [configuration](https://@@GITREPO@@/blob/master/elk/logstash.conf) en ligne de commande
 
 .exercise[
 
-- Create the Logstash service:
+- Déclarer le service Logstash:
   ```bash
     docker service create --network logging --name logstash -p 12201:12201/udp \
            logstash:2.4 -e "$(cat ~/container.training/elk/logstash.conf)"
@@ -129,18 +130,18 @@ class: elk-manual
 
 class: elk-manual
 
-## Checking Logstash
+## Vérifier Logstash
 
-- Before proceeding, let's make sure that Logstash started properly
+- Avant de continuer, assurons-nous que Logstash est bien démarré
 
 .exercise[
 
-- Lookup the node running the Logstash container:
+- Trouver la _node_ qui exécute le conteneur Logstash:
   ```bash
   docker service ps logstash
   ```
 
-- Connect to that node
+- Se connecter à cette _node_
 
 ]
 
@@ -148,11 +149,11 @@ class: elk-manual
 
 class: elk-manual
 
-## View Logstash logs
+## Voir les logs de Logstash
 
 .exercise[
 
-- View the logs of the logstash service:
+- Afficher les logs du service Logstash:
   ```bash
   docker service logs logstash --follow
   ```
@@ -162,7 +163,7 @@ class: elk-manual
 
 ]
 
-You should see the heartbeat messages:
+Vous devriez voir le message indiquant le "pouls" du service:
 .small[
 ```json
 {      "message" => "ok",
@@ -177,13 +178,13 @@ You should see the heartbeat messages:
 
 class: elk-auto
 
-## Deploying our ELK cluster
+## Déployer notre cluster ELK
 
-- We will use a stack file
+- Nous allons utiliser le fichier _stack_
 
 .exercise[
 
-- Build, ship, and run our ELK stack:
+- Générer, livrer et lancer notre suite ELK:
   ```bash
   docker-compose -f elk.yml build
   docker-compose -f elk.yml push
@@ -192,31 +193,31 @@ class: elk-auto
 
 ]
 
-Note: the *build* and *push* steps are not strictly necessary, but they don't hurt!
+Note: les étapes de _build_ et _push_ ne sont pas strictement nécessaires, c'est juste une bonne habitude!
 
-Let's have a look at the [Compose file](
+Jetons un oeil au [fichier Compose](
 https://@@GITREPO@@/blob/master/stacks/elk.yml).
 
 ---
 
 class: elk-auto
 
-## Checking that our ELK stack works correctly
+## Vérifier que notre suite ELK tourne correctement
 
-- Let's view the logs of logstash
+- Affichons les logs de Logstash
 
-  (Who logs the loggers?)
+  (_Qui gardera les gardiens?_ version log)
 
 .exercise[
 
-- Stream logstash's logs:
+- Faire défiler les _logs_ de Logstash:
   ```bash
   docker service logs --follow --tail 1 elk_logstash
   ```
 
 ]
 
-You should see the heartbeat messages:
+Vous devriez voir passer les messages de "pouls":
 
 .small[
 ```json
@@ -230,35 +231,34 @@ You should see the heartbeat messages:
 
 ---
 
-## Testing the GELF receiver
+## Tester le receveur GELF
 
-- In a new window, we will generate a logging message
+- Dans une nouvelle fenêtre, nous allons générer un message de log.
 
-- We will use a one-off container, and Docker's GELF logging driver
+- Nous utiliserons une conteneur éphémère, et le pilote de log GELF de Docker.
 
 .exercise[
 
-- Send a test message:
+- Envoyer un message de test:
   ```bash
     docker run --log-driver gelf --log-opt gelf-address=udp://127.0.0.1:12201 \
            --rm alpine echo hello
   ```
 ]
 
-The test message should show up in the logstash container logs.
+Ce message de test devrait s'afficher dans les logs du conteneur Logstash.
 
 ---
 
-## Sending logs from a service
+## Envoyer des logs depuis un service
 
-- We were sending from a "classic" container so far; let's send logs from a service instead
+- Jusqu'ici, nos logs partaient d'un conteneur "classique"; allons faire la même chose au niveau d'un service.
 
-- We're lucky: the parameters (`--log-driver` and `--log-opt`) are exactly the same!
-
+- C'est notre jour de chance: les options `--log-driver` et `--log-opt` sont exactement les mêmes!
 
 .exercise[
 
-- Send a test message:
+- Envoyer un message de test:
   ```bash
     docker service create \
            --log-driver gelf --log-opt gelf-address=udp://127.0.0.1:12201 \
@@ -270,83 +270,81 @@ The test message should show up in the logstash container logs.
 
 ]
 
-The test message should show up as well in the logstash container logs.
+Ce message de test devrait s'afficher pareil dans les logs du conteneur Logstash.
 
 --
 
-In fact, *multiple messages will show up, and continue to show up every few seconds!*
+En réalité, *plusieurs messages vont remonter, et continuerons d'arriver de temps en temps*
 
 ---
 
-## Restart conditions
+## Conditions de rédémarrage
 
-- By default, if a container exits (or is killed with `docker kill`, or runs out of memory ...),
-  the Swarm will restart it (possibly on a different machine)
+- Par défaut, si un conteneur sort (ou est tué par `docker kill`, ou s'il manque de mémoire...)
+  le Swarm va le redémarrer (potentiellement sur une autre machine)
 
-- This behavior can be changed by setting the *restart condition* parameter
+- Ce comportement peut être modifié en utilisant l'option de *condition de redémarrage*
 
 .exercise[
 
-- Change the restart condition so that Swarm doesn't try to restart our container forever:
+- Changer la condition de redémarrage pour empêcher Swarm de relancer à l'infini notre conteneur:
   ```bash
   docker service update `xxx` --restart-condition none
   ```
 ]
 
-Available restart conditions are `none`, `any`, and `on-error`.
+Les conditions de redémarrage sont `none`, `any`, and `on-error`.
 
-You can also set `--restart-delay`, `--restart-max-attempts`, and `--restart-window`.
+D'autres options existent comme `--restart-delay`, `--restart-max-attempts`, et `--restart-window`.
 
 ---
 
-## Connect to Kibana
+## Se connecter à Kibana
 
-- The Kibana web UI is exposed on cluster port 5601
+
+- L'interface web Kibana est exposée sur le port 5601 du cluster
 
 .exercise[
 
-- Connect to port 5601 of your cluster
+- Se connecter au port 5601 du cluster
 
-  - if you're using Play-With-Docker, click on the (5601) badge above the terminal
+  - si vous utilisez "Play-With-Docker", cliquez sur le badge (5601) au dessus du terminal
 
-  - otherwise, open http://(any-node-address):5601/ with your browser
+  - sinon, ouvrez dans le navigateur l'url : http://(adresse-IP-noeud):5601
 
 ]
 
 ---
 
-## "Configuring" Kibana
+## "Configurer" Kibana
 
-- If you see a status page with a yellow item, wait a minute and reload
-  (Kibana is probably still initializing)
+- Kibana devrait vous proposer de _"Configure an index pattern"_:
+  <br/>dans la liste _"Time-field name"_, choisir "@timestamp" et cliquez
+  le bouton "Create".
 
-- Kibana should offer you to "Configure an index pattern":
-  <br/>in the "Time-field name" drop down, select "@timestamp", and hit the
-  "Create" button
+- Puis:
 
-- Then:
+  - cliquer "Discover" (en haut à gauche),
+  - cliquer "Last 15 minutes" (en haut à droite),
+  - cliquer "Last 1 hour" (dans la liste au milieu),
+  - cliquer "Auto-refresh" (coin supérieur droit),
+  - cliquer "5 seconds" (en haut à gauche de la liste).
 
-  - click "Discover" (in the top-left corner)
-  - click "Last 15 minutes" (in the top-right corner)
-  - click "Last 1 hour" (in the list in the middle)
-  - click "Auto-refresh" (top-right corner)
-  - click "5 seconds" (top-left of the list)
-
-- You should see a series of green bars (with one new green bar every minute)
+- Vous pouvez voir une série de barres vertes (avec une nouvelle barre toutes les minutes)
 
 ---
 
-## Updating our services to use GELF
+## Rediriger nos services vers GELF
 
-- We will now inform our Swarm to add GELF logging to all our services
+- Nous allons dire à notre Swarm d'ajouter le log GELF à tous nos services
 
-- This is done with the `docker service update` command
+- C'est réalisé avec la commande `docker service update`
 
-- The logging flags are the same as before
+- Les options de log sont les mêmes qu'avant
 
 .exercise[
 
-- Enable GELF logging for the `rng` service:
+- Activer le log GELF pour le service `rng`:
   ```bash
     docker service update dockercoins_rng \
            --log-driver gelf --log-opt gelf-address=udp://127.0.0.1:12201
@@ -354,23 +352,21 @@ You can also set `--restart-delay`, `--restart-max-attempts`, and `--restart-win
 
 ]
 
-After ~15 seconds, you should see the log messages in Kibana.
+Après env. 15 secondes, vous devriez voir les messages de log dans Kibana.
 
 ---
 
-## Viewing container logs
+## Afficher nos logs de conteneur
 
-- Go back to Kibana
+- Retourner à Kibana
 
-- Container logs should be showing up!
+- Les logs de conteneur devrait s'afficher!
 
-- We can customize the web UI to be more readable
+- On peut personnaliser l'interface web pour la rendre plus claire.
 
 .exercise[
 
-- In the left column, move the mouse over the following
-  columns, and click the "Add" button that appears:
-
+- Dans la colonne de gauche, bouger la souris sur les colonnes suivantes, et cliquer sur le bouton "Add" qui apparait:
   - host
   - container_name
   - message
@@ -385,36 +381,39 @@ After ~15 seconds, you should see the log messages in Kibana.
 
 ---
 
-## .warning[Don't update stateful services!]
+## .warning[Ne pas mettre à jour des services _stateful_]
 
-- What would have happened if we had updated the Redis service?
+- Que se serait-il passé si nous avions modifié le service Redis?
 
-- When a service changes, SwarmKit replaces existing container with new ones
+- Quand un service change, SwarmKit remplace un conteneur existant par un autre.
 
-- This is fine for stateless services
+- C'est très bien pour des services _stateless_.
 
-- But if you update a stateful service, its data will be lost in the process
+- Mais si vous changez un service à données persistentes (_stateful_), ses données vont être perdues dans l'opération.
 
-- If we updated our Redis service, all our DockerCoins would be lost
+- Mais si on met à jour notre service Redis, tous nos DockerCoins vont être perdus.
 
 ---
 
-## Important afterword
 
-**This is not a "production-grade" setup.**
+## Postface importante
 
-It is just an educational example. We did set up a single
-ElasticSearch instance and a single Logstash instance.
+**Ce n'est pas une installation de niveau "production".**
 
-In a production setup, you need an ElasticSearch cluster
-(both for capacity and availability reasons). You also
-need multiple Logstash instances.
+Il s'agit d'un exemple à but éducatif. Puisque nous avons
+un seul serveur, nous avons installé une seule instance
+ElasticSearch et une seule instance Logstash.
 
-And if you want to withstand
-bursts of logs, you need some kind of message queue:
-Redis if you're cheap, Kafka if you want to make sure
-that you don't drop messages on the floor. Good luck.
+Dans une installation de "production", vous avez besoin
+d'un cluster ElasticSearch (pour la haute disponibilité
+et la capacité totale de stockage). Vous avez aussi
+besoin de plusieurs isntances de Logstash.
 
-If you want to learn more about the GELF driver,
-have a look at [this blog post](
-http://jpetazzo.github.io/2017/01/20/docker-logging-gelf/).
+Et si vous voulez résister aux pics de _logs_, vous aurez
+besoin d'une sorte de file d'attente de messages: Redis
+si c'est léger, Kafka si vous voulez garantir aucune perte.
+Bonne chance.
+
+Pour en savoir plus sur le pilote GELF, jetez un oeil sur
+[ce billet de blog](
+https://jpetazzo.github.io/2017/01/20/docker-logging-gelf/).
