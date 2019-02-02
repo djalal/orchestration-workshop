@@ -268,7 +268,7 @@ Removing trainingwheels_www_1 ... done
 Removing trainingwheels_redis_1 ... done
 ```
 
-Enfin, `docker-compose -v` supprimer tout, y compris les volumes.
+Enfin, `docker-compose down -v` va tout supprimer, y compris les volumes.
 
 ---
 

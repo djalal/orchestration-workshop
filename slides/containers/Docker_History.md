@@ -102,7 +102,7 @@ class: pic
 
 * La popularité croissante de Docker et des conteneurs a mis en lumière de nombreux bugs.
 
-* En conséquence, ces bugs sont corrigés, résultant dans une meilleurs stabilité des conteneurs.
+* En conséquence, ces bugs sont corrigés, résultant dans une meilleure stabilité des conteneurs.
 
 * Aujourd'hui, tout fournisseur d'hébergement/cloud un peu sérieux peut lancer des conteneurs.
 

@@ -113,7 +113,7 @@ Maintenant, comment vont les choses chez notre founisseur IAAS?
 
 - Si seulement on pouvait éteindre les serveurs inutilisés la nuit...
 
-- Problème: on ne peut éteindre un serveur que s'il est toalement vide!
+- Problème: on ne peut éteindre un serveur que s'il est totalement vide!
 
   (ie. toutes ses VMs sont stoppées/déménagées)
 
@@ -210,7 +210,7 @@ Difficulté: ???
 
 <!-- Warning, two almost identical slides (for img effect) -->
 
-## Exercise 2
+## Exercice 2
 
 - Vous disposez de:
 

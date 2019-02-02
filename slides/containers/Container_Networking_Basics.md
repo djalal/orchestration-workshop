@@ -36,7 +36,7 @@ $ docker run -d -P nginx
 
 * `-d` dit à Docker de lancer une image en tâche de fond.
 
-* `-P` dit à Docker de rendre se service disponible depuis d'autres serveurs.
+* `-P` dit à Docker de rendre ce service disponible depuis d'autres serveurs.
   <br/>(`-P` est la version courte de `--publish-all`)
 
 Mais, comment on se connecte à notre serveur web maintenant?
@@ -173,10 +173,10 @@ On peut intégrer les conteneurs au réseau de bien des manières.
 
 * Utiliser un _plugin_ de réseau, pour brancher vos conteneurs sur des VLANs, tunnels, etc.
 
-* Activer le *Mode Swarm* pour un déploiement à traver un _cluster_.
+* Activer le *Mode Swarm* pour un déploiement à travers un _cluster_.
   <br/>Le conteneur sera accessible depuis n'importe quel noeud du _cluster_.
 
-En utilisant Docker à travers une couche de gestion supplémentaire comme Mesos ou Kubernetes, ils fournissent en général leur propre mécanisme d'exposition de conteneurs.
+En utilisant Docker à travers une couche de gestion supplémentaire comme Mesos ou Kubernetes, ils fournissent en général leurs propres mécanismes d'exposition de conteneurs.
 
 ---
 

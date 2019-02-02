@@ -142,7 +142,7 @@ Vous pouvez vous y ré-attacher si vous voulez interagir:
 $ docker attach <yourContainerID>
 ```
 
-Utilisez `docker ps -a`pour identifier l'ID d'un ancien conteneur basé sur `jpettazo/clock`, et testez ces commandes.
+Utilisez `docker ps -a` pour identifier l'ID d'un ancien conteneur basé sur `jpettazo/clock`, et testez ces commandes.
 
 ---
 

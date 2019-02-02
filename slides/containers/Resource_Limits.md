@@ -146,7 +146,7 @@ D'un autre côté, l'application ne sera jamais ralentie à cause du _swap_.
 
 - On pourra limiter leur usage mémoire+_swap_, mais surveiller s'ils sont tués.
 
-- Au final, cela revient à la question "ais-je besoin de _swap_, et combien?"
+- Au final, cela revient à la question "ai-je besoin de _swap_, et combien?"
 
 ---
 
@@ -174,7 +174,7 @@ D'un autre côté, l'application ne sera jamais ralentie à cause du _swap_.
 
 - Dès que le CPU atteint sa limite, chaque conteneur reçoit des cycles CPU en proportion de sa priorité relative.
 
-- Autrement dit: un conteneur avec `--cpu-shares 2018` en recevra deux fois plus que celui par défaut.
+- Autrement dit: un conteneur avec `--cpu-shares 2048` en recevra deux fois plus que celui par défaut.
 
 ---
 

@@ -333,7 +333,7 @@ C'est un _tag_ (étiquette) de version.
 
 * `docker pull ubuntu` va se référer à `ubuntu:latest`.
 
-* Le _tag_ `:latest` est par tradition mis à jour fréquemment.
+* Le _tag_ `latest` est par tradition mis à jour fréquemment.
 
 ---
 

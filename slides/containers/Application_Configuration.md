@@ -189,7 +189,7 @@ La gestion des secrets est mieux supportée avec un orchestrateur (type Swarm ou
 
 Les orchestrateurs autorisent la transmission de secrets en "sens-unique".
 
-Gérer les secrets de manière sécurisée sans orchestrateur peut se révéler "contrived" (TRAD).
+Gérer les secrets de manière sécurisée sans orchestrateur peut se révéler "tiré par les cheveux".
 
 Par ex.:
 

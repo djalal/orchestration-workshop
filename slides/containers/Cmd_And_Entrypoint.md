@@ -185,9 +185,9 @@ $ docker run figlet salut
 
 Et si nous voulions définir un message par défaut pour notre conteneur?
 
-Alors nous utiliserons `ENTRYPOINT` et `CMD` ensemble.
+Alors nous utiliserions `ENTRYPOINT` et `CMD` ensemble.
 
-* `ENTRYPOINT` va définir la commade de base pour notre conteneur.
+* `ENTRYPOINT` va définir la commande de base pour notre conteneur.
 
 * `CMD` définira les paramètres par défaut pour cette commande.
 

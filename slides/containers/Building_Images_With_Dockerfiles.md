@@ -112,8 +112,8 @@ Successfully tagged figlet:latest
 ```
 ]
 
-* L'affichage des commandes `RUN`a été omis.
-* Voyons voir en quoi consiste cette affichage.
+* L'affichage des commandes `RUN` a été omis.
+* Voyons voir en quoi consiste cet affichage.
 
 ---
 
@@ -261,7 +261,7 @@ IMAGE         CREATED            CREATED BY                     SIZE
 <missing>     4 days ago         /bin/sh -c #(nop) ADD file:b   187.8 MB
 ```
 
-* La syntaxe JSON spécifie une commande *exact* à exécuter.
+* La syntaxe JSON spécifie une commande *exacte* à exécuter.
 
 * La syntaxe simple spécifie une commande à être encapsulée dans `/bin/sh -c "..."`.
 

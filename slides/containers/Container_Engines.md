@@ -63,7 +63,7 @@ Pour plus de détails, consulter [cette courte présentation par Phil Estes](htt
 
 La liste suivante n'est pas exhaustive.
 
-En outre, nous l'avons limité au conteneurs Linux.
+En outre, nous l'avons limitée aux conteneurs Linux.
 
 Windows, macOS, Solaris, FreeBSD, etc. prennent aussi en charge les conteneurs (parfois sous un autre nom).
 
@@ -107,7 +107,7 @@ Windows, macOS, Solaris, FreeBSD, etc. prennent aussi en charge les conteneurs (
 
 * Pas de _daemon_ ni API.
 
-* Fort emphase sur la sécurité (à travers la séparation de privilège).
+* Forte emphase sur la sécurité (à travers la séparation de privilèges).
 
 * Paramètrage séparé du réseau (e.g. via les plugins CNI).
 
@@ -125,7 +125,7 @@ Windows, macOS, Solaris, FreeBSD, etc. prennent aussi en charge les conteneurs (
 
 * Expose une interface gRPC via le _daemon_.
 
-* Controlé par l'API CRI (Container Runtime Interface, définie par Kubernetes).
+* Contrôlé par l'API CRI (Container Runtime Interface, définie par Kubernetes).
 
 * Exige un moteur OCI sous-jacent (e.g. `runc`).
 
@@ -153,7 +153,6 @@ A notre connaissance, personne ne l'utilise directement (i.e. hors Kubernetes).
 
 ---
 
-<<<<<<< HEAD
 ## Kata containers
 
 * OCI-compliant runtime.

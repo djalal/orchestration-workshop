@@ -101,7 +101,7 @@ CMD, EXPOSE ...
 
 # Exemples de Dockerfile
 
-Il y a quelque astuces, conseils et techniques qu'on peut appliquer dans nos Dockerfiles.
+Il y a quelques astuces, conseils et techniques qu'on peut appliquer dans nos Dockerfiles.
 
 Mais parfois, on se doit de passer par des formes différentes, voire opposées, selon:
 
@@ -213,9 +213,9 @@ ENV PIP=9.0.3 \
 
 ## _Entrypoints_ et démarreurs
 
-Il est très répandu de définir un _entrypoint_ spécifique.
+Il est très courant de définir un _entrypoint_ spécifique.
 
-Ce point d'entrée est généralement un script, réalisant une série d'opération telles que:
+Ce point d'entrée est généralement un script, réalisant une série d'opérations telles que:
 
  - vérifications avant démarrage (si une dépendance obligatoire n'est pas disponible, afficher un message d'erreur sympa au lieu d'un obscur paquet de lignes dans un fichier log);
 
@@ -348,7 +348,7 @@ services:
 
 - Dans ce chapitre, nous avons montré bien des façons d'écrire des Dockerfiles;
 
-- Ces Dockerfiles utilisent parfois des techniques diamétralement opposée;
+- Ces Dockerfiles utilisent parfois des techniques diamétralement opposées;
 
 - Et pourtant, c'était la "bonne" technique *pour cette situation spécifique*;
 

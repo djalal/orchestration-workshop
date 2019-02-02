@@ -18,7 +18,7 @@ faire une nouvelle image.
 
 ## Le plan
 
-1. Lancer un conteneur (avec `docker run`) avec notre distro Linux de choix.
+1. Lancer un conteneur (avec `docker run`) avec notre distribution Linux de choix.
 
 2. Lancer un tas de commandes pour installer et configurer notre logiciel depuis
 l'intérieur du conteneur.
@@ -104,7 +104,7 @@ Comme expliqué auparavant:
 ## Figer nos changements dans une nouvelle image
 
 La commande `docker commit` va créer une nouvelle couche avec nos changements,
-and et une nouvelle image utilisant cette nouvelle couche.
+et une nouvelle image utilisant cette nouvelle couche.
 
 ```bash
 $ docker commit <yourContainerId>

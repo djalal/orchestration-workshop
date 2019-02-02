@@ -151,7 +151,7 @@ Est-ce qu'on donnerait les mêmes réponses aux questions sur la diapo précéde
 
 - À but non-lucratif, membre de la Linux Foundation; créée en Décembre 2015.
 
-  *La Cloud Native Computing Foundation construits des écosystèmes durables et promeut
+  *La Cloud Native Computing Foundation construit des écosystèmes durables et promeut
   une communauté autour d'une constellation de projets de haute qualité qui orchestre
   les conteneurs dans une optique d'architecture pour microservices.*
 

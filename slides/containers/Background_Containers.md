@@ -38,7 +38,7 @@ Fri Feb 20 00:28:55 UTC 2015
 
 * Ce conteneur va tourner indéfiniment.
 * Pour l'arrêter, appuyer sur `^C`.
-* Docker a automatiquement téléchargé l'image `jpettazz/clock`.
+* Docker a automatiquement téléchargé l'image `jpetazzo/clock`.
 * Cette image est une image utilisateur, créée par `jpetazzo`.
 * Nous en apprendrons plus sur les images utilisateur (et autres types d'images) plus tard.
 
@@ -115,7 +115,7 @@ CONTAINER ID  IMAGE           ...  CREATED        STATUS        ...
 
 ## Voir uniquement les IDs des conteneurs
 
-Plusieurs commandes Docker sont basées sur des IDs de conteneurs: `dockoer stop`, `docker rm`, etc.
+Plusieurs commandes Docker sont basées sur des IDs de conteneurs: `docker stop`, `docker rm`, etc.
 
 Si nous voulons lister uniquement les IDs de nos conteneurs (sans les autres colonnes ni en-tête),
 nous pouvons utiliser l'option `-q` ("Quiet", "Quick"):

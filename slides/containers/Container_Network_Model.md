@@ -505,7 +505,7 @@ b2887adeb5578a01fd9c55c435cad56bbbe802350711d2743691f95743680b09
 
 ---
 
-## Réseaux superposés
+## Réseaux superposés (_overlay_)
 
 * Les caractéristiques vues jusqu'ici fonctionnent uniquement quand les _containers_ sont sur un seul hôte.
 
@@ -515,7 +515,7 @@ b2887adeb5578a01fd9c55c435cad56bbbe802350711d2743691f95743680b09
 
 * D'autres plugins (Weave, Calico...) peuvent aussi fournir des réseaux superposés.
 
-* Une fois que vous avez un réseau superposé, *toutes les fonctions utilisées dans ce chapitre fonctionne de la même manière à travers plusieurs hôtes*.
+* Une fois que vous avez un réseau superposé, *toutes les fonctions utilisées dans ce chapitre fonctionnent de la même manière à travers plusieurs hôtes*.
 
 ---
 
@@ -556,7 +556,7 @@ Idée générale:
 
 * Jusqu'ici, nous avons choisi quel réseau utiliser au démarrage du _container_.
 
-* Le Docker Engine permets aussi de la connexion/déconnexion pendant que le container tourne.
+* Le Docker Engine permet aussi la connexion/déconnexion pendant que le container tourne.
 
 * Cette fonction est exposée via l'API Docker, et à travers deux commandes:
 

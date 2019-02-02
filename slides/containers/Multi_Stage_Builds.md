@@ -102,7 +102,7 @@ Contre:
 
 - pas très lisible
 
-- quelques fichiers inutiles pourrait subsister si le nettoyage n'est pas assez poussé
+- quelques fichiers inutiles pourraient subsister si le nettoyage n'était pas assez poussé
 
 - ce _layer_ est coûteux (lent à générer)
 

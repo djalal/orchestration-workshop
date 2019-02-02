@@ -27,7 +27,7 @@ Pas de souci, nous y arriverons assez tôt!
 * L'industrie logicielle a changé
 
 * Avant:
-  * applications monolitiques
+  * applications monolithiques
   * longs cycles de développements
   * environnement unique
   * montée en charge lente
@@ -179,7 +179,7 @@ class: extra-details
 
 ## Implémenter facilement une CI stable
 
-1. Montez un environnemen de test avec un Dockerfile ou un fichier Compose
+1. Montez un environnement de test avec un Dockerfile ou un fichier Compose
 
 2. Pour chaque lancement de test, montez un nouveau conteneur (ou une suite complète)
 
@@ -199,9 +199,9 @@ class: extra-details
 
 2. Stockez les images résultantes dans un dépôt
 
-3. Stockez les pour toujours (ou aussi longtemps que nécessaire)
+3. Stockez-les pour toujours (ou aussi longtemps que nécessaire)
 
-4. Testez ces image en QA, CI ou intégration...
+4. Testez ces images en QA, CI ou intégration...
 
 5. Lancez les mêmes images en production
 
@@ -209,7 +209,7 @@ class: extra-details
 
 7. Diagnostic d'une ancienne régression? Une ancienne image est toujours là pour vous!
 
-Les images contiennent toutes les bibliothèques, dépendances, etc. nécessaire au lancement de l'appli.
+Les images contiennent toutes les bibliothèques, dépendances, etc. nécessaires au lancement de l'appli.
 
 ---
 
@@ -267,7 +267,7 @@ class: extra-details
 
 * Rendre les conteneurs facile à utiliser pour les développeurs.
 
-* Focus sur les composants réutilisable, APIs et l'écosystème d'outils standard.
+* Focus sur les composants réutilisables, APIs et l'écosystème d'outils standard.
 
 * Amélioration par rapport aux outils ad-hoc, interne et spécifique.
 

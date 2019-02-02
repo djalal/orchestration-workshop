@@ -101,7 +101,7 @@ Nous verrons ensuite une méthode particulière en action, avec ELK et les pilot
 
 - Une possibilité serait de lancer un daemon syslog dans le conteneur.
 
-- Et ce daemon peut être configuré pour écrire dans des fichiers locaux ou transmettrer les _logs_ à travers le réseau.
+- Et ce daemon peut être configuré pour écrire dans des fichiers locaux ou transmettre les _logs_ à travers le réseau.
 
 - Sous le capot, les clients syslog se connectent à une socket locale UNIX, `/dev/log`.
 
@@ -156,7 +156,7 @@ $ docker run --log-opt max-size=10m --log-opt max-file=3 elasticsearch
 
 - Nous allons déployer la suite ELK.
 
-- Elle acceptera les _logs_ via une socket GELK.
+- Elle acceptera les _logs_ via une socket GELF.
 
 - Nous allons lancer quelques conteneurs avec le pilote de log `gelf`.
 
@@ -185,7 +185,7 @@ aussi gagnant avec Fluent ou d'autres solutions de journalisation!*
 - Nous accepterons des messages de _log_ au format GELF.
 
 - Les messages seront stockés dans ElasticSearch,
-  <br/> et affichées dans la sortie standard de Logstash pour débogage.
+  <br/> et affichés dans la sortie standard de Logstash pour débogage.
 
 ---
 
@@ -193,7 +193,7 @@ aussi gagnant avec Fluent ou d'autres solutions de journalisation!*
 
 - Nous allons utiliser un fichier Compose décrivant la solution ELK.
 
-- The Compose file is in the container.training repository on GitHub.
+- Le fichier Compose est dans le dépôt container.training sur Github
 
 ```bash
 $ git clone https://github.com/jpetazzo/container.training
@@ -228,7 +228,7 @@ $ docker-compose up
 
 ## Envoyer des logs à ELK
 
-- La solution ELK accepte des messages via une socket GELK.
+- La solution ELK accepte des messages via une socket GELF.
 
 - La socket GELF écoute sur le port UDP 12201.
 
@@ -281,7 +281,7 @@ $ docker run --log-driver=gelf --log-opt=gelf-address=udp://localhost:12201 \
 
 Il s'agit d'un exemple à but éducatif. Puisque nous avons
 un seul serveur, nous avons installé une seule instance
-ElasticSearch et une seule instante Logstash.
+ElasticSearch et une seule instance Logstash.
 
 Dans une installation de "production", vous avez besoin
 d'un cluster ElasticSearch (pour la haute disponibilité

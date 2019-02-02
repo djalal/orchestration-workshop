@@ -81,7 +81,7 @@ EXPOSE 9292
 * Cette appli utilise l'image de base `ruby`.
 * Le code est copié dans `/src`.
 * Les dépendances sont installées avec `bundler`.
-* L'application est lancé via `rackup`.
+* L'application est lancée via `rackup`.
 * Elle écoute sur le port 9292.
 
 ---
@@ -304,7 +304,7 @@ color: red;
 
 ---
 
-## Récap du process de développement
+## Récap' du process de développement
 
 1. Ecrire un Dockerfile pour générer une image contenant l'environnement de développement.
    <br/>
@@ -314,13 +314,13 @@ color: red;
    <br/>
    Utiliser l'option `-v` pour monter notre code source dans le conteneur.
 
-3. Modifier le code source hors des conteneurs, avec les outils d'habitude.
+3. Modifier le code source hors des conteneurs, avec les outils habituels.
    <br/>
    (vim, emacs, textmate...)
 
 4. Tester l'application.
    <br/>
-   (Certains frameworks détecter les changements automatiquement
+   (Certains frameworks détectent les changements automatiquement
    <br/>D'autres exigent un Ctrl+C / redémarrage après chaque modification..)
 
 5. Reboucler et répéter les étapes 3 et 4 jusqu'à satisfaction.

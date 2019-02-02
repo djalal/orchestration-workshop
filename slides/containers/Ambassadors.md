@@ -19,7 +19,7 @@ Il encapsule les détails de connexion pour ces services, et peut aider à:
 
 * le basculement (comment savoir à quelle instance d'un service je dois me connecter?)
 
-* la répartition de charge (comment partager mes requêtes à travers plusieurs instance d'un service?)
+* la répartition de charge (comment partager mes requêtes à travers plusieurs instances d'un service?)
 
 * l'authentification (que faire si mon service exige des accès, certificats ou autre?)
 
@@ -69,7 +69,7 @@ Cas d'usage:
 
 * mon code d'application se connecte à `redis` sur le port par défaut (6379),
 * mon service Redis tourne sur une autre machine, sur un port non conventionnel (par ex. 12345)
-* Je veux utiliser un ambassadeur pour permettre à mon application de sec connecter sans modification.
+* Je veux utiliser un ambassadeur pour permettre à mon application de se connecter sans modification.
 
 Le conteneur ambassadeur devra:
 

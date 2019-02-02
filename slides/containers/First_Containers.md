@@ -54,7 +54,7 @@ root@04c0bb0a6c07:/#
 
 * Il exécute un système `ubuntu` basique et sans fioritures.
 
-* `-it` est le raccourci pour `-i -it`.
+* `-it` est le raccourci pour `-i -t`.
 
   * `-i` dit à Docker de nous connecter à l'entrée du conteneur.
 
@@ -200,6 +200,6 @@ bash: figlet: command not found
 
 * Nous avons lancé un *tout nouveau conteneur*.
 
-* Dans l'image de base Ubuntu utilisé ci-dessus, `figlet` est absent.
+* Dans l'image de base Ubuntu utilisée ci-dessus, `figlet` est absent.
 
 * Nous verrons dans les chapitres suivants comment préparer une image personnalisée avec `figlet`.
