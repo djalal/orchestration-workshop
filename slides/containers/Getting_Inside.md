@@ -86,7 +86,7 @@ class: extra-details
 
 * UID=0, c'est root, et dispose de privilèges supérieurs. Les autres utilisateurs sont dits normaux.
 
-_Nous donneronss plus de détails sur les namespaces et cgroups plus tard._
+_Nous donnerons plus de détails sur les namespaces et cgroups plus tard._
 
 ---
 

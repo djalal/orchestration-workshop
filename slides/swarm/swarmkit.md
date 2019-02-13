@@ -22,7 +22,7 @@
 - Reconfiguration dynamique de Raft sans interruption des opérations sur le cluster.
 
 - *Services* gérés avec une *API déclarative*
-  <br/>(implémentant l'*état cible* et une *boucle de réconciliation*)  @@@TRAD
+  <br/>(qui applique l'*état souhaité* grâce à la *boucle de réconciliation*)
 
 - Intégré avec les réseaux superposés et la répartition de charge
 
@@ -41,7 +41,7 @@ class: extra-details
 
 - Bien des systèmes d'orchestration utilisent une base clé-valeur exploitée par un algorithme de consensus
   <br/>
-  (k8s->etcs->Raft, mesos->zookeeper->ZAB, etc.)
+  (k8s->etcd->Raft, mesos->zookeeper->ZAB, etc.)
 
 - SwarmKit implémente l'algorithme Raft directement
  (Nomad est similaire en ce point, merci à [@cbednarski](https://twitter.com/@cbednarski),
@@ -73,7 +73,7 @@ class: extra-details
 
 - Un *manager* est élu en tant que *leader*; les autres managers ne font que lui transmettre les demandes
 
-- Les *workers* prennet leurs ordres des *managers*
+- Les *workers* prennent leurs ordres des *managers*
 
 - Tous (*workers* et *managers*) peuvent faire tourner des conteneurs
 
@@ -109,7 +109,7 @@ class: pic
 
 - Un *service* est spécifié par son *état souhaité*: quelle image, combien d'instances, etc.
 
-- Le *leader* utilise différent sous-systèmes pour décomposer le services en *tasks*:
+- Le *leader* utilise différent sous-systèmes pour décomposer les services en *tasks*:
   <br/>orchestrateur, ordonnanceur, allocateur, répartiteur
 
 - Une *task* correspond à un conteneur spécifique, assigné à une *node* spécifique

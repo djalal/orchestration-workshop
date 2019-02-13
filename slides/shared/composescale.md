@@ -50,7 +50,7 @@ Astuce: taper `^S` et `^Q` pour suspendre/reprendre l'affichage des logs.
 
 ---
 
-## Montée en chage de l'application
+## Montée en charge de l'application
 
 - Notre but est de faire monter ce graphique de performance (sans changer une ligne de code!)
 

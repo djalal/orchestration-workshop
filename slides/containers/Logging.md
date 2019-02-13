@@ -75,7 +75,7 @@ Nous verrons ensuite une méthode particulière en action, avec ELK et les pilot
 
 - Le conteneur va écrire les fichiers de _logs_ dans un dossier exposé sur l'hôte.
 
-- Les fichiers _logs_ vont apparaître sur l'hôte et être accessible directement sur l'hôte.
+- Les fichiers _logs_ vont apparaître sur l'hôte et être accessibles directement sur l'hôte.
 
 ---
 
@@ -176,7 +176,7 @@ aussi gagnant avec Fluent ou d'autres solutions de journalisation!*
   - ElasticSearch, pour stocker et indexer les messages de _log_;
 
   - Logstash, qui reçoit les messages de diverses sources, les traite,
-    et les transmets à diverses destinations;
+    et les transmet à diverses destinations;
 
   - Kibana, pour afficher/chercher les messages dans une jolie interface.
 
@@ -286,7 +286,7 @@ ElasticSearch et une seule instance Logstash.
 Dans une installation de "production", vous avez besoin
 d'un cluster ElasticSearch (pour la haute disponibilité
 et la capacité totale de stockage). Vous avez aussi
-besoin de plusieurs isntances de Logstash.
+besoin de plusieurs instances de Logstash.
 
 Et si vous voulez résister aux pics de _logs_, vous aurez
 besoin d'une sorte de file d'attente de messages: Redis

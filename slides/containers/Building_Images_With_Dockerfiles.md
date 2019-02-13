@@ -21,7 +21,7 @@ A la fin de cette leçon, vous saurez comment:
 
 ## Aperçu d'un `Dockerfile`
 
-* Un `Dockerfile`est une recette de construction pour une image Docker.
+* Un `Dockerfile` est une recette de construction pour une image Docker.
 
 * Il contient une série d'instructions indiquant à Docker comment l'image est construite.
 

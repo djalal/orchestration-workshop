@@ -147,12 +147,12 @@ class: btp-manual
 
 Notre registre n'est pas *exactement* identique à celui déployé par `docker service create`!
 
-- Chaque _stack_ possède sont propre réseau superposé (_overlay_)
+- Chaque _stack_ possède son propre réseau superposé (_overlay_)
 
 - Les services de la _stack_ sont connectés à ce réseau
   <br/>(sauf si spécifié autrement dans le fichier Compose)
 
-- Les services récupèrent des alias de réseau correspondant à leur nom dans le fichier COmpose
+- Les services récupèrent des alias de réseau correspondant à leur nom dans le fichier Compose
   <br/>(tout comme quand Compose lance une appli en version 2)
 
 - Les services sont nommés explicitement `<nom_de_stack>_<nom_de_service>`
@@ -352,7 +352,7 @@ class: extra-details
 
 - `extends` ne marche pas avec `docker stack deploy`
 
-  (Mais vous pouvez passer par `docker-compose config` pour "applatir" votre conf)
+  (Mais vous pouvez passer par `docker-compose config` pour "aplatir" votre conf)
 
 ---
 

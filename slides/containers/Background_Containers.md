@@ -207,7 +207,7 @@ Fri Feb 20 00:57:13 UTC 2015
 
 Il y a deux façons de stopper notre conteneur détaché;
 
-* Le tuer via la commmande `docker kill`.
+* Le tuer via la commande `docker kill`.
 * Le stopper via la commande `docker stop`.
 
 La première arrête le conteneur immédiatement, en utilisant

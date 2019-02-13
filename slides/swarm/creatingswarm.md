@@ -83,7 +83,7 @@ class: advertise-addr
   sur EC2, et que vous montez un Swarm impliquant des noeurs à l'intérieur et à l'extérieur
   du réseau privé: alors vous devriez annoncer l'adresse publique.)]
 
-- Si vos noeuds ont plusieurs adresses IP, choisisseez une adresse qui est visible
+- Si vos noeuds ont plusieurs adresses IP, choisissez une adresse qui est visible
   *par tous les autres noeuds* du Swarm.
 
 - Si vous êtes sur [play-with-docker](http://play-with-docker.com/), indiquez l'adresse

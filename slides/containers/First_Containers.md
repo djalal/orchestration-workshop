@@ -183,7 +183,7 @@ Maintenant essayez de lancer `figlet`. Est-ce que ça marche?
 
 * Notre conteneur est maintenant en état *stopped*.
 
-* Il existe encore sur le disque, mais toute ses ressources ont été libérées.
+* Il existe encore sur le disque, mais toutes ses ressources ont été libérées.
 
 * Nous verrons plus tard comment récupérer ce conteneur.
 

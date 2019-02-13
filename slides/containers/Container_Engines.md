@@ -17,7 +17,7 @@ class: pic
 
 * Le moteur est un _daemon_ (processus tournant en tâche de fond).
 
-* Toute interaction est faite à travers l'API REST exposé via une _socket_.
+* Toute interaction est faite à travers l'API REST exposée via une _socket_.
 
 * Sur Linux, la _socket_ par défaut est de type UNIX: `/var/run/docker.sock`.
 
@@ -47,7 +47,7 @@ class: pic
 
  - `dockerd` (API REST, authentification, réseau, stockage)
 
- - `containerd` (cycle de vie du conteneur, controllé via une API gRPC)
+ - `containerd` (cycle de vie du conteneur, contrôlé via une API gRPC)
 
  - `containerd-shim` (par conteneur; ne permet presque rien, à part redémarrer le moteur sans redémarrer les conteneurs)
 

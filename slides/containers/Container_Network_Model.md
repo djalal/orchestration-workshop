@@ -55,7 +55,7 @@ eb0eeab782f4        host                host
 
 * Des _containers_ peuvent être connectés à plusieurs réseaux;
 
-* Des _containers_ peuvent se voir affectés des noms et alias par réseau;
+* Des _containers_ peuvent se voir affecté des noms et alias par réseau;
 
 * Les noms et alias sont résolus via un serveur DNS embarqué.
 
@@ -548,7 +548,7 @@ Idée générale:
 
 - certains _plugins_ exigent une configuration ou une activation (en créant un fichier spécial qui dit à Docker "utilise le _plugin_ dont la _socket_ est au chemin suivant)
 
-- vous pouvez ensuite `docker network create --driver plugingname`
+- vous pouvez ensuite `docker network create --driver pluginname`
 
 ---
 

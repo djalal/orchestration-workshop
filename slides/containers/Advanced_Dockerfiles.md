@@ -98,7 +98,7 @@ RUN apt-get update \
 
 ## Instruction `EXPOSE`
 
-L'instruction `EXPOSE` indique à Docker quels ports doivent être publié
+L'instruction `EXPOSE` indique à Docker quels ports doivent être publiés
 pour cette image.
 
 ```dockerfile

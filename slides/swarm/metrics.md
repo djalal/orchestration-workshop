@@ -1545,11 +1545,11 @@ class: prom, snap
 
 - Choisir "Prometheus" comme le type de source
 
-- Entrer http://(IP.address.of.any.node):9090 dans le champ Url
+- Entrer http://(addresse.IP.de.votre.node):9090 dans le champ Url
 
 - Choisir "direct" dans la méthode d'accès
 
-- Cliquer sur "Save and rest"
+- Cliquer sur "Save and Test"
 
 ]
 

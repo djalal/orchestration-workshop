@@ -6,7 +6,7 @@ name: healthchecks
 
 - Des commandes exécutées à intervalles réguliers dans un conteneur.
 
-- Doit retourner 0 ou 1 pour indiquer "Tout va bien" ou "Quelque chose "
+- Doit retourner 0 ou 1 pour indiquer "Tout va bien" ou "Quelque chose me bloque"
 
 - Doit s'exécuter rapidement (_timeout_ == erreurs)
 

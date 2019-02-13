@@ -9,7 +9,7 @@
   docker service scale dockercoins_hasher=7
   ```
 
-- Forcer une mise à jour progresive (qui remplace les conteneurs) vers une image différente:
+- Forcer une mise à jour progressive (qui remplace les conteneurs) vers une image différente:
   ```bash
   docker service update --image 127.0.0.1:5000/hasher:v0.1 dockercoins_hasher
   ```

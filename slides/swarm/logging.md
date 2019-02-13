@@ -6,8 +6,6 @@ name: logging
 
 - Si ce service pouvait offrir une jolie interface web, ce serait bien.
 
-- If that place could offer a nice web dashboard too, that'd be nice
-
 --
 
 - Nous allons déployer la suite ELK.

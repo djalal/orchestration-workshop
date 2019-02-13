@@ -471,7 +471,7 @@ class: extra-details
 
 ---
 
-## Pourquoi c'est plus important que ce qu'on croit
+## Pourquoi c'est plus important que ça
 
 - Le visualiseur accède à l'API Docker *de l'intérieur du conteneur*
 
