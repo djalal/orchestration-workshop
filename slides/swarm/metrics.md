@@ -1,94 +1,88 @@
-# Metrics collection
+# Collecter les métriques
 
-- We want to gather metrics in a central place
+- On veut rassembler des métriques dans sur un seul service
 
-- We will gather node metrics and container metrics
+- On veut collecter les métriques de noeuds et de conteneurs
 
-- We want a nice interface to view them (graphs)
-
----
-
-## Node metrics
-
-- CPU, RAM, disk usage on the whole node
-
-- Total number of processes running, and their states
-
-- Number of open files, sockets, and their states
-
-- I/O activity (disk, network), per operation or volume
-
-- Physical/hardware (when applicable): temperature, fan speed ...
-
-- ... and much more!
+- On veut aussi une jolie interface pour les consulter (des graphes)
 
 ---
 
-## Container metrics
+## Métriques de _nodes_
 
-- Similar to node metrics, but not totally identical
+- CPU, RAM, usage disque pour toute la _node_
 
-- RAM breakdown will be different
+- Nombre total de processus en cours d'exécution, et leur état
 
-  - active vs inactive memory
-  - some memory is *shared* between containers, and accounted specially
+- activité I/O (entrées/sorties sur disque et réseau), par opération ou par volume
 
-- I/O activity is also harder to track
+- indicateurs physiques et matériels (si disponible): température, vitesse du ventilateur...
 
-  - async writes can cause deferred "charges"
-  - some page-ins are also shared between containers
-
-For details about container metrics, see:
-<br/>
-http://jpetazzo.github.io/2013/10/08/docker-containers-metrics/
+- ... et bien plus!
 
 ---
 
-## Application metrics
+## Métriques de conteneurs
 
-- Arbitrary metrics related to your application and business
+- Similaires aux métriques de nodes, sans être identiques
 
-- System performance: request latency, error rate ...
+- Répartition de la RAM différente:
 
-- Volume information: number of rows in database, message queue size ...
+  - mémoire active vs inactive
+  - une partie de la mémoire est *partagée* entre conteneurs, et comptabilisée à part
 
-- Business data: inventory, items sold, revenue ...
+- l'activité I/O est aussi plus difficile à suivre
+
+  - les écritures _async_ peuvent causer une "comptabilité" différée
+  - quelques _pages-ins_ sont aussi partagées entre conteneurs
+
+Pour plus de détails sur les métriques de conteneurs, voir:
+
+https://jpetazzo.github.io/2013/10/08/docker-containers-metrics/
+
+---
+
+## Métriques applicatives
+
+- Métriques arbitraires liées à notre applicatif et au métier
+
+- Performance système: latence des requêtes, taux d'erreur ...
+
+- Information de volume: nombres de lignes dans la base de données, taille de la file d'attente...
+
+- Données métier: inventaire, articles vendus, chiffre d'affaire ...
 
 ---
 
 class: snap, prom
 
-## Tools
+## Outils
 
-We will build *two* different metrics pipelines:
+Nous allons monter *deux* collecteurs de métriques différents:
 
-- One based on Intel Snap,
+- Le premier basé sur Intel Snap,
 
-- Another based on Prometheus.
-
-If you're using Play-With-Docker, skip the exercises
-relevant to Intel Snap (we rely on a SSH server to deploy,
-and PWD doesn't have that yet).
+- Le second sur Prometheus.
 
 ---
 
 class: snap
 
-## First metrics pipeline
+## Premier collecteur de métriques
 
-We will use three open source Go projects for our first metrics pipeline:
+Nous allons utiliser trois projets open source en Go pour notre premier collecteur de métriques:
 
 - Intel Snap
 
-  Collects, processes, and publishes metrics
+  Collecte, traite, et publie les métriques
 
 - InfluxDB
 
-  Stores metrics
+  Stocke les métriques
 
 - Grafana
 
-  Displays metrics visually
+  Présente les métriques visuellement
 
 ---
 
@@ -98,17 +92,17 @@ class: snap
 
 - [github.com/intelsdi-x/snap](https://github.com/intelsdi-x/snap)
 
-- Can collect, process, and publish metric data
+- Peut collecter, traiter, et exposer les données de métriques
 
-- Doesn’t store metrics
+- Ne stocke aucune métrique
 
-- Works as a daemon (snapd) controlled by a CLI (snapctl)
+- Fonctionne en mode _daemon_, controllé par une ligne de commande (snapctl)
 
-- Offloads collecting, processing, and publishing to plugins
+- Délègue la collecte, le traitement et la publication à des plugins
 
-- Does nothing out of the box; configuration required!
+- Ne peut rien faire à l'installation; obligation de configurer!
 
-- Docs: https://github.com/intelsdi-x/snap/blob/master/docs/
+- Documentation: https://github.com/intelsdi-x/snap/blob/master/docs/
 
 ---
 
@@ -116,17 +110,17 @@ class: snap
 
 ## InfluxDB
 
-- Snap doesn't store metrics data
+- Snap ne stocke aucune donnée de métrique
 
-- InfluxDB is specifically designed for time-series data
+- InfluxDB est spécifiquement conçu pour les données basées sur le temps
 
-  - CRud vs. CRUD (you rarely if ever update/delete data)
+  - CRud vs CRUD (on modifie rarement ou jamais ces données)
 
-  - orthogonal read and write patterns
+  - motifs de lecture/écriture orthogonaux
 
-  - storage format optimization is key (for disk usage and performance)
+  - la clé est dans l'optimisation du format de stockage (pour l'usage et la performance du disque)
 
-- Snap has a plugin allowing to *publish* to InfluxDB
+- Snap dispose d'un plugin permettant la *publication* vers InfluxDB
 
 ---
 
@@ -134,40 +128,40 @@ class: snap
 
 ## Grafana
 
-- Snap cannot show graphs
+- Snap ne peut pas afficher de graphes
 
-- InfluxDB cannot show graphs
+- InfluxDB ne peut pas non plus
 
-- Grafana will take care of that
+- Grafana va s'en occuper
 
-- Grafana can read data from InfluxDB and display it as graphs
-
----
-
-class: snap
-
-## Getting and setting up Snap
-
-- We will install Snap directly on the nodes
-
-- Release tarballs are available from GitHub
-
-- We will use a *global service*
-  <br/>(started on all nodes, including nodes added later)
-
-- This service will download and unpack Snap in /opt and /usr/local
-
-- /opt and /usr/local will be bind-mounted from the host
-
-- This service will effectively install Snap on the hosts
+- Grafana peut lire ses données depuis InfluxDB et l'afficher dans des graphes
 
 ---
 
 class: snap
 
-## The Snap installer service
+## Récupérer et installer Snap
 
-- This will get Snap on all nodes
+- Nous installerons Snap directement sur chaque noeud
+
+- Les versions publiées sous tarballs sont disponibles depuis Github
+
+- Nous l'utiliserons comme *service global*
+  <br/>(disponible sur chaque noeud, y compris les futurs arrivants)
+
+- Ce service va télécharger et décompresser Snap dans /opt et /usr/local
+
+- /opt et /usr/local sont des points de montage depuis l'hôte
+
+- Ce service va concrètement installer Snap sur tous les hôtes
+
+---
+
+class: snap
+
+## Le service Snap d'installation
+
+- Ceci va installer Snap sur tous les noeuds
 
 .exercise[
 
@@ -183,7 +177,7 @@ curl -sSL $RELEASEURL/snap-plugins-$SNAPVER-linux-amd64.tar.gz |
      tar -C /opt -zxf-
 ln -s snap-$SNAPVER /opt/snap
 for BIN in snapd snapctl; do ln -s /opt/snap/bin/$BIN /usr/local/bin/$BIN; done
-' # If you copy-paste that block, do not forget that final quote ☺
+' # Si vous copier-coller ce block, n'oubliez pas l'apostrophe finale ☺
 ```
 
 ]
@@ -192,22 +186,22 @@ for BIN in snapd snapctl; do ln -s /opt/snap/bin/$BIN /usr/local/bin/$BIN; done
 
 class: snap
 
-## First contact with `snapd`
+## Premier contact avec `snapd`
 
-- The core of Snap is `snapd`, the Snap daemon
+- Le coeur de Snap est `snapd`, le _daemon_ Snap
 
-- Application made up of a REST API, control module, and scheduler module
+- L'application est composée d'une API REST, un module de contrôle et un module d'ordonnancement
 
 .exercise[
 
-- Start `snapd` with plugin trust disabled and log level set to debug:
+- Démarrer `snapd` sans vérification de plugin et en mode debug:
   ```bash
   snapd -t 0 -l 1
   ```
 
 ]
 
-- More resources:
+- Pour aller plus loin:
 
   https://github.com/intelsdi-x/snap/blob/master/docs/SNAPD.md
   https://github.com/intelsdi-x/snap/blob/master/docs/SNAPD_CONFIGURATION.md
@@ -217,19 +211,21 @@ class: snap
 class: snap
 
 ## Using `snapctl` to interact with `snapd`
+## Utiliser `snapctl` pour intéragir avec `snapd`
 
-- Let's load a *collector* and a *publisher* plugins
+
+- Chargeons des plugins de *collection* et de *publication*
 
 .exercise[
 
-- Open a new terminal
+- Ouvrir un nouveau terminal
 
-- Load the psutil collector plugin:
+- Charger le plugin de collection psutil:
   ```bash
   snapctl plugin load /opt/snap/plugin/snap-plugin-collector-psutil
   ```
 
-- Load the file publisher plugin:
+- Charger le plugin de publication de fichier:
   ```bash
   snapctl plugin load /opt/snap/plugin/snap-plugin-publisher-mock-file
   ```
@@ -240,18 +236,18 @@ class: snap
 
 class: snap
 
-## Checking what we've done
+## Vérifier ce qu'on a fait
 
-- Good to know: Docker CLI uses `ls`, Snap CLI uses `list`
+- Bon à savoir: la CLI Docker utilise `ls`, celle de Snap préfère `list`
 
 .exercise[
 
-- See your loaded plugins:
+- Voir vos plugins chargés:
   ```bash
   snapctl plugin list
   ```
 
-- See the metrics you can collect:
+- Voir les métriques qu'on peut collecter:
   ```bash
   snapctl metric list
   ```
@@ -262,30 +258,30 @@ class: snap
 
 class: snap
 
-## Actually collecting metrics: introducing *tasks*
+## Réellement collecter des métriques: intro aux *tasks*
 
-- To start collecting/processing/publishing metric data, you need to create a *task*
+- Pour démarrer les phases de collecte/traitement/publication des données de métriques, on doit déclarer une nouvelle *task*
 
-- A *task* indicates:
+- Une tâche indique:
 
-  - *what* to collect (which metrics)
-  - *when* to collect it (e.g. how often)
-  - *how* to process it (e.g. use it directly, or compute moving averages)
-  - *where* to publish it
+  - *quoi* collecter (quelles métriques)
+  - *quand* collecter (à quelle fréquence)
+  - *comment* les traiter (par ex. sous forme brute, ou après calcul de moyenne)
+  - *où* les publier
 
-- Tasks can be defined with manifests written in JSON or YAML
+- Les tâches peuvent être définies via des manifestes écrits en JSON ou YAML
 
-- Some plugins, such as the Docker collector, allow for wildcards (\*) in the metrics "path"
-  <br/>(see snap/docker-influxdb.json)
+- Quelques plugins, tels que le collecteur Docker, autorisent les jokers (\*) dans les "chemins" de métriques
+  <br/>(voir snap/docker-influxdb.json)
 
-- More resources:
+- Plus de ressources:
   https://github.com/intelsdi-x/snap/blob/master/docs/TASKS.md
 
 ---
 
 class: snap
 
-## Our first task manifest
+## Notre premier manifeste de tâche
 
 ```yaml
   version: 1
@@ -309,13 +305,13 @@ class: snap
 
 class: snap
 
-## Creating our first task
+## Créer notre première tâche
 
-- The task manifest shown on the previous slide is stored in `snap/psutil-file.yml`.
+- Le manifest de tâche montré dans la diapo précédente est stocké dans `snap/psutil-file.yml`.
 
 .exercise[
 
-- Create a task using the manifest:
+- Déclarer une nouvelle tâche basée sur le manifeste:
 
   ```bash
   cd ~/container.training/snap
@@ -324,7 +320,7 @@ class: snap
 
 ]
 
-  The output should look like the following:
+  L'affichage devrait ressembler à:
   ```
     Using task manifest to create task
     Task created
@@ -337,11 +333,11 @@ class: snap
 
 class: snap
 
-## Checking existing tasks
+## Vérifier les tâches existantes
 
 .exercise[
 
-- This will confirm that our task is running correctly, and remind us of its task ID
+- Cela va confirmer que notre tâche tourne correctement, et nous rappeler son ID de tâche.
 
   ```bash
   snapctl task list
@@ -349,7 +345,7 @@ class: snap
 
 ]
 
-The output should look like the following:
+L'affichage devrait ressembler à ce qui suit:
   ```
     ID           NAME              STATE     HIT MISS FAIL CREATED
     24043...acba Task-24043...acba Running   4   0    0    2:34PM   8-13-2016
@@ -358,32 +354,32 @@ The output should look like the following:
 
 class: snap
 
-## Viewing our task dollars at work
+## Voir notre tâche à l'oeuvre
 
-- The task is using a very simple publisher, `mock-file`
+- La tâche utilise un éditeur très simple, `mock-file`
 
-- That publisher just writes text lines in a file (one line per data point)
+- Cet éditeur ne fait qu'écrire des lignes dans un fichier (une ligne par point de donnée)
 
 .exercise[
 
-- Check that the data is flowing indeed:
+- Vérifier que les données circulent vraiment:
   ```bash
   tail -f /tmp/snap-psutil-file.log
   ```
 
 ]
 
-To exit, hit `^C`
+Pour sortir, taper `^C`
 
 ---
 
 class: snap
 
-## Debugging tasks
+## Diagnostiquer les tâches
 
-- When a task is not directly writing to a local file, use `snapctl task watch`
+- Quand une tâche n'écrit pas directement dans un fichier local, passez par `snapctl task watch`
 
-- `snapctl task watch` will stream the metrics you are collecting to STDOUT
+- `snapctl task watch` va faire défiler les métriques collectées vers STDOUT
 
 .exercise[
 
@@ -393,155 +389,157 @@ snapctl task watch <ID>
 
 ]
 
-To exit, hit `^C`
+Pour sortir, taper `^C`
 
 ---
 
 class: snap
 
-## Stopping snap
+## Arrêter snap
 
-- Our Snap deployment has a few flaws:
+- Notre déploiement Snap garde quelques défauts:
 
-  - snapd was started manually
+  - snapd a été démarré à la main
 
-  - it is running on a single node
+  - il est lancé sur une seule _node_
 
-  - the configuration is purely local
-
---
-
-class: snap
-
-- We want to change that!
+  - la configuration est purement locale
 
 --
 
 class: snap
 
-- But first, go back to the terminal where `snapd` is running, and hit `^C`
+- On veut corriger tout ça!
 
-- All tasks will be stopped; all plugins will be unloaded; Snap will exit
+--
+
+class: snap
+
+- Mais d'abord, retournons au terminal où tourne `snapd`, et tapons `^C`
+
+- Toutes les tâches seront stoppées; tous les plugins déchargés; Snap va sortir
 
 ---
 
 class: snap
 
-## Snap Tribe Mode
+## Snap en mode _Tribe_
 
-- Tribe is Snap's clustering mechanism
+- _Tribe_ (tribu en français), est le mécanisme de cluster chez Snap
 
-- When tribe mode is enabled, nodes can join *agreements*
+- Quand le mode tribu est activé, les noeuds peuvent rejoindre des *agreements*
 
-- When a node in an *agreement* does something (e.g. load a plugin or run a task),
-  <br/>other nodes of that agreement do the same thing
+- Quand un noeud au sein d'un _agreement_ fait quelque chose (par ex. charger un plugin ou lancer une tâche),
+les autres noeuds dans le même _agreement_ font de même.
 
-- We will use it to load the Docker collector and InfluxDB publisher on all nodes,
-  <br/>and run a task to use them
+- Nous allons l'exploiter pour charger le collecteur Docker et l'éditeur InfluxDB sur toutes les _nodes_,
+puis lancer une tâche pour les activer.
 
-- Without tribe mode, we would have to load plugins and run tasks manually on every node
+- Sans le mode _Tribe_, nous aurions du charger les plugins et lancer les tâches à la main sur chaque noeud.
 
-- More resources:
+- Pour en savoir plus:
   https://github.com/intelsdi-x/snap/blob/master/docs/TRIBE.md
 
 ---
 
 class: snap
 
-## Running Snap itself on every node
+## Lancer Snap lui-même sur chaque _node_
 
-- Snap runs in the foreground, so you need to use `&` or start it in tmux
+- Snap tourne en avant-plan, vous devez donc utiliser `&` ou le démarrer dans un _tmux_
 
 .exercise[
 
-- Run the following command *on every node:*
+- Lancer la commande suivante *sur chaque noeud*:
   ```bash
   snapd -t 0 -l 1 --tribe --tribe-seed node1:6000
   ```
 
 ]
 
-If you're *not* using Play-With-Docker, there is another way to start Snap!
+Si vous n'utilisez *pas* Play-With-Docker, il y a une autre manière de lancer Snap!
 
 ---
 
 class: snap
 
-## Starting a daemon through SSH
+## Démarrer un _daemon_ par SSH
 
-.warning[Hackety hack ahead!]
+.warning[Grosse bidouille en vue!]
 
-- We will create a *global service*
+- Nous allons créer un *service global*
 
-- That global service will install a SSH client
+- Ce service global va installer un client SSH
 
-- With that SSH client, the service will connect back to its local node
-  <br/>(i.e. "break out" of the container, using the SSH key that we provide)
+- Avec ce client SSH, le service va se connecter sur sa _node_ locale
+  <br/>(i.e "s'échapper" du conteneur, grâce à la clé SSH fournie)
 
-- Once logged on the node, the service starts snapd with Tribe Mode enabled
+- Une fois connecté à la _node_, le service démarre snapd avec le mode _Tribe_
 
 ---
 
 class: snap
 
-## Running Snap itself on every node
+## Lancer Snap lui-même sur chaque noeud
 
-- I might go to hell for showing you this, but here it goes ...
+- Je pourrais aller en prison en vous montrant ça, mais c'est parti ...
 
 .exercise[
 
-- Start Snap all over the place:
+- Démarrer Snap sur toute la longueur:
   ```bash
     docker service create --name snapd --mode global \
            --mount type=bind,source=$HOME/.ssh/id_rsa,target=/sshkey \
            alpine sh -c "
                   apk add --no-cache openssh-client &&
-                  ssh -o StrictHostKeyChecking=no -i /sshkey docker@172.17.0.1 \
-                      sudo snapd -t 0 -l 1 --tribe --tribe-seed node1:6000
-           " # If you copy-paste that block, don't forget that final quote :-)
+                  ssh -o StrictHostKeyChecking=no -i /sshkey root@172.17.0.1 \
+                      /usr/local/bin/snapd -t 0 -l 1 --tribe --tribe-seed node1:6000
+           " # Si vous copier-coller ce bloc, n'oubliez pas l'apostrophe finale :-)
    ```
 
 ]
 
-Remember: this *does not work* with Play-With-Docker (which doesn't have SSH).
+Rappel : ceci *ne fonctionne pas* si vous êtes sur Play-With-Docker (à cause de SSH).
 
 ---
 
 class: snap
 
-## Viewing the members of our tribe
+## Afficher les membres de notre tribu
 
-- If everything went fine, Snap is now running in tribe mode
+- Si tout se passe bien, Snap est maintenant lancé en mode tribu
 
 .exercise[
 
-- View the members of our tribe:
+- Afficher les membres de notre _Tribe_:
   ```bash
   snapctl member list
   ```
 
 ]
 
-This should show the 5 nodes with their hostnames.
+Vous devriez voir les 5 noeuds et leurs noms d'hôtes.
 
 ---
 
 class: snap
 
-## Create an agreement
+## Déclarer un nouvel _agreement_
 
-- We can now create an *agreement* for our plugins and tasks
+- Un _agreement_ est un pacte entre membres d'un cluster Snap qui garantit le même comportement.
+
+- Nous pouvons désormais déclarer un _agreement_ pour nos plugins et tâches.
 
 .exercise[
 
-- Create an agreement; make sure to use the same name all along:
+- Créer un _agreement_; s'assurer de bien utiliser le même nom tout au long:
   ```bash
   snapctl agreement create docker-influxdb
   ```
 
 ]
 
-The output should look like the following:
+La sortie d'écran devrait ressembler à ceci:
 
 ```
   Name             Number of Members       plugins      tasks
@@ -552,15 +550,15 @@ The output should look like the following:
 
 class: snap
 
-## Instruct all nodes to join the agreement
+## Ordonner à tous les noeuds de rejoindre cet _agreeement_
 
-- We don't need another fancy global service!
+- Pas besoin d'un autre service global superflu!
 
-- We can join nodes from any existing node of the cluster
+- On peut ajouter des noeuds depuis n'importe quel noeud du cluster
 
 .exercise[
 
-- Add all nodes to the agreement:
+- Ajouter toutes les _nodes_ au nouvel _agreement_
   ```bash
     snapctl member list | tail -n +2 |
       xargs -n1 snapctl agreement join docker-influxdb
@@ -568,7 +566,7 @@ class: snap
 
 ]
 
-The last bit of output should look like the following:
+Le dernier bout d'affichage devrait ressembler à ceci:
 ```
   Name             Number of Members       plugins         tasks
   docker-influxdb  5                       0               0
@@ -578,17 +576,17 @@ The last bit of output should look like the following:
 
 class: snap
 
-## Start a container on every node
+## Démarrer un conteneur sur chaque _noeud_
 
-- The Docker plugin requires at least one container to be started
+- Le plugin Docker exige au moins un conteneur pour être démarré
 
-- Normally, at this point, you will have at least one container on each node
+- Normalement, à ce niveau de la procédure, vous devriez disposer d'au moins un conteneur sur chaque _node_
 
-- But just in case you did things differently, let's create a dummy global service
+- Mais, juste au cas où quelque chose aurait divergé, déclarons un service global de démo.
 
 .exercise[
 
-- Create an alpine container on the whole cluster:
+- Déclarer un conteneur alpine à travers le cluster:
   ```bash
     docker service create --name ping --mode global alpine ping 8.8.8.8
   ```
@@ -599,33 +597,33 @@ class: snap
 
 class: snap
 
-## Running InfluxDB
+## Faire tourner InfluxDB
 
-- We will create a service for InfluxDB
+- Nous allons créer un service pour InfluxDB
 
-- We will use the official image
+- Nous utiliserons pour cela l'image officielle
 
-- InfluxDB uses multiple ports:
+- InfluxDB expose plusieurs ports:
 
-  - 8086 (HTTP API; we need this)
+  - 8086 (HTTP API; nous en avons besoin)
 
-  - 8083 (admin interface; we need this)
+  - 8083 (l'interface admin; il nous la faut)
 
-  - 8088 (cluster communication; not needed here)
+  - 8088 (communication de cluster; superflu ici)
 
-  - more ports for other protocols (graphite, collectd...)
+  - d'autres ports pour d'autres protocoles (graphite, collectd, etc.)
 
-- We will just publish the first two
+- On se suffira des deux premiers ports pour la suite.
 
 ---
 
 class: snap
 
-## Creating the InfluxDB service
+## Initialiser le service InfluxDB
 
 .exercise[
 
-- Start an InfluxDB service, publishing ports 8083 and 8086:
+- Lancer un service InfluxDB, tout en ouvrant les ports 8083 et 80806:
   ```bash
     docker service create --name influxdb \
            --publish 8083:8083 \
@@ -635,50 +633,51 @@ class: snap
 
 ]
 
-Note: this will allow any node to publish metrics data to `localhost:8086`,
-and it will allows us to access the admin interface by connecting to any node
-on port 8083.
+Note: Cela va autoriser n'importe quel noeud à publier des métriques sur `localhost:80806`,
+et par la même, ouvrir l'interface admin depuis n'importe quel noeud sur le port 8083.
 
-.warning[Make sure to use InfluxDB 0.13; a few things changed in 1.0
-(like, the name of the default retention policy is now "autogen") and
-this breaks a few things.]
+.warning[Assurez-vous bien d'utiliser la version 0.13 d'InfluxDB; quelques petits trucs
+ont changé en version 1.0 (comme le nom de la politique de rétention par défaut, qui est
+maintenant "autogen"), ce qui casserait notre démo.]
 
 ---
 
 class: snap
 
-## Setting up InfluxDB
+## Configurer InfluxDB
 
-- We need to create the "snap" database
+- On devrait y créer notre base de données "snap"
 
 .exercise[
 
-- Open port 8083 with your browser
+- Ouvrir le port 8083 sur navigateur
 
-- Enter the following query in the query box:
+- Entrer la requête suivante dans le champ de saisie:
   ```
   CREATE DATABASE "snap"
   ```
 
-- In the top-right corner, select "Database: snap"
+- En haut à droite, sélectionner "Database: snap"
 
 ]
 
-Note: the InfluxDB query language *looks like* SQL but it's not.
+Note: le langage de requête InfluxDB *ressemble* à SQL, mais il n'en est rien.
 
-???
+---
 
-## Setting a retention policy
+class:snap
 
-- When graduating to 1.0, InfluxDB changed the name of the default policy
+## Régler la politique de rétention
 
-- It used to be "default" and it is now "autogen"
+- En passant à la version 1.0, InfluxDB a changé le nom de la politique par défaut.
 
-- Snap still uses "default" and this results in errors
+- A l'origine baptisée "default", elle s'appelle désormais "autogen"
+
+- Au grand dam de Snap qui ne connait que "default", nous occasionnant des erreurs potentielles.
 
 .exercise[
 
-- Create a "default" retention policy by entering the following query in the box:
+- Déclarer une politique de rétention "default", en lançant la requête suivante:
   ```
   CREATE RETENTION POLICY "default" ON "snap" DURATION 1w REPLICATION 1
   ```
@@ -689,22 +688,22 @@ Note: the InfluxDB query language *looks like* SQL but it's not.
 
 class: snap
 
-## Load Docker collector and InfluxDB publisher
+## Lancer le collecteur Docker et l'éditeur InfluxDB
 
-- We will load plugins on the local node
+- Nous allons charger les plugins depuis la _node_ locale
 
-- Since our local node is a member of the agreement, all other
-  nodes in the agreement will also load these plugins
+- Puisque notre _node_ locale est un membre d'_agreement_, toutes
+les autres _nodes_ de ce même _agreement_ vont agir en miroir.
 
 .exercise[
 
-- Load Docker collector:
+- Charger le collecteur Docker:
 
   ```bash
   snapctl plugin load /opt/snap/plugin/snap-plugin-collector-docker
   ```
 
-- Load InfluxDB publisher:
+- Charger l'éditeur InfluxDB:
 
   ```bash
   snapctl plugin load /opt/snap/plugin/snap-plugin-publisher-influxdb
@@ -716,16 +715,16 @@ class: snap
 
 class: snap
 
-## Start a simple collection task
+## Démarrer une simple tâche de collecte
 
-- Again, we will create a task on the local node
+- Comme tout à l'heure, nous allons déclarer une nouvelle tâche sur la _node_ locale
 
-- The task will be replicated on other nodes members of the same agreement
+- Ladite tâche va être répliquée sur les _nodes_ membres du même _agreement_
 
 .exercise[
 
-- Load a task manifest file collecting a couple of metrics on all containers,
-  <br/>and sending them to InfluxDB:
+- Charge le fichier du manifeste de tâche, pour collecter une ou deux métriques
+  <br/>sur tous les conteneurs, et les envoyer à InfluxDB:
   ```bash
   cd ~/container.training/snap
   snapctl task create -t docker-influxdb.json
@@ -733,52 +732,52 @@ class: snap
 
 ]
 
-Note: the task description sends metrics to the InfluxDB API endpoint
-located at 127.0.0.1:8086. Since the InfluxDB container is published
-on port 8086, 127.0.0.1:8086 always routes traffic to the InfluxDB
-container.
+Note: la description de tâche envoie les métriques au point d'entrée de
+l'API InfluxDB, écoutant sur 127.0.0.1:8086. Puisque le conteneur InfluxDB
+est publié sur le port 8086, 127.0.0.1:8086 va toujours router le trafic
+vers le conteneur InfluxDB.
 
 ---
 
 class: snap
 
-## If things go wrong...
+## Si quelque chose dérape...
 
-Note: if a task runs into a problem (e.g. it's trying to publish
-to a metrics database, but the database is unreachable), the task
-will be stopped.
+Note:  si une tâche tombe en panne (par ex. en essayant de publier
+des données vers une base de métrique inaccessible), la tâche va
+se mettre à l'arrêt.
 
-You will have to restart it manually by running:
+Vous devrez la redémarrer à la main en lançant:
 
 ```bash
 snapctl task enable <ID>
 snapctl task start <ID>
 ```
 
-This must be done *per node*. Alternatively, you can delete+re-create
-the task (it will delete+re-create on all nodes).
+C'est une procédure à lancer sur *chaque noeud*. L'alternative serait de
+supprimer+re-déclarer la tâche (commandes à l'effet global sur tout le cluster)
 
 ---
 
 class: snap
 
-## Check that metric data shows up in InfluxDB
+## Voir si les métriques remontent dans InfluxDB
 
-- Let's check existing data with a few manual queries in the InfluxDB admin interface
+- Vérifions les données existantes avec ces requêtes manuelles dans l'admin InfluxDB
 
 .exercise[
 
-- List "measurements":
+- Lister les _"measurements"_:
   ```
   SHOW MEASUREMENTS
   ```
-  (This should show two generic entries corresponding to the two collected metrics.)
+  (Vous devriez voir deux entrées génériques correspondant aux deux métriques collectées.)
 
-- View time series data for one of the metrics:
+- Afficher les données séries-temps pour une des métriques:
   ```
   SELECT * FROM "intel/docker/stats/cgroups/cpu_stats/cpu_usage/total_usage"
   ```
-  (This should show a list of data points with **time**, **docker_id**, **source**, and **value**.)
+  (Vous devriez voir une liste de points de données avec **time**, **docker_id**, **source**, et **value**.)
 
 ]
 
@@ -786,15 +785,15 @@ class: snap
 
 class: snap
 
-## Deploy Grafana
+## Déployer Grafana
 
-- We will use an almost-official image, `grafana/grafana`
+- Vous pouvez utiliser une image quasi-officielle, `grafana/grafana`
 
-- We will publish Grafana's web interface on its default port (3000)
+- Vous pouvez rendre publique l'interface web de Grafana sur son port par défaut (3000)
 
 .exercise[
 
-- Create the Grafana service:
+- Créer un service Grafana:
   ```bash
   docker service create --name grafana --publish 3000:3000 grafana/grafana:3.1.1
   ```
@@ -805,19 +804,19 @@ class: snap
 
 class: snap
 
-## Set up Grafana
+## Configurer Grafana
 
 .exercise[
 
-- Open port 3000 with your browser
+- Ouvrir le port 3000 avec le navigateur
 
-- Identify with "admin" as the username and password
+- Se connecter en "admin" en identifiant/mot de passe
 
-- Click on the Grafana logo (the orange spiral in the top left corner)
+- Cliquer sur le logo Grafana (la spirale orange dans le coin en haut à gauche)
 
-- Click on "Data Sources"
+- Cliquer sur les "Data sources"
 
-- Click on "Add data source" (green button on the right)
+- Cliquer sur "Add data source" (le bouton vert à droite)
 
 ]
 
@@ -825,25 +824,25 @@ class: snap
 
 class: snap
 
-## Add InfluxDB as a data source for Grafana
+## Ajouter InfluxDB comme source dans Grafana
 
 .small[
 
-Fill the form exactly as follows:
+Remplir le formulaire exactmeent comme suit:
 - Name = "snap"
 - Type = "InfluxDB"
 
-In HTTP settings, fill as follows:
-- Url = "http://(IP.address.of.any.node):8086"
+Dans les paramètres HTTP, renseigner comme suit:
+- Url = "http://(adresse.IP.de.votre.noeud.prefere):8086"
 - Access = "direct"
-- Leave HTTP Auth untouched
+- Laisser "HTTP Auth" vide
 
-In InfluxDB details, fill as follows:
+Dans les détails pour InfluxDB, écrire comme suit:
 - Database = "snap"
-- Leave user and password blank
+- Laisser l'utilisateur et le mot de passe vierges
 
-Finally, click on "add", you should see a green message saying "Success - Data source is working".
-If you see an orange box (sometimes without a message), it means that you got something wrong. Triple check everything again.
+Pour finir, cliquer sur "add", vous devriez voir un message vert affirmant "Success - Data source is working".
+Si vous voyez un encart orange (parfois sans message), cela veut dire que quelque chose s'est mal passé. Vérifier bien à nouveau.
 
 ]
 
@@ -851,72 +850,72 @@ If you see an orange box (sometimes without a message), it means that you got so
 
 class: snap
 
-![Screenshot showing how to fill the form](images/grafana-add-source.png)
+![Copie d'écran montrant comment remplir le formulaire](images/grafana-add-source.png)
 
 ---
 
 class: snap
 
-## Create a dashboard in Grafana
+## Déclarer un tableau de bord dans Grafana
 
 .exercise[
 
-- Click on the Grafana logo again (the orange spiral in the top left corner)
+- Cliquer sur le logo Grafana encore (la spirale orange dans le coin en haut à gauche)
 
-- Hover over "Dashboards"
+- Passer sur "Dashboards"
 
-- Click "+ New"
+- Cliquer sur "+ New"
 
-- Click on the little green rectangle that appeared in the top left
+- Cliquer sur le petit rectangle vert qui apparait en haut à gauche
 
-- Hover over "Add Panel"
+- Passer sur "Add panel"
 
-- Click on "Graph"
+- Cliquer sur "Graph"
 
 ]
 
-At this point, you should see a sample graph showing up.
+A ce moment précis, vous devriez voir un graphe d'exemple s'afficher.
 
 ---
 
 class: snap
 
-## Setting up a graph in Grafana
+## Configurer un graphe dans Grafana
 
 .exercise[
 
-- Panel data source: select snap
-- Click on the SELECT metrics query to expand it
-- Click on "select measurement" and pick CPU usage
-- Click on the "+" right next to "WHERE"
-- Select "docker_id"
-- Select the ID of a container of your choice (e.g. the one running InfluxDB)
-- Click on the "+" on the right of the "SELECT" line
-- Add "derivative"
-- In the "derivative" option, select "1s"
-- In the top right corner, click on the clock, and pick "last 5 minutes"
+- Panel data source: choisir "snap"
+- Cliquer sur les requêtes de métriques SELECT pour les agrandir
+- Cliquer sur "select measurement" et choisir "CPU usage"
+- Cliquer sur le "+" juste à côté de "WHERE"
+- Choisir "docker_id"
+- Choisir l'ID d'un conteneur de votre choix (par ex. celui qui fait tourner InfluxDB)
+- Cliquer sur le "+" à droite right de la ligne "SELECT"
+- Ajouter "derivative"
+- Dans l'option "derivative", choisir "1s"
+- Dans le coin en haut à droite, cliquer sur la montre, et choisir "last 5 minutes"
 
 ]
 
-Congratulations, you are viewing the CPU usage of a single container!
+Félicitations, vous avez sous les yeux l'usage CPU d'un seul conteneur!
 
 ---
 
 class: snap
 
-![Screenshot showing the end result](images/grafana-add-graph.png)
+![Copie d'écran affichant le résultat final](images/grafana-add-graph.png)
 
 ---
 
 class: snap, prom
 
-## Before moving on ...
+## Avant de poursuivre ...
 
-- Leave that tab open!
+- Laissez cet onglet ouvert!
 
-- We are going to set up *another* metrics system
+- Nous allons installer un *autre* système de métrique
 
-- ... And then compare both graphs side by side
+- ... Puis comparer les 2 graphes côte-à-côte
 
 ---
 
@@ -924,74 +923,74 @@ class: snap, prom
 
 ## Prometheus vs. Snap
 
-- Prometheus is another metrics collection system
+- Prometheus est un autre système de collecte de métriques
 
-- Snap *pushes* metrics; Prometheus *pulls* them
-
----
-
-class: prom
-
-## Prometheus components
-
-- The *Prometheus server* pulls, stores, and displays metrics
-
-- Its configuration defines a list of *exporter* endpoints
-  <br/>(that list can be dynamic, using e.g. Consul, DNS, Etcd...)
-
-- The exporters expose metrics over HTTP using a simple line-oriented format
-
-  (An optimized format using protobuf is also possible)
+- Snap *pousse* les métriques, là où Prometheus les *aspire*
 
 ---
 
 class: prom
 
-## It's all about the `/metrics`
+## Composants de Prometheus
 
-- This is what the *node exporter* looks like:
+- Le *serveur Prometheus* aspire, stocke et affiche les métriques
+
+- Sa configuration définit une liste de points *exportateurs*
+  <br/>(cette liste peut être dynamique, via par ex. Consul, DNS, etcd ...)
+
+- Les *exportateurs* exposent des métriques via HTTP dans un simple format ligne à ligne
+
+  (Un format optimisé usant de protobuf existe aussi)
+
+---
+
+class: prom
+
+## Tout est dans les `/metrics`
+
+- Voici à quoi ressemble un *exportateur de noeud*:
 
   http://demo.robustperception.io:9100/metrics
 
-- Prometheus itself exposes its own internal metrics, too:
+- Prometheus lui-même expose aussi ses propres métriques internes:
 
   http://demo.robustperception.io:9090/metrics
 
-- A *Prometheus server* will *scrape* URLs like these
+- Un *serveur Prometheus* va *aspirer* les URLs telles que celles-ci
 
-  (It can also use protobuf to avoid the overhead of parsing line-oriented formats!)
-
----
-
-class: prom-manual
-
-## Collecting metrics with Prometheus on Swarm
-
-- We will run two *global services* (i.e. scheduled on all our nodes):
-
-  - the Prometheus *node exporter* to get node metrics
-
-  - Google's cAdvisor to get container metrics
-
-- We will run a Prometheus server to scrape these exporters
-
-- The Prometheus server will be configured to use DNS service discovery
-
-- We will use `tasks.<servicename>` for service discovery
-
-- All these services will be placed on a private internal network
+  (On passera plutôt par protobuf pour éviter le supplément de traitement des formats ligne-à-ligne!)
 
 ---
 
 class: prom-manual
 
-## Creating an overlay network for Prometheus
+## Collecter les métriques avec Prometheus sur Swarm
 
-- This is the easiest step ☺
+- Nous allons lancer deux *services globaux* (i.e. planifiés sur toutes les _nodes_):
+
+  - Un *exportateur de noeud* Prometheus pour lire les métriques de _node_
+
+  - Le cAdvisor de Google pour lire les métriques de conteneurs.
+
+- C'est un serveur Prometheus qui va interroger ces exportateurs.
+
+- Ce serveur Prometheus sera configuré pour la découverte de services par DNS
+
+- Nous utiliserons `tasks.<nom_du_service>` pour cette découverte de services.
+
+- Tous ces services seront placés dans un réseau privé interne.
+
+---
+
+class: prom-manual
+
+## Ajouter un réseau _overlay_ pour Prometheus
+
+- C'est l'étape la plus facile ☺
 
 .exercise[
 
-- Create an overlay network:
+- Déclarer un réseau superposé:
   ```bash
   docker network create --driver overlay prom
   ```
@@ -1002,16 +1001,16 @@ class: prom-manual
 
 class: prom-manual
 
-## Running the node exporter
+## Lancer l'exportateur pour _node_
 
-- The node exporter *should* run directly on the hosts
-- However, it can run from a container, if configured properly
+- L'exportateur de _node_ *devrait* tourner directement sur les hôtes
+- Toutefois, il peut tourner dans un conteneur, si correctement configuré
   <br/>
-  (it needs to access the host's filesystems, in particular /proc and /sys)
+  (il devra quand même avoir accès aux système de fichier hôte, particulièrement à /proc et /sys)
 
 .exercise[
 
-- Start the node exporter:
+- Démarrer l'exportateur de noeud:
   ```bash
     docker service create --name node --mode global --network prom \
      --mount type=bind,source=/proc,target=/host/proc \
@@ -1029,15 +1028,15 @@ class: prom-manual
 
 class: prom-manual
 
-## Running cAdvisor
+## Installer cAdvisor
 
-- Likewise, cAdvisor *should* run directly on the hosts
+- Dans la même veine, cAdvisor *devrait* tourner directement sur nos hôtes.
 
-- But it can run in containers, if configured properly
+- Mais on peut le lancer dans des conteneurs configurés correctement.
 
 .exercise[
 
-- Start the cAdvisor collector:
+- Démarrer le collecteur cAdvisor:
   ```bash
     docker service create --name cadvisor --network prom --mode global \
       --mount type=bind,source=/,target=/rootfs \
@@ -1053,9 +1052,9 @@ class: prom-manual
 
 class: prom-manual
 
-## Prometheus server configuration
+## Configuration de serveur Prometheus
 
-This will be our configuration file for Prometheus:
+Voici notre fichier de configuration pour Prometheus:
 
 .small[
 ```yaml
@@ -1082,41 +1081,41 @@ scrape_configs:
 
 class: prom-manual
 
-## Passing the configuration to Prometheus
+## Transmettre la configuration à Prometheus
 
-- The easiest solution is to create a custom image bundling this configuration
+- Le plus simple serait de générer une image spécifique, incluant cette config.
 
-- We will use a very simple Dockerfile:
+- On va utiliser un Dockerfile très simple:
   ```dockerfile
   FROM prom/prometheus:v1.4.1
   COPY prometheus.yml /etc/prometheus/prometheus.yml
   ```
 
-  (The configuration file, and the Dockerfile, are in the `prom` subdirectory)
+  (Le fichier de configuraiton et le Dockerfile sont tous deux dans le dossier `prom`)
 
-- We will build this image, and push it to our local registry
+- On va lancer un _build_, puis pousser cette image dans notre _Registry_ locale
 
-- Then we will create a service using this image
+- On terminera en créant un service invoquant cette image
 
-Note: it is also possible to use a `config` to inject that configuration file
-without having to create this ad-hoc image.
+Note: il est aussi possible d'utiliser un objet `config` pour injecter ce fichier de configuration
+sans avoir à créer une image spéciale.
 
 ---
 
 class: prom-manual
 
-## Building our custom Prometheus image
+## Générer notre image Prometheus sur-mesure
 
-- We will use the local registry started previously on 127.0.0.1:5000
+- Nous allons utiliser le registre local démarré précédemment sur 127.0.0.1:5000
 
 .exercise[
 
-- Build the image using the provided Dockerfile:
+- Générer l'image grâce au Dockerfile fourni:
   ```bash
   docker build -t 127.0.0.1:5000/prometheus ~/container.training/prom
   ```
 
-- Push the image to our local registry:
+- Pousser l'image sur notre registre local:
   ```bash
   docker push 127.0.0.1:5000/prometheus
   ```
@@ -1127,15 +1126,15 @@ class: prom-manual
 
 class: prom-manual
 
-## Running our custom Prometheus image
+## Lancer notre image Prometheus sur-mesure
 
-- That's the only service that needs to be published
+- C'est le seul service qu'on devra rendre public
 
-  (If we want to access Prometheus from outside!)
+  (Si on veut pouvoir accéder à Prometheus de l'extérieur!)
 
 .exercise[
 
-- Start the Prometheus server:
+- Démarrer notre serveur Prometheus:
   ```bash
     docker service create --network prom --name prom \
            --publish 9090:9090 127.0.0.1:5000/prometheus
@@ -1147,18 +1146,18 @@ class: prom-manual
 
 class: prom-auto
 
-## Deploying Prometheus on our cluster
+## Déployer Prometheus sur notre cluster
 
-- We will use a stack definition (once again)
+- Nous allons (encore une fois) utiliser une définition de _stack_
 
 .exercise[
 
-- Make sure we are in the stacks directory:
+- S'assurer que nous sommes dans le dossier `stacks`:
   ```bash
   cd ~/container.training/stacks
   ```
 
-- Build, ship, and run the Prometheus stack:
+- Générer, envoyer et lancer la _stack_ Prometheus:
   ```bash
   docker-compose -f prometheus.yml build
   docker-compose -f prometheus.yml push
@@ -1171,75 +1170,75 @@ class: prom-auto
 
 class: prom
 
-## Checking our Prometheus server
+## Vérifier notre serveur Prometheus
 
-- First, let's make sure that Prometheus is correctly scraping all metrics
+- D'abord, assurons-nous que Prometheus aspire correctement toutes les métriques
 
 .exercise[
 
-- Open port 9090 with your browser
+- Ouvrir le port 9090 avec le navigateur
 
-- Click on "status", then "targets"
+- Cliquer sur "status", puis "targets"
 
 ]
 
-You should see 7 endpoints (3 cadvisor, 3 node, 1 prometheus).
+Vous devriez voir sept points d'entrées (3 cadvisor, 3 node, 1 prometheus)
 
-Their state should be "UP".
+Leur statut devrait être "UP".
 
 ---
 
 class: prom-auto, config
 
-## Injecting a configuration file
+## Injecter un fichier de configuration
 
-(New in Docker Engine 17.06)
+(Nouveau dans Docker Engine 17.06)
 
-- We are creating a custom image *just to inject a configuration*
+- Nous générons une image sur-mesure *juste pour injecter un fichier de configuration*
 
-- Instead, we could use the base Prometheus image + a `config` 
+- Au lieu de cela, nous pourrions rester sur l'image Prometheus officielle + une `config`
 
-- A `config` is a blob (usually, a configuration file) that:
+- Une `config` est un _blob_ (habituellement, un fichier de conf) qui:
 
-  - is created and managed through the Docker API (and CLI)
+  - est créé et géré à travers l'API Docker (dont la ligne de commande)
 
-  - gets persisted into the Raft log (i.e. safely)
+  - est stocké dans le log Raft (synonyme de sécurité)
 
-  - can be associated to a service
+  - peut être associé à un service
     <br/>
-    (this injects the blob as a plain file in the service's containers)
+    (cette opération consistant à injecter le _blob_ sous forme de fichier classique dans les conteneurs du service)
 
 ---
 
 class: prom-auto, config
 
-## Differences between `config` and `secret`
+## Différences entre `configs` et `secrets`
 
-The two are very similar, but ...
+Les deux se ressemblent vraiment, à ceci près que:
 
 - `configs`:
 
-  - can be injected to any filesystem location
+  - peut être injecté à n'importe quel endroit du système de fichiers
 
-  - can be viewed and extracted using the Docker API or CLI
+  - peut être affiché et extrait à l'aide de l'API Docker ou la CLI
 
-- `secrets`:
+- `secrets`
 
-  - can only be injected into `/run/secrets`
+  - peut uniquement être injecté dans `/run/secrets`
 
-  - are never stored in clear text on disk
+  - n'est jamais stocké en clair sur le disque
 
-  - cannot be viewed or extracted with the Docker API or CLI
+  - ne pourra jamais être affiché ou extrait avec l'API Docker ou la CLI
 
 ---
 
 class: prom-auto, config
 
-## Deploying Prometheus with a `config`
+## Déployer Prometheus avec un `config`
 
-The following Compose file (`prometheus+config.yml`) achieves
-the same result, but by using a `config` instead of baking the
-configuration into the image.
+Le fichier Compose qui suit (`prometheus+config.yml`) accomplit
+la même tâche, mais en utilisant un `config` au lieu de cuisiner
+une nouvelle image "farcie" de configuration.
 
 .small[
 ```yaml
@@ -1248,7 +1247,7 @@ version: "3.3"
 services:
 
 prometheus:
-  image: prom/prometheus:v1.4.1 
+  image: prom/prometheus:v1.4.1
   ports:
     - "9090:9090"
   configs:
@@ -1267,42 +1266,42 @@ configs:
 
 class: prom-auto, config
 
-## Specifying a `config` in a Compose file
+## Spécifier un `config` dans un fichier Compose
 
-- In each service, an optional `configs` section can list as many configs as you want
+- Dans chaque service, une section `configs` optionnelle peut lister autant de configuration que nécessaire.
 
-- Each config can specify:
+- Chaque config peut préciser:
 
-  - an optional `target` (path to inject the configuration; by default: root of the container)
+  - un champ `target` optionnel (chemin où injecter la config; par défaut: à la racine du conteneur)
 
-  - ownership and permissions (by default, the file will be owned by UID 0, i.e. `root`)
+  - les permissions et/ou propriété (par défaut, le fichier appartient à l'UID 0, i.e. `root`)
 
-- These configs reference top-level `configs` elements
+- Ces configs pointent vers la section principale de `configs`
 
-- The top-level configs can be declared as:
+- Cette section principale peut déclarer une ou plusieurs configs telles que:
 
-  - *external*, meaning that it is supposed to be created before you deploy the stack
+  - *external*, à savoir qu'elle est supposée pré-exister avant de déployer la _stack_
 
-  - referencing a file, whose content is used to initialize the config
+  - le référencement d'un fichier, dont le contenu est utilisé pour initialiser la config
 
 ---
 
 class: prom-auto, config
 
-## Re-deploying Prometheus with a config
+## Re-déployer Prometheus avec une config
 
-- We will update the existing stack using `prometheus+config.yml`
+- Nous allons mettre à jour la _stack_ existante grâce à `prometheus+config.yml`
 
 .exercise[
 
-- Redeploy the `prometheus` stack:
+- Re-déployer la _stack_ `prometheus`:
   ```bash
   docker stack deploy -c prometheus+config.yml prometheus
   ```
 
-- Check that Prometheus still works as intended
+- Vérifier que Prometheus fonctionne encore comme attendu:
 
-  (By connecting to any node of the cluster, on port 9090)
+  (En se connectant à n'importe quel noeud du cluster, sur le port 9090)
 
 ]
 
@@ -1310,44 +1309,45 @@ class: prom-auto, config
 
 class: prom-auto, config
 
-## Accessing the config object from the CLI
+## Accéder à l'objet de config depuis la CLI
 
-- Config objects can be viewed from the Docker CLI (or API)
+- Les objets de config peuvent être consultés depuis la CLI Docker (ou l'API)
 
 .exercise[
 
-- List existing config objects:
+- Lister les objets de config existant:
   ```bash
   docker config ls
   ```
 
-- View details about our config object:
+- Afficher les détails sur notre objet de config:
   ```bash
   docker config inspect prometheus_prometheus
   ```
 
 ]
 
-Note: the content of the config blob is shown with BASE64 encoding.
+Note: le contenu du blob de configuration est affiché en encodate BASE64
 <br/>
-(It doesn't have to be text; it could be an image or any kind of binary content!)
+(En effet, cela peut ne pas être du texte; par exemple une image ou n'importe quel binaire!)
+
 
 ---
 
 class: prom-auto, config
 
-## Extracting a config blob
+## Extraire un _blob_ de config
 
-- Let's retrieve that Prometheus configuration!
+- Récupérons cette configuration Prometheus!
 
 .exercise[
 
-- Extract the BASE64 payload with `jq`:
+- Extraire le contenu en BASE64 avec `jq`:
   ```bash
   docker config inspect prometheus_prometheus | jq -r .[0].Spec.Data
   ```
 
-- Decode it with `base64 -d`:
+- Le décoder avec `base64 -d`:
   ```bash
   docker config inspect prometheus_prometheus | jq -r .[0].Spec.Data | base64 -d
   ```
@@ -1358,13 +1358,13 @@ class: prom-auto, config
 
 class: prom
 
-## Displaying metrics directly from Prometheus
+## Afficher les métriques directement depuis Prometheus
 
-- This is easy ... if you are familiar with PromQL
+- C'est facile ... si vous êtes familier avec PromQL
 
 .exercise[
 
-- Click on "Graph", and in "expression", paste the following:
+- Cliquer sur "Graph", et dans "expression", coller ce qui suit:
   ```
     sum by (container_label_com_docker_swarm_node_id) (
       irate(
@@ -1375,7 +1375,7 @@ class: prom
     )
   ```
 
-- Click on the blue "Execute" button and on the "Graph" tab just below
+- Cliquer sur le bouton bleu "Execute" et sur l'onglet "Graph" juste en dessous.
 
 ]
 
@@ -1383,220 +1383,220 @@ class: prom
 
 class: prom
 
-## Building the query from scratch
+## Construire le requête de zéro
 
-- We are going to build the same query from scratch
+- Nous allons monter la même requête de zéro
 
-- This doesn't intend to be a detailed PromQL course
+- Le but n'est pas de remplacer un vrai cours détaillé sur PromQL
 
-- This is merely so that you (I) can pretend to know how the previous query works
-  <br/>so that your coworkers (you) can be suitably impressed (or not)
+- C'est juste suffisant pour que vous (et moi) faisions semblant de comprendre
+la requête précédente et pour impressioner vos collègues au bureau (ou pas)
 
-  (Or, so that we can build other queries if necessary, or adapt if cAdvisor,
-  Prometheus, or anything else changes and requires editing the query!)
-
----
-
-class: prom
-
-## Displaying a raw metric for *all* containers
-
-- Click on the "Graph" tab on top
-
-  *This takes us to a blank dashboard*
-
-- Click on the "Insert metric at cursor" drop down, and select `container_cpu_usage_seconds_total`
-
-  *This puts the metric name in the query box*
-
-- Click on "Execute"
-
-  *This fills a table of measurements below*
-
-- Click on "Graph" (next to "Console")
-
-  *This replaces the table of measurements with a series of graphs (after a few seconds)*
+  (ou, pour construire d'autres requêtes si nécessaire, ou les adapter si cAdvisor,
+  Prometheus, ou n'importe quoi demande des changements, et exige de changer la requête!)
 
 ---
 
 class: prom
 
-## Selecting metrics for a specific service
+## Voir les métriques brutes pour *tout* conteneur
 
-- Hover over the lines in the graph
+- Cliquer sur l'onglet "Graph" au dessus
 
-  (Look for the ones that have labels like `container_label_com_docker_...`)
+  *On arrive dans un tableau de bord vierge*
 
-- Edit the query, adding a condition between curly braces:
+- Cliquer sur la liste "Insert metric at cursor", et choisir `container_cpu_usage_seconds_total`
+
+  *Ça va placer le nom de la métrique dans le champ de requête*
+
+- Cliquer sur "Execute"
+
+  *La table des mesures du dessous va se remplir*
+
+- Cliquer sur "Graph" (à côté de "Console")
+
+  *La table des mesures est remplacée par une série de graphes (après quelques secondes)*
+
+---
+
+class: prom
+
+## Choisir les métriques pour un service spécifique
+
+- Passer sur les lignes du graphe
+
+  (Essayer de repérer ceux qui ont des labels comme `container_label_com_docker_...`)
+
+- Changer la requête, en ajoutant une condition entre accolades:
 
   .small[`container_cpu_usage_seconds_total{container_label_com_docker_swarm_service_name="dockercoins_worker"}`]
 
-- Click on "Execute"
+- Cliquer sur "Execute"
 
-  *Now we should see one line per CPU per container*
+  *On devrait voir maintenant une ligne par CPU par conteneur*
 
-- If you want to select by container ID, you can use a regex match: `id=~"/docker/c4bf.*"`
+- Si vous voulez limiter à un conteneur précis, ajouter une expression régulière: `id=~"/docker/c4bf.*"`
 
-- You can also specify multiple conditions by separating them with commas
+- Vous pouvez aussi cumuler les conditions, en les séparant par virgule.
 
 ---
 
 class: prom
 
-## Turn counters into rates
+## Transformer les compteurs en taux
 
-- What we see is the total amount of CPU used (in seconds)
+- Ce qu'on voit, c'est le montant total de CPU utilisé (en secondes)
 
-- We want to see a *rate* (CPU time used / real time)
+- On voudrait afficher un *taux* (temps de CPU utilisé / temps réel)
 
-- To get a moving average over 1 minute periods, enclose the current expression within:
+- Pour avoir une moyenne mobile sur 1 minute, encapsulez l'expression en cours dans:
 
   ```
   rate ( ... { ... } [1m] )
   ```
 
-  *This should turn our steadily-increasing CPU counter into a wavy graph*
+  *Cela devrait convertir notre compteur CPU qui grimpe en courbe gracieuse*
 
-- To get an instantaneous rate, use `irate` instead of `rate`
+- Pour afficher plutôt un taux instantané, choisir `irate` au lieu de `rate`
 
-  (The time window is then used to limit how far behind to look for data if data points
-  are missing in case of scrape failure; see [here](https://www.robustperception.io/irate-graphs-are-better-graphs/) for more details!)
+  (La fenêtre de temps sert ensuite à filtrer la quantité de données dans le passé à récupérer,
+  dans le cas où des points sont manquants à cause de collecte défaillante; [voir ici](https://www.robustperception.io/irate-graphs-are-better-graphs/) pour plus de détails!)
 
-  *This should show spikes that were previously invisible because they were smoothed out*
+  *On devrait voir des pics, qui étaient restés cachés, à cause du lissage sur le temps*
 
 ---
 
 class: prom
 
-## Aggregate multiple data series
+## Agréger des séries de données multiples
 
-- We have one graph per CPU per container; we want to sum them
+- On a une courbe par CPU par conteneur; on voudrait les cumuler
 
-- Enclose the whole expression within:
+- Encapsulez toute l'expression dans:
 
   ```
   sum ( ... )
   ```
 
-  *We now see a single graph*
+  *On peut voir maintenant une seule courbe*
 
 ---
 
 class: prom
 
-## Collapse dimensions
+## Eclatement de dimensions
 
-- If we have multiple containers we can also collapse just the CPU dimension:
+- Avec plusieurs conteneurs, on peut juste éclater la dimension "CPU":
 
   ```
   sum without (cpu) ( ... )
   ```
 
-  *This shows the same graph, but preserves the other labels*
+  *On affichera la même courbe, en préservant les autres labels*
 
-- Congratulations, you wrote your first PromQL expression from scratch!
+- Fécilitations, vous venez d'écrire votre première expression PromQL de zéro!
 
-  (I'd like to thank [Johannes Ziemke](https://twitter.com/discordianfish) and
-  [Julius Volz](https://twitter.com/juliusvolz) for their help with Prometheus!)
-
----
-
-class: prom, snap
-
-## Comparing Snap and Prometheus data
-
-- If you haven't set up Snap, InfluxDB, and Grafana, skip this section
-
-- If you have closed the Grafana tab, you might have to re-set up a new dashboard
-
-  (Unless you saved it before navigating it away)
-
-- To re-do the setup, just follow again the instructions from the previous chapter
+  (Merci à [Johannes Ziemke](https://twitter.com/discordianfish) et
+  [Julius Volz](https://twitter.com/juliusvolz) pour leur aide avec Prometheus!)
 
 ---
 
 class: prom, snap
 
-## Add Prometheus as a data source in Grafana
+## Comparer les données de Snap et Prometheus
+
+- Si vous n'avez pas monté Snap, InfluxDB et Grafana, sautez cette section
+
+- Si vous avez fermé l'onglet Grafana, il faudra peut-être ré-installer un nouveau tableau de bord
+
+  (sauf si vous l'avez enregistré avant de quitter)
+
+- Pour tout récupérer, il suffit de suivre les instructions du chapitre précédent
+
+---
+
+class: prom, snap
+
+## Ajouter Prometheus comme source de données dans Grafana
 
 .exercise[
 
-- In a new tab, connect to Grafana (port 3000)
+- Dans un nouvel onglet, ouvrir Grafana (port 3000)
 
-- Click on the Grafana logo (the orange spiral in the top-left corner)
+- Cliquer sur le logo Grafana (la spirale Orange dans le coin en haut à gauche)
 
-- Click on "Data Sources"
+- Cliquer sur "Data sources"
 
-- Click on the green "Add data source" button
+- Cliquer sur le bouton vert "Add data source"
 
 ]
 
-We see the same input form that we filled earlier to connect to InfluxDB.
+On voit le même formulaire qu'on a rempli la dernière fois pour InfluxDB.
 
 ---
 
 class: prom, snap
 
-## Connecting to Prometheus from Grafana
+## Connecter Prometheus à Grafana
 
 .exercise[
 
-- Enter "prom" in the name field
+- Entrer "prom" dans le champ "name"
 
-- Select "Prometheus" as the source type
+- Choisir "Prometheus" comme le type de source
 
-- Enter http://(IP.address.of.any.node):9090 in the Url field
+- Entrer http://(IP.address.of.any.node):9090 dans le champ Url
 
-- Select "direct" as the access method
+- Choisir "direct" dans la méthode d'accès
 
-- Click on "Save and test"
+- Cliquer sur "Save and rest"
 
 ]
 
-Again, we should see a green box telling us "Data source is working."
+Encore une fois, on devrait voir une boîte verte disant "Data source is working".
 
-Otherwise, double-check every field and try again!
+Autrement, réviser chaque étape de la procédure!
 
 ---
 
 class: prom, snap
 
-## Adding the Prometheus data to our dashboard
+## Ajouter les données de Prometheus au tableau de bord
 
 .exercise[
 
-- Go back to the the tab where we had our first Grafana dashboard
+- Retourner à l'onglet de notre premier tableau de bord Grafana
 
-- Click on the blue "Add row" button in the lower right corner
+- Cliquer sur le bouton bleu "Add row" dans le coin en bas à droite
 
-- Click on the green tab on the left; select "Add panel" and "Graph"
+- Cliquer sur l'onglet vert à gauche; choisir "Add panel" et "Graph"
 
 ]
 
-This takes us to the graph editor that we used earlier.
+On atterrit alors sur l'éditeur de graphe vu précédemment.
 
 ---
 
 class: prom, snap
 
-## Querying Prometheus data from Grafana
+## Interroger Prometheus depuis Grafana
 
-The editor is a bit less friendly than the one we used for InfluxDB.
+L'éditeur est un peu moins sympa que celui pour InfluxDB.
 
 .exercise[
 
-- Select "prom" as Panel data source
+- Choisir "prom" comme source de données du panneau
 
-- Paste the query in the query field:
+- Coller la requête dans le champ "requête":
   ```
     sum without (cpu, id) ( irate (
       container_cpu_usage_seconds_total{
         container_label_com_docker_swarm_service_name="influxdb"}[1m] ) )
   ```
 
-- Click outside of the query field to confirm
+- Cliquer hors du champ de requête pour confirmer
 
-- Close the row editor by clicking the "X" in the top right area
+- Fermer l'éditeur de ligne en cliquant "X" dans le coin en haut à droite.
 
 ]
 
@@ -1604,29 +1604,29 @@ The editor is a bit less friendly than the one we used for InfluxDB.
 
 class: prom, snap
 
-## Interpreting results
+## Interpréter les résultats
 
-- The two graphs *should* be similar
+- Les deux courbes *devraient* se ressembler
 
-- Protip: align the time references!
+- Astuce de pro: alignez les légendes de temps!
 
 .exercise[
 
-- Click on the clock in the top right corner
+- Cliquer sur l'horloge dans le coin haut-droit
 
-- Select "last 30 minutes"
+- Choisir "last 30 minutes"
 
-- Click on "Zoom out"
+- Cliquer sur "Zoom out"
 
-- Now press the right arrow key (hold it down and watch the CPU usage increase!)
+- Maintenant taper sur la touche "flèche droite" (rester appuyé pour faire monter le CPU!)
 
 ]
 
-*Adjusting units is left as an exercise for the reader.*
+*Ajuster les unités est un exercice laissé au lecteur.*
 
 ---
 
-## More resources on container metrics
+## Pour aller plus loin avec les métriques de conteneur
 
 - [Prometheus, a Whirlwind Tour](https://speakerdeck.com/copyconstructor/prometheus-a-whirlwind-tour),
   an original overview of Prometheus

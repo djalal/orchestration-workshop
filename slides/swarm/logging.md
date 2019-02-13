@@ -278,7 +278,7 @@ En réalité, *plusieurs messages vont remonter, et continuerons d'arriver de te
 
 ---
 
-## Conditions de rédémarrage
+## Conditions de redémarrage
 
 - Par défaut, si un conteneur sort (ou est tué par `docker kill`, ou s'il manque de mémoire...)
   le Swarm va le redémarrer (potentiellement sur une autre machine)

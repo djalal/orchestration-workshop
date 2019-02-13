@@ -1,16 +1,16 @@
-## Testing our local registry
+## Tester notre registre local
 
-- We can retag a small image, and push it to the registry
+- On peut re-_tag_ une petite image, et la pousser dans le registre
 
 .exercise[
 
-- Make sure we have the busybox image, and retag it:
+- Vérifier qu'on a une image busybox, et y rajouter un _tag_:
   ```bash
   docker pull busybox
   docker tag busybox 127.0.0.1:5000/busybox
   ```
 
-- Push it:
+- La livrer sur le registre:
   ```bash
   docker push 127.0.0.1:5000/busybox
   ```
@@ -19,20 +19,20 @@
 
 ---
 
-## Checking what's on our local registry
+## Vérifier ce qui est dans le registre local
 
-- The registry API has endpoints to query what's there
+- L'API du _Registry_ a des points d'entrée pour vérifier son contenu
 
 .exercise[
 
-- Ensure that our busybox image is now in the local registry:
+- Vérifier que notre image busybox est bien présente en local:
   ```bash
   curl http://127.0.0.1:5000/v2/_catalog
   ```
 
 ]
 
-The curl command should now output:
+La commande curl devrait afficher:
 ```json
 {"repositories":["busybox"]}
 ```

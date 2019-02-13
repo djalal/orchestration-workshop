@@ -1,36 +1,37 @@
-# Hosting our own registry
+# Héberger notre propre _Registry_
 
-- We need to run a `registry` container
+- On souhaite lancer un conteneur `registry`
 
-- It will store images and layers to the local filesystem
-  <br/>(but you can add a config file to use S3, Swift, etc.)
+- Il va stocker les images et _layers_ dans le système de fichiers local
+  <br/>(mais on peut y ajouter un fichier de conf pour passer sur S3, Swift, etc.)
 
-- Docker *requires* TLS when communicating with the registry
+- Docker *exige* TLS pour communiquer avec le registre
 
-  - unless for registries on `127.0.0.0/8` (i.e. `localhost`)
+  - excepté pour les registres sur `127.0.0.1` (i.e `localhost`)
 
-  - or with the Engine flag `--insecure-registry`
+  - ou avec l'option globale `--insecure-registry`
 
 <!-- -->
 
-- Our strategy: publish the registry container on port 5000,
-  <br/>so that it's available through `127.0.0.1:5000` on each node
+- Notre stratégie: rendre public le conteneur du registre sur le port 5000,
+  <br/>pour qu'il soit disponible via `127.0.0.1:5000` sur chaque _node_
+
 
 ---
 
-## Deploying the registry
+## Déployer le registre
 
-- We will create a single-instance service, publishing its port
-  on the whole cluster
+- Nous allons créer un service à instance unique, en publiant son port
+  sur le cluster en entier
 
 .exercise[
 
-- Create the registry service:
+- Déclarer le service du registre:
   ```bash
   docker service create --name registry --publish 5000:5000 registry
   ```
 
-- Now try the following command; it should return `{"repositories":[]}`:
+- Essayer maintenant la commande suivante: on devrait voir `{"repositories":[]}`:
   ```bash
   curl 127.0.0.1:5000/v2/_catalog
   ```

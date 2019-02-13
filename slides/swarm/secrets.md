@@ -1,73 +1,74 @@
 class: secrets
 
-## Secret management
+## Gestion des _secrets_
 
-- Docker has a "secret safe" (secure key→value store)
+- Docker a son propre "coffre-fort à secrets" (pour stockage chiffré de clé-valeur)
 
-- You can create as many secrets as you like
+- Vous pouvez y déposer autant de _secrets_ que vous souhaitez
 
-- You can associate secrets to services
+- On peut ensuite associer ces secrets aux services
 
-- Secrets are exposed as plain text files, but kept in memory only (using `tmpfs`)
+- Les secrets sont exposés comme des fichiers texte simples,
+  <br/>mais ils sont conservés en mémoire (via `tmpfs`)
 
-- Secrets are immutable (at least in Engine 1.13)
+- Les secrets sont immuables (depuis Docker Engine 1.13)
 
-- Secrets have a max size of 500 KB
+- Un secret peut peser jusqu'à 500Ko
 
 ---
 
 class: secrets
 
-## Creating secrets
+## Déclarer de nouveaux _secrets_
 
-- Must specify a name for the secret; and the secret itself
+- On doit choisir un nom pour ce _secret_; et associer le contenu lui-même
 
 .exercise[
 
-- Assign [one of the four most commonly used passwords](https://www.youtube.com/watch?v=0Jx8Eay5fWQ) to a secret called `hackme`:
+- Assigner [un des quatre mots de passe les plus communs](https://www.youtube.com/watch?v=0Jx8Eay5fWQ) à un secret baptisé `piratemoi`:
   ```bash
-  echo love | docker secret create hackme -
+  echo love | docker secret create piratemoi -
   ```
 
 ]
 
-If the secret is in a file, you can simply pass the path to the file.
+Si le secret est dans un fichier, on peut simplement pointer vers le chemin complet du fichier.
 
-(The special path `-` indicates to read from the standard input.)
+(Le chemin spécial `-` indique que la source est l'entrée standard _stdin_)
 
 ---
 
 class: secrets
 
-## Creating better secrets
+## Mieux déclarer ses _secrets_
 
-- Picking lousy passwords always leads to security breaches
+- Choisir des mots de passe de paresseux conduit toujours à des intrusions
 
 .exercise[
 
-- Let's craft a better password, and assign it to another secret:
+- Déclarer un meilleur mot de passe, et l'assigner à un autre _secret_:
   ```bash
-  base64 /dev/urandom | head -c16 | docker secret create arewesecureyet -
+  base64 /dev/urandom | head -c16 | docker secret create rienadeclarer -
   ```
 
 ]
 
-Note: in the latter case, we don't even know the secret at this point. But Swarm does.
+Note: dans ce cas, on n'a même aucune idée du mot de passe. Mais Swarm, le sait, lui.
 
 ---
 
 class: secrets
 
-## Using secrets
+## Usage des _secrets_
 
-- Secrets must be handed explicitly to services
+- Les _secrets_ doivent être affectés de façon explicite aux services
 
 .exercise[
 
-- Create a dummy service with both secrets:
+- Déclarer un nouveau service de test avec les 2 secrets:
   ```bash
     docker service create \
-           --secret hackme --secret arewesecureyet \
+           --secret piratemoi --secret rienadeclarer \
            --name dummyservice \
            --constraint node.hostname==$HOSTNAME \
            alpine sleep 1000000000
@@ -75,31 +76,31 @@ class: secrets
 
 ]
 
-We constrain the container to be on the local node for convenience.
+On force le conteneur à être sur la _node_ locale pour plus de convenance.
 <br/>
-(We are going to use `docker exec` in just a moment!)
+(On va lancer un `docker exec` dans la foulée!)
 
 ---
 
 class: secrets
 
-## Accessing secrets
+## Accéder à nos secrets
 
-- Secrets are materialized on `/run/secrets` (which is an in-memory filesystem)
+- Les secrets sont disponibles dans `/run/secrets` (qui est en réalité un système de fichiers sur-mémoire)
 
 .exercise[
 
-- Find the ID of the container for the dummy service:
+- Trouver l'ID du conteneur pour le service de test:
   ```bash
   CID=$(docker ps -q --filter label=com.docker.swarm.service.name=dummyservice)
   ```
 
-- Enter the container:
+- Entrer dans le conteneur:
   ```bash
   docker exec -ti $CID sh
   ```
 
-- Check the files in `/run/secrets`
+- Vérifier les fichiers dans `/run/secrets`
 
 <!-- ```bash grep . /run/secrets/*``` -->
 <!-- ```bash exit``` -->
@@ -110,19 +111,19 @@ class: secrets
 
 class: secrets
 
-## Rotating secrets
+## Renouveler les secrets
 
-- You can't change a secret
+- On ne peut mettre à jour un _secret_
 
-  (Sounds annoying at first; but allows clean rollbacks if a secret update goes wrong)
+  (On dirait un inconvénient au premier abord; mais cela permet des _rollbacks_ propres si un changement de secret se passe mal)
 
-- You can add a secret to a service with `docker service update --secret-add`
+- Vous pouvez ajouter un secret à un service avec `docker service update --secret-add`
 
-  (This will redeploy the service; it won't add the secret on the fly)
+  (Cela va redéployer le service; le _secret_ ne sera pas ajouté à la volée)
 
-- You can remove a secret with `docker service update --secret-rm`
+- Vous pouvez retirer un _secret_ avec `docker service update --secret-rm`
 
-- Secrets can be mapped to different names by expressing them with a micro-format:
+- Les _secrets_ peuvent être associés à des noms différents en utilisant un micro-format:
   ```bash
   docker service create --secret source=secretname,target=filename
   ```
@@ -131,44 +132,44 @@ class: secrets
 
 class: secrets
 
-## Changing our insecure password
+## Changer notre mot de passe non sécurisé
 
-- We want to replace our `hackme` secret with a better one
+- On doit remplacer notre _secret_ `piratemoi` avec une meilleure version.
 
 .exercise[
 
-- Remove the insecure `hackme` secret:
+- Retirer le secret `piratemoi` trop faible:
   ```bash
-  docker service update dummyservice --secret-rm hackme
+  docker service update dummyservice --secret-rm piratemoi
   ```
 
-- Add our better secret instead:
+- Ajouter notre meilleur _secret_ à sa place:
   ```bash
   docker service update dummyservice \
-         --secret-add source=arewesecureyet,target=hackme
+         --secret-add source=rienadeclarer,target=piratemoi
   ```
 
 ]
 
-Wait for the service to be fully updated with e.g. `watch docker service ps dummyservice`.
-<br/>(With Docker Engine 17.10 and later, the CLI will wait for you!)
+Attendez que le service soit complètement mis à jour, avec par ex. `watch docker service ps dummyservice`.
+<br/>(Avec Docker Engine 17.10 et plus, la CLI attendra pour vous!)
 
 ---
 
 class: secrets
 
-## Checking that our password is now stronger
+## Vérifier que notre mot de passe est maintenant plus fort!
 
-- We will use the power of `docker exec`!
+- On va invoquer le pouvoir du `docker exec`!
 
 .exercise[
 
-- Get the ID of the new container:
+- Récupérer l'ID de notre nouveau conteneur:
   ```bash
   CID=$(docker ps -q --filter label=com.docker.swarm.service.name=dummyservice)
   ```
 
-- Check the contents of the secret files:
+- Vérifier le contenu des fichiers secrets:
   ```bash
   docker exec $CID grep -r . /run/secrets
   ```
@@ -179,22 +180,22 @@ class: secrets
 
 class: secrets
 
-## Secrets in practice
+## Les _secrets_ en pratique
 
-- Can be (ab)used to hold whole configuration files if needed
+- A consommer sans modération, jusqu'à stocker des fichiers de config complets
 
-- If you intend to rotate secret `foo`, call it `foo.N` instead, and map it to `foo`
+- Pour renouveler un secret `foo`, renommez-le plutôt `foo.N`, et l'attacher à `foo`
 
-  (N can be a serial, a timestamp...)
+  (N peut être un compteur, un timestamp ...)
 
   ```bash
   docker service create --secret source=foo.N,target=foo ...
   ```
 
-- You can update (remove+add) a secret in a single command:
+- On peut mettre à jour (ajouter+supprimer) en une seule commande:
 
   ```bash
   docker service update ... --secret-rm foo.M --secret-add source=foo.N,target=foo
   ```
 
-- For more details and examples, [check the documentation](https://docs.docker.com/engine/swarm/secrets/)
+- Pour plus de détails et d'exemples, [voir la documentation](https://docs.docker.com/engine/swarm/secrets/)

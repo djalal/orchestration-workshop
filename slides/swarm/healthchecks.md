@@ -87,9 +87,9 @@ docker service update \
 
 ---
 
-## Implémenter le _rollback_ automatique en pratique
+## Implémenter le _rollback_ auto en pratique
 
-Nous utiliserons comme exemple le fichier Compose suivant (`stacks/dockercoins+healthcheck.yml`):
+On se basera pour la démo sur le fichier suivant (`stacks/dockercoins+healthcheck.yml`):
 
 ```yaml
 ...
@@ -135,7 +135,7 @@ On a d'abord besoin d'indiquer un _healthcheck_ pour nos services.
 
 - Voici un bon exemple de l'importance des _healthchecks_
 
-- Dans cette nouvelle version, une erreur va empêcher l'appli d'écouter sur le port correct
+- Dans cette nouvelle version, un bug va empêcher l'appli d'écouter sur le bon port
 
 - Le conteneur va bien se lancer, sauf qu'aucune connexion sur le port 80 n'est possible
 

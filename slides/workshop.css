@@ -177,7 +177,7 @@ div img {
   border: 2px dotted black;
 }
 .exercise:before {
-  content: "Exercise";
+  content: "Exercice";
   margin-left: 1.8em;
 }
 
