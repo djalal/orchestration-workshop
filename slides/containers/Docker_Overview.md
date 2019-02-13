@@ -233,7 +233,7 @@ class: extra-details
 
 ## Qu'a apporté Docker à la table?
 
-### Docker avant/après
+### (Docker avant/après)
 
 ---
 
@@ -265,7 +265,7 @@ class: extra-details
 
 * Standardiser le format de conteneur, parce que les conteneurs n'étaient pas portables.
 
-* Rendre les conteneurs facile à utiliser pour les développeurs.
+* Rendre les conteneurs faciles à utiliser pour les développeurs.
 
 * Focus sur les composants réutilisables, APIs et l'écosystème d'outils standard.
 

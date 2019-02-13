@@ -5,9 +5,11 @@
 
 - Ce contenu est maintenu par [Jérôme Petazzoni](https://twitter.com/jpetazzo) et [de nombreux contributeurs](https://@@GITREPO@@/graphs/contributors)
 
+- La traduction intégrale depuis l'anglais est réalisée et maintenue par [@djalal](https://twitter.com/enlamp)
+
 - Vous pouvez aussi le parcourir à votre propre rythme.
 
-- Nous avons inclus autant d'information que possibles dans les diapositives.
+- Nous avons inclus autant d'information que possible dans les diapositives.
 
 - Nous vous recommandons d'avoir un instructeur pour vous aider...
 

@@ -734,15 +734,15 @@ eth0      Link encap:Ethernet  HWaddr 02:42:AC:15:00:03
 
 class: extra-details
 
-## Building with a custom network
+## Générer une image dans un réseau spécifique
 
-* We can build a Dockerfile with a custom network with `docker build --network NAME`.
+* On peut construire un Dockerfile avec un réseau spécial via `docker build --network NAME`.
 
-* This can be used to check that a build doesn't access the network.
+* Ça peut servir à garantir qu'un _build_ n'accède pas au réseau.
 
-  (But keep in mind that most Dockerfiles will fail,
-  <br/>because they need to install remote packages and dependencies!)
+  (Gardez à l'esprit que la plupart des Dockerfiles vont échouer,
+  <br/>car ils auront besoin d'installer des paquets à distance et leurs dépendances!)
 
-* This may be used to access an internal package repository.
+* Cela servira à accéder à un dépôt interne privé.
 
-  (But try to use a multi-stage build instead, if possible!)
+  (Mais essayez si possible d'utiliser un _build_ multi-stage!)

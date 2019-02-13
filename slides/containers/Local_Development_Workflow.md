@@ -348,7 +348,7 @@ class: extra-details
 ## Exemple avec `docker exec`
 
 ```bash
-$ #Vous pouvez lancer des commandes ruby dans là même où l'appli tourne!
+$ #Vous pouvez lancer des commandes ruby dans le même conteneur où l'appli tourne!
 $ docker exec -it <yourContainerId> bash
 root@5ca27cf74c2e:/opt/namer# irb
 irb(main):001:0> [0, 1, 2, 3, 4].map {|x| x ** 2}.compact
