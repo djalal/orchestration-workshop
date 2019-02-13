@@ -36,7 +36,6 @@ Attribué par erreur à Benjamin Franklin
 
 ---
 
-## Hands-on sections
 ## Sections pratiques
 
 - Cet atelier est entièrement pratique
@@ -75,7 +74,7 @@ class: in-person, pic
 
 class: in-person
 
-## Vous avez votre propre cluster de VMs dans le cloud
+## Vous avez votre cluster de VMs dans le cloud
 
 - Chaque personne aura son cluster privé de VMs dans le cloud (partagé avec personne d'autre)
 
@@ -91,7 +90,6 @@ class: in-person
 
 class: in-person
 
-## Why don't we run containers locally?
 ## Pourquoi ne pas lancer nos conteneurs en local?
 
 - Installer cet outillage peut être difficile sur certaines machines
@@ -99,7 +97,7 @@ class: in-person
   (CPU ou OS à 32bits... Portables sans accès admin, etc.)
 
 - *Toute l'équipe a téléchargé ces images de conteneurs depuis le WiFi!
-  <br/>... et tout s'est bien passé* (litérallement personne)
+  <br/>... et tout s'est bien passé* (litéralement personne)
 
 - Tout ce dont vous avez besoin est un ordinateur (ou même une tablette), avec:
 
@@ -261,7 +259,6 @@ You will need a Docker ID to use Play-With-Docker.
 
 ---
 
-## We will (mostly) interact with node1 only
 ## On travaillera (surtout) avec node1
 
 *Ces remarques s'appliquent uniquement en cas de serveurs multiples, bien sûr.*

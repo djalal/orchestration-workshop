@@ -16,5 +16,5 @@ class: title, in-person
 *N'utilisez pas votre hotspot.*<br/>
 *Ne chargez pas de vidéos, ne téléchargez pas de gros fichiers pendant la formation[.](https://www.youtube.com/watch?v=h16zyxiwDLY)*<br/>
 
-**28 janvier 2019, @djalal E.B, Sochaux**
+**04 février 2019, @djalal E.B, Lyon**
 ]

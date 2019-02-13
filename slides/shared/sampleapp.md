@@ -100,7 +100,7 @@ agrégés.
 
   - `webui` = une interface web pour le suivi du travail
 
-  - `redis` = data store (holds a counter updated by `worker`)
+  - `redis` = base de données (garde un décompte, mis à jour par `worker`)
 
 - Ces 5 services sont visibles dans le fichier Compose de l'application,
   [docker-compose.yml](
@@ -110,17 +110,17 @@ agrégés.
 
 ## Comment fonctionne DockerCoins
 
-- `worker` invokes web service `rng` to generate random bytes
+- `worker` invoque le service web `rng` pour générer quelques octets aléatoires
 
-- `worker` invokes web servie `hasher` to hash these bytes
+- `worker` invoque le service web `hasher` pour générer un hachage de ces octets
 
-- `worker` does this in an infinite loop
+- `worker` reboucle de manière infinie sur ces 2 tâches
 
-- every second, `worker` updates `redis` to indicate how many loops were done
+- chaque seconde, `worker` écrit dans `redis` pour indiquer combien de boucles ont été réalisées
 
-- `webui` queries `redis`, and computes and exposes "hashing speed" in our browser
+- `webui` interroge `redis`, pour calculer et exposer la "vitesse de hachage" dans notre navigateur
 
-*(See diagram on next slide!)*
+*(Voir le diagramme en diapo suivante!)*
 
 ---
 
@@ -246,7 +246,7 @@ class: extra-details
 
 - "Les logs, c'est excitant et drôle" (Citation de personne, jamais, vraiment)
 
-- Le conteneur `webui` expose un écran de contrôle web; allons-y voir
+- Le conteneur `webui` expose un écran de contrôle web; allons-y voir.
 
 .exercise[
 
@@ -260,7 +260,7 @@ class: extra-details
 
 ]
 
-Une diagramme devrait s'afficher, et après quelques seconde, une courbe en bleu
+Un diagramme devrait s'afficher, et après quelques secondes, une courbe en bleu
 va apparaître.
 
 ---
@@ -278,7 +278,7 @@ de votre Docker Engine qui tourne sur une machine différente. Cela peut être l
 
 - vous contrôlez un Docker Engine distant
 
-Quand vous lancer DockerCoins en mode développement, les fichier statiques
+Quand vous lancez DockerCoins en mode développement, les fichiers statiques
 de l'interface web sont appliqués au conteneur via un volume. Hélas, les
 volumes ne fonctionnent que sur un environnement local, ou quand vous passez
 par Docker for Desktop.
@@ -293,7 +293,7 @@ class: extra-details
 
 ## Pourquoi le rythme semble irrégulier?
 
-- On *dirait peu ou prou* que la vitesse est de 4 hachage/seconde.
+- On *dirait peu ou prou* que la vitesse est de 4 hachages/seconde.
 
 - Ou plus précisément: 4 hachages/secondes avec des trous reguliers à zéro
 
@@ -303,7 +303,7 @@ class: extra-details
 
 class: extra-details
 
-- L'appli a en réalité une vitesse constante et régulière de 3.33 hachage/seconde.
+- L'appli a en réalité une vitesse constante et régulière de 3.33 hachages/seconde.
   <br/>
   (ce qui correspond à 1 hachage toutes les 0.3 secondes, pour *certaines raisons*)
 
@@ -313,7 +313,7 @@ class: extra-details
 
 class: extra-details
 
-## La raison qui fait que ce graphique n'est *pas super*
+## La raison qui fait que ce graphe n'est *pas super*
 
 - Le worker ne met pas à jour le compteur après chaque boucle, mais au maximum une fois par seconde.
 
