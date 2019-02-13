@@ -1,37 +1,38 @@
-# First contact with `kubectl`
+# Premier contact avec `kubectl`
 
-- `kubectl` is (almost) the only tool we'll need to talk to Kubernetes
 
-- It is a rich CLI tool around the Kubernetes API
+- `kubectl` est (presque) le seul outil dont nous aurons besoin pour parler à Kubernetes
 
-  (Everything you can do with `kubectl`, you can do directly with the API)
+- C'est un outil en ligne de commande très riche, autour de l'API Kubernetes
 
-- On our machines, there is a `~/.kube/config` file with:
+  (Tout ce qu'on peut faire avec `kubectl`, est directement exécutable via l'API)
 
-  - the Kubernetes API address
+- Sur nos machines, on trouvera un fichier `~/.kube/config` avec:
 
-  - the path to our TLS certificates used to authenticate
+  - l'adresse de l'API Kubernetes
 
-- You can also use the `--kubeconfig` flag to pass a config file
+  - le chemin vers nos certificats TLS d'identification
 
-- Or directly `--server`, `--user`, etc.
+- On peut aussi utiliser l'option `--kubeconfig` pour forcer un fichier de config
 
-- `kubectl` can be pronounced "Cube C T L", "Cube cuttle", "Cube cuddle"...
+- Ou passer directement `--server`, `--user`, etc.
+
+- `kubectl` se prononce "Cube Cé Té Elle", "Cube coeuteule", "Cube coeudeule"
 
 ---
 
 ## `kubectl get`
 
-- Let's look at our `Node` resources with `kubectl get`!
+- Jetons un oeil aux ressources `Node` avec `kubectl get`!
 
 .exercise[
 
-- Look at the composition of our cluster:
+- Examiner la composition de notre cluster:
   ```bash
   kubectl get node
   ```
 
-- These commands are equivalent:
+- Ces commandes sont équivalentes:
   ```bash
   kubectl get no
   kubectl get node
@@ -42,28 +43,30 @@
 
 ---
 
-## Obtaining machine-readable output
+## Obtenir un affichage version "machine"
 
-- `kubectl get` can output JSON, YAML, or be directly formatted
+- `kubectl get` peut afficher du JSON, YAML ou un format personnalisé
 
 .exercise[
 
-- Give us more info about the nodes:
+- Sortir plus d'info sur les nodes
   ```bash
   kubectl get nodes -o wide
   ```
 
-- Let's have some YAML:
+- Récupérons du YAML:
   ```bash
   kubectl get no -o yaml
   ```
-  See that `kind: List` at the end? It's the type of our result!
+
+  Ce bout de `kind: List` tout à la fin? C'est le type de notre résultat!
 
 ]
 
+
 ---
 
-## (Ab)using `kubectl` and `jq`
+## User et abuser de `kubectl` et `jq`
 
 - It's super easy to build custom reports
 

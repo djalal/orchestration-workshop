@@ -1,13 +1,13 @@
 title: |
-  Container Orchestration
-  with Docker and Swarm
+  Orchestration de Conteneurs
+  avec Docker et Swarm
 
 chat: "[Slack](https://dockercommunity.slack.com/messages/C7GKACWDV)"
 #chat: "[Gitter](https://gitter.im/jpetazzo/workshop-yyyymmdd-city)"
 
 gitrepo: github.com/jpetazzo/container.training
 
-slides: http://container.training/
+slides: https://container.training/
 
 exclude:
 - self-paced

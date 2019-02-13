@@ -1,103 +1,103 @@
-# Kubernetes network model
+# Modèle réseau de Kubernetes
 
-- TL,DR:
+- En un mot comme en cent:
 
-  *Our cluster (nodes and pods) is one big flat IP network.*
+  *Notre cluster (nodes et pods) est un grand réseau IP tout plat.*
 
 --
 
-- In detail:
+- Dans le détail:
 
- - all nodes must be able to reach each other, without NAT
+  - toutes les _nodes_ doivent être accessibles les unes aux autres, sans NAT
 
- - all pods must be able to reach each other, without NAT
+  - tous les _pods_ doivent être accessibles les uns aux autres, sans NAT
 
- - pods and nodes must be able to reach each other, without NAT
+  - _pods_ et _nodes_ doivent être accessibles les uns aux autres, sans NAT
 
- - each pod is aware of its IP address (no NAT)
+  - chaque _pod_ connait sa propore adresse IP (sans NAT)
 
-- Kubernetes doesn't mandate any particular implementation
-
----
-
-## Kubernetes network model: the good
-
-- Everything can reach everything
-
-- No address translation
-
-- No port translation
-
-- No new protocol
-
-- Pods cannot move from a node to another and keep their IP address
-
-- IP addresses don't have to be "portable" from a node to another
-
-  (We can use e.g. a subnet per node and use a simple routed topology)
-
-- The specification is simple enough to allow many various implementations
+- Kubernetes ne force pas une implémentation particulière
 
 ---
 
-## Kubernetes network model: the less good
+## Modèle réseau de Kubernetes: le bon
 
-- Everything can reach everything
+- Tout peut se connecter à tout
 
-  - if you want security, you need to add network policies
+- Pas de traduction d'adresse
 
-  - the network implementation that you use needs to support them
+- Pas de traduction de port
 
-- There are literally dozens of implementations out there
+- Pas de nouveau protocole
 
-  (15 are listed in the Kubernetes documentation)
+- Les _pods_ ne pourront se déplacer d'une _node_ à une autre et garder leur adresse IP.
 
-- Pods have level 3 (IP) connectivity, but *services* are level 4
+- Les adresses IP n'ont pas à être "portables" d'une node à une autre.
 
-  (Services map to a single UDP or TCP port; no port ranges or arbitrary IP packets)
+  (On peut avoir par ex. un sous-réseau par _node_ et utiliser une topologie simple)
 
-- `kube-proxy` is on the data path when connecting to a pod or container,
-  <br/>and it's not particularly fast (relies on userland proxying or iptables)
+- La spécification est assez simple pour permettre différentes implémentations variées
 
 ---
 
-## Kubernetes network model: in practice
+## Modèle réseau de Kubernetes: le moins bon
 
-- The nodes that we are using have been set up to use [Weave](https://github.com/weaveworks/weave)
+- Tout peut se connecter à tout
 
-- We don't endorse Weave in a particular way, it just Works For Us
+  - si on cherche de la sécurité, on devra rajouter des règles réseau
 
-- Don't worry about the warning about `kube-proxy` performance
+  - l'implémentation réseau que vous choisirez devra offrir cette fonction
 
-- Unless you:
+- Il y a littéralement des dizaines d'implémentations dans le monde
 
-  - routinely saturate 10G network interfaces
-  - count packet rates in millions per second
-  - run high-traffic VOIP or gaming platforms
-  - do weird things that involve millions of simultaneous connections
-    <br/>(in which case you're already familiar with kernel tuning)
+  (Pas moins de 15 sont mentionnées dans la documentation Kubernetes)
 
-- If necessary, there are alternatives to `kube-proxy`; e.g.
+- Les _pods_ ont une connectivité de niveau 3 (IP), et les *services* de niveau 4
+
+  (Les services sont associés à un seul port TCP ou UDP; pas de groupe de ports ou de paquets IP arbitraires)
+
+- `kube-proxy` est sur le chemin de données quand il se connecte à un _pod_ ou conteneur,
+  <br/>et ce n'est pas particulièrement rapide (il s'appuie sur du proxy utilisateur ou iptables)
+
+---
+
+## Modèle réseau de Kubernetes: concrètement
+
+- Les nodes que nous avons à notre disposition utilisent [Weave](https://github.com/weaveworks/weave)
+
+- On ne recommande pas Weave plus que ça, c'est juste que Ca Marche Pour Nous
+
+- Pas d'inquiétude à propos des réserves sur la performance `kube-proxy`
+
+- Sauf si vous:
+
+  - saturez régulièrement des interfaces réseaux 10Gbps
+  - comptez les flux de paquets par millions à la seconde
+  - lancez des plate-formes VOIP ou de jeu de haut trafic
+  - faites des trucs bizarres qui lancent des millions de connexions simultanées
+    <br/>(auquel cas vous êtes déjà familier avec l'optimisation du noyau)
+
+- Si nécessaire, des alternatives à `kube-proxy` existent, comme:
   [`kube-router`](https://www.kube-router.io)
 
 ---
 
-## The Container Network Interface (CNI)
+## La CNI (_Container Network Interface_)
 
-- The CNI has a well-defined [specification](https://github.com/containernetworking/cni/blob/master/SPEC.md#network-configuration) for network plugins
+- La CNI est une [spécification](https://github.com/containernetworking/cni/blob/master/SPEC.md#network-configuration) complète à destination des _plugins_ réseau.
 
-- When a pod is created, Kubernetes delegates the network setup to CNI plugins
+- Quand un nouveau _pod_ est créé, Kubernetes délègue la config réseau aux _plugins_ CNI.
 
-- Typically, a CNI plugin will:
+- Généralement, un _plugin_ CNI va:
 
-  - allocate an IP address (by calling an IPAM plugin)
+  - allouer une adresse IP (en appelant un _plugin_ IPAM)
 
-  - add a network interface into the pod's network namespace
+  - ajouter une interface réseau dans le _namespace_ réseau du _pod_
 
-  - configure the interface as well as required routes etc.
+  - configurer l'interface ainsi que les routes minimum, etc.
 
-- Using multiple plugins can be done with "meta-plugins" like CNI-Genie or Multus
+- Exploiter plusieurs _plugins_ est possible grâce aux "meta-plugins", comme CNI-Genie ou Multus
 
-- Not all CNI plugins are equal
+- Tous les _plugins_ CNI ne naissent pas égaux
 
-  (e.g. they don't all implement network policies, which are required to isolate pods)
+  (par ex. il ne supportent pas tous les politiques de réseau, obligatoires pour isoler les _pods_)

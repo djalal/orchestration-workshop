@@ -1,4 +1,4 @@
-## Versions installed
+## Versions installées
 
 - Kubernetes 1.13.2
 - Docker Engine 18.09.1
@@ -8,7 +8,7 @@
 
 .exercise[
 
-- Check all installed versions:
+- Vérifier toutes les versions installées:
   ```bash
   kubectl version
   docker version
@@ -21,24 +21,24 @@
 
 class: extra-details
 
-## Kubernetes and Docker compatibility
+## Compatibilité entre Kubernetes et Docker
 
-- Kubernetes 1.13.x only validates Docker Engine versions [up to 18.06](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.13.md#external-dependencies)
-
---
-
-class: extra-details
-
-- Are we living dangerously?
+- Kubernetes 1.13.x est uniquement validé avec les versions Docker Engine [jusqu'à to 18.06](https://github.com/kubernetes/kubernetes/blob/master/CHANGELOG-1.13.md#external-dependencies)
 
 --
 
 class: extra-details
 
-- No!
+- Est-ce qu'on vit dangereusement?
 
-- "Validates" = continuous integration builds with very extensive (and expensive) testing
+--
 
-- The Docker API is versioned, and offers strong backward-compatibility
+class: extra-details
 
-  (If a client uses e.g. API v1.25, the Docker Engine will keep behaving the same way)
+- Que nenni!
+
+- "Validé" = passe les tests d'intégration continue très intenses (et coûteux)
+
+- L'API Docker est versionnée, et offre une comptabilité arrière très forte.
+
+  (Si un client "parle" l'API v1.25, le Docker Engine va continuer à se comporter de la même façon)

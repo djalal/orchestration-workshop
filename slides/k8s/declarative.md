@@ -1,14 +1,14 @@
-## Declarative vs imperative in Kubernetes
+## Déclaratif vs Impératif dans Kubernetes
 
-- Virtually everything we create in Kubernetes is created from a *spec*
+- Pratiquement tout ce que nous lançons sur Kubernetes est déclaré dans une *spec*
 
-- Watch for the `spec` fields in the YAML files later!
+- Gardez un oeil sur les champs `spec` dans les fichiers YAML plus tard!
 
-- The *spec* describes *how we want the thing to be*
+- La *spec* décrit *comment on voudrait que ce truc tourne*
 
-- Kubernetes will *reconcile* the current state with the spec
-  <br/>(technically, this is done by a number of *controllers*)
+- Kubernetes va *réconcilier* l'état courant avec la *spec*
+  <br>(techniquement, c'est possible via un tas de *controllers*)
 
-- When we want to change some resource, we update the *spec*
+- Quand on veut changer une ressources, on modifie la *spec*
 
-- Kubernetes will then *converge* that resource
+- Kubernetes va alors *faire converger* cette ressource

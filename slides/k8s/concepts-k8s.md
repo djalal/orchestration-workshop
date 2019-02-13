@@ -1,249 +1,249 @@
-# Kubernetes concepts
+# Concepts Kubernetes
 
-- Kubernetes is a container management system
+- Kubernetes est un système de gestion de conteneurs
 
-- It runs and manages containerized applications on a cluster
+- Il lance et gère des applications conteneurisées sur un _cluster_
 
 --
 
-- What does that really mean?
+- Qu'est-ce que ça signifie vraiment?
 
 ---
 
-## Basic things we can ask Kubernetes to do
+## Tâches de base qu'on peut demander à Kubernetes
 
 --
 
-- Start 5 containers using image `atseashop/api:v1.3`
+- Démarrer 5 conteneurs basés sur l'image `atseashop/api:v1.3`
 
 --
 
-- Place an internal load balancer in front of these containers
+- Placer un _load balancer_ interne devant ces conteneurs
 
 --
 
-- Start 10 containers using image `atseashop/webfront:v1.3`
+- Démarrer 10 conteneurs basés sur l'image `atseashop/webfront:v1.3`
 
 --
 
-- Place a public load balancer in front of these containers
+- Placer un _load balancer_ public devant ces conteneurs
 
 --
 
-- It's Black Friday (or Christmas), traffic spikes, grow our cluster and add containers
+- C'est _Black Friday_ (ou Noël!), le trafic explose, agrandir notre cluster et ajouter des conteneurs
 
 --
 
-- New release! Replace my containers with the new image `atseashop/webfront:v1.4`
+- Nouvelle version! Remplacer les conteneurs avec la nouvelle image `atseashop/webfront:v1.4`
 
 --
 
-- Keep processing requests during the upgrade; update my containers one at a time
+- Continuer de traiter les requêtes pendant la mise à jour; renouveler mes conteneurs un à la fois
 
 ---
 
-## Other things that Kubernetes can do for us
+## D'autres choses que Kubernetes peut faire pour nous
 
-- Basic autoscaling
+- Montée en charge basique
 
-- Blue/green deployment, canary deployment
+- Déploiement _Blue/Green_, déploiement _canary_
 
-- Long running services, but also batch (one-off) jobs
+- Services de longue durée, mais aussi des tâches par lots (batch)
 
-- Overcommit our cluster and *evict* low-priority jobs
+- Surcharger notre cluster et *évincer* les tâches de basse priorité
 
-- Run services with *stateful* data (databases etc.)
+- Lancer des services à données *persistentes* (bases de données, etc.)
 
-- Fine-grained access control defining *what* can be done by *whom* on *which* resources
+- Contrôle d'accès assez fin, pour définir *quelle* action est autorisée *pour qui* sur *quelle* ressources.
 
-- Integrating third party services (*service catalog*)
+- Intégrer les services tiers (*catalogue de services*)
 
-- Automating complex tasks (*operators*)
+- Automatiser des tâches complexes (*opérateurs*)
 
 ---
 
-## Kubernetes architecture
+## Architecture Kubernetes
 
 ---
 
 class: pic
 
-![haha only kidding](images/k8s-arch1.png)
+![haha je plaisante](images/k8s-arch1.png)
 
 ---
 
-## Kubernetes architecture
+## Architecture Kubernetes
 
 - Ha ha ha ha
 
-- OK, I was trying to scare you, it's much simpler than that ❤️
+- OK, je voulais juste vous faire peur, c'est plus simple que ça ❤️
 
 ---
 
 class: pic
 
-![that one is more like the real thing](images/k8s-arch2.png)
+![celui là est plus proche du vrai](images/k8s-arch2.png)
 
 ---
 
-## Credits
+## Crédits
 
-- The first schema is a Kubernetes cluster with storage backed by multi-path iSCSI
+- Le premier schéma est un cluster Kubernetes avec du stockage sur l'_iSCSI multi-path_
 
-  (Courtesy of [Yongbok Kim](https://www.yongbok.net/blog/))
+  (Grâce à [Yongbok Kim](https://www.yongbok.net/blog/))
 
-- The second one is a simplified representation of a Kubernetes cluster
+- Le second est une représentation simplifiée d'un cluster Kubernetes
 
-  (Courtesy of [Imesh Gunaratne](https://medium.com/containermind/a-reference-architecture-for-deploying-wso2-middleware-on-kubernetes-d4dee7601e8e))
-
----
-
-## Kubernetes architecture: the nodes
-
-- The nodes executing our containers run a collection of services:
-
-  - a container Engine (typically Docker)
-
-  - kubelet (the "node agent")
-
-  - kube-proxy (a necessary but not sufficient network component)
-
-- Nodes were formerly called "minions"
-
-  (You might see that word in older articles or documentation)
+  (Grâce à [Imesh Gunaratne](https://medium.com/containermind/a-reference-architecture-for-deploying-wso2-middleware-on-kubernetes-d4dee7601e8e))
 
 ---
 
-## Kubernetes architecture: the control plane
+## Architecture de Kubernetes: les _nodes_
 
-- The Kubernetes logic (its "brains") is a collection of services:
+- Les _nodes_ qui font tourner nos conteneurs ont aussi une collection de services:
 
-  - the API server (our point of entry to everything!)
+  - un moteur de conteneurs (typiquement Docker)
 
-  - core services like the scheduler and controller manager
+  - kubelet (l'agent de _node_)
 
-  - `etcd` (a highly available key/value store; the "database" of Kubernetes)
+  - kube-proxy (un composant réseau nécessaire mais pas suffisant)
 
-- Together, these services form the control plane of our cluster
+- Les _nodes_ étaient précédemment appelées des "minions"
 
-- The control plane is also called the "master"
-
----
-
-## Running the control plane on special nodes
-
-- It is common to reserve a dedicated node for the control plane
-
-  (Except for single-node development clusters, like when using minikube)
-
-- This node is then called a "master"
-
-  (Yes, this is ambiguous: is the "master" a node, or the whole control plane?)
-
-- Normal applications are restricted from running on this node
-
-  (By using a mechanism called ["taints"](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/))
-
-- When high availability is required, each service of the control plane must be resilient
-
-- The control plane is then replicated on multiple nodes
-
-  (This is sometimes called a "multi-master" setup)
+  (On peut encore rencontrer ce terme dans d'anciens articles ou documentation)
 
 ---
 
-## Running the control plane outside containers
+## Architecture Kubernetes: le plan de contrôle
 
-- The services of the control plane can run in or out of containers
+- La logique de Kubernetes (ses "méninges") est une collection de services:
 
-- For instance: since `etcd` is a critical service, some people
-  deploy it directly on a dedicated cluster (without containers)
+  - Le serveur API (notre point d'entrée pour toute chose!)
 
-  (This is illustrated on the first "super complicated" schema)
+  - des services principaux comme l'ordonnanceur et le contrôleur
 
-- In some hosted Kubernetes offerings (e.g. AKS, GKE, EKS), the control plane is invisible
+  - `etcd` (une base clé-valeur hautement disponible; la "base de données" de Kubernetes)
 
-  (We only "see" a Kubernetes API endpoint)
+- Ensemble, ces services forment le plan de contrôle de notre cluster
 
-- In that case, there is no "master node"
-
-*For this reason, it is more accurate to say "control plane" rather than "master".*
+- Le plan de contrôle est aussi appelé le _"master"_
 
 ---
 
-## Do we need to run Docker at all?
+## Exécuter le plan de contrôle sur des _nodes_ spéciales
 
-No!
+- Il est commun de réserver une _node_ dédiée au plan de contrôle
+
+  (Excepté pour les cluster de développement à node unique, comme avec minikube)
+
+- Cette _node_ est alors appelée un "_master_"
+
+  (Oui, c'est ambigu: est-ce que le "master" est une _node_, ou tout le plan de contrôle?)
+
+- Les applis normales sont interdites de tourner sur cette _node_
+
+  (En utilisant un mécanisme appelé ["taints"](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/))
+
+- Quand on cherche de la haute disponibilité, chaque service du plan de contrôle doit être résilient
+
+- Le plan de contrôle est alors répliqué sur de multiples noeuds
+
+  (On parle alors d'installation "_multi-master_")
+
+---
+
+## Lancer le plan de contrôle sans conteneurs
+
+- Les services du plan de contrôle peuvent tourner avec ou sans conteneurs
+
+- Par exemple: puisque `etcd` est un service critique, certains le
+  déploient directement sur un cluster dédié (sans conteneurs)
+
+  (C'est illustré dans le premier schéma "super compliqué")
+
+- Dans certaines offres commerciales Kubernetes (par ex. AKS, GKE, EKS), le plan de contrôle est invisible
+
+  (On "voit" juste un point d'entrée Kubernetes API)
+
+- Dans ce cas, il n'y a pas de _node_ "master"
+
+*Pour cette version, il est plus précis de parler de "plan de contrôle" plutôt que de "master".*
+
+---
+
+## Docker est-il obligatoire à tout prix?
+
+Non!
 
 --
 
-- By default, Kubernetes uses the Docker Engine to run containers
+- Par défaut, Kubernetes choisit le Docker Engine pour lancer les conteneurs
 
-- We could also use `rkt` ("Rocket") from CoreOS
+- On pourrait utiliser `rkt` ("Rocket") par CoreOS
 
-- Or leverage other pluggable runtimes through the *Container Runtime Interface*
+- Ou exploiter d'autre moteurs via la *Container Runtime Interface*
 
-  (like CRI-O, or containerd)
+  (comme CRI-O, ou containerd)
 
 ---
 
-## Do we need to run Docker at all?
+## Devrait-on utiliser Docker?
 
-Yes!
+Oui!
 
 --
 
-- In this workshop, we run our app on a single node first
+- Dans cet atelier, on lancera d'abord notre appli sur un seul noeud
 
-- We will need to build images and ship them around
+- On devra générer les images et les envoyer à la ronde
 
-- We can do these things without Docker
+- On pourrait se débrouiller sans Docker
   <br/>
-  (and get diagnosed with NIH¹ syndrome)
+  (et être diagnostiqué du syndrome NIH¹)
 
-- Docker is still the most stable container engine today
+- Docker est à ce jour le moteur de conteneurs le plus stable
   <br/>
-  (but other options are maturing very quickly)
+  (mais les alternatives mûrissent rapidement)
 
 .footnote[¹[Not Invented Here](https://en.wikipedia.org/wiki/Not_invented_here)]
 
 ---
 
-## Do we need to run Docker at all?
+## Devrait-on utiliser Docker?
 
-- On our development environments, CI pipelines ... :
+- Sur nos environnements de développement, les pipelines CI ... :
 
-  *Yes, almost certainly*
+  *Oui, très certainement*
 
-- On our production servers:
+- Sur nos serveurs de production:
 
-  *Yes (today)*
+  *Oui (pour aujourd'hui)*
 
-  *Probably not (in the future)*
+  *Probablement pas (dans le futur)*
 
-.footnote[More information about CRI [on the Kubernetes blog](https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes)]
+.footnote[Pour plus d'infos sur CRI [sur le blog Kubernetes](https://kubernetes.io/blog/2016/12/container-runtime-interface-cri-in-kubernetes)]
 
 ---
 
-## Kubernetes resources
+## Ressources sur Kubernetes
 
-- The Kubernetes API defines a lot of objects called *resources*
+- L'API Kubernetes définit un tas d'objets appelés *resources*
 
-- These resources are organized by type, or `Kind` (in the API)
+- Ces ressources sont organisées par type, ou `Kind` (dans l'API)
 
-- A few common resource types are:
+- Quelques types de ressources communs:
 
-  - node (a machine — physical or virtual — in our cluster)
-  - pod (group of containers running together on a node)
-  - service (stable network endpoint to connect to one or multiple containers)
-  - namespace (more-or-less isolated group of things)
-  - secret (bundle of sensitive data to be passed to a container)
- 
-  And much more!
+  - _node_ (une machine - physique ou virtuelle - de notre cluster)
+  - _pod_ (groupe de conteneurs lancés ensemble sur une _node_)
+  - _service_ (point d'entrée stable du réseau pour se connecter à un ou plusieurs conteneurs)
+  - _namespace_ (groupe de choses plus-ou-moins isolée)
+  - _secret_ (ensemble de données sensibles transmis à un conteneur)
 
-- We can see the full list by running `kubectl api-resources`
+  Et bien plus!
 
-  (In Kubernetes 1.10 and prior, the command to list API resources was `kubectl get`)
+- On peut afficher la liste complète avec `kubectl api-resources`
+
+  (Dans Kubernetes 1.10 et avant, la commande pour lister les ressources API étaient `kubectl get`)
 
 ---
 
@@ -255,20 +255,20 @@ class: pic
 
 class: pic
 
-![One of the best Kubernetes architecture diagrams available](images/k8s-arch4-thanks-luxas.png)
+![Un des meilleurs diagrammes d'archi Kubernetes disponibles](images/k8s-arch4-thanks-luxas.png)
 
 ---
 
-## Credits
+## Crédits
 
-- The first diagram is courtesy of Weave Works
+- Le premier diagramme est une grâcieuseté de Weave Works
 
-  - a *pod* can have multiple containers working together
+  - un *pod* peut avoir plusieurs conteneurs qui travaillent ensemble
 
-  - IP addresses are associated with *pods*, not with individual containers
+  - les adresses IP sont associées aux *pods*, pas aux conteneurs eux-mêmes
 
-- The second diagram is courtesy of Lucas Käldström, in [this presentation](https://speakerdeck.com/luxas/kubeadm-cluster-creation-internals-from-self-hosting-to-upgradability-and-ha)
+- Le second diagramme est une grâcieuseté de Lucas Käldström, dans [cette présentation](https://speakerdeck.com/luxas/kubeadm-cluster-creation-internals-from-self-hosting-to-upgradability-and-ha)
 
-  - it's one of the best Kubernetes architecture diagrams available!
+  - c'est l'un des meilleurs diagrammes d'architecture Kubernetes disponibles!
 
-Both diagrams used with permission.
+Les deux diagrammes sont utilisés avec la permission de leurs auteurs.
