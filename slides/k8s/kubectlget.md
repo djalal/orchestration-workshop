@@ -68,11 +68,11 @@
 
 ## User et abuser de `kubectl` et `jq`
 
-- It's super easy to build custom reports
+- C'est super facile d'afficher ses propres rapports
 
 .exercise[
 
-- Show the capacity of all our nodes as a stream of JSON objects:
+- Montrer la capacité de toutes nos noeuds sous forme de flux d'objets JSON:
   ```bash
     kubectl get nodes -o json | 
             jq ".items[] | {name:.metadata.name} + .status.capacity"
@@ -82,26 +82,26 @@
 
 ---
 
-## What's available?
+## Qu'est-ce qui tourne?
 
-- `kubectl` has pretty good introspection facilities
+- `kubectl` dispose de capacité d'introspection solides
 
-- We can list all available resource types by running `kubectl api-resources`
+- On peut lister les types de ressources en lançant `kubectl api-resources`
   <br/>
-  (In Kubernetes 1.10 and prior, this command used to be `kubectl get`)
+  (Sur Kubernetes 1.10 et les versions précédentes, il fallait taper `kubectl get`)
 
-- We can view details about a resource with:
+- Pour détailler une ressource, c'est:
   ```bash
   kubectl describe type/name
   kubectl describe type name
   ```
 
-- We can view the definition for a resource type with:
+- La définition d'un type de ressource s'affiche avec:
   ```bash
   kubectl explain type
   ```
 
-Each time, `type` can be singular, plural, or abbreviated type name.
+Chaque fois, `type` peut être singulier, pluriel ou un nom abrégé
 
 ---
 
