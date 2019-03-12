@@ -48,7 +48,7 @@ class: extra-details
 - Docker CE:
 
   - gratuit
-  - disponible via Docker for Desktop (éditions Mac etW Windows), et sur toutes les distributinos Linux majeures.
+  - disponible via Docker for Desktop (éditions Mac etW Windows), et sur toutes les distributions Linux majeures.
   - parfait pour développeurs individuels et petites organisations.
 
 ---

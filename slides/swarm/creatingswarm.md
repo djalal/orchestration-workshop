@@ -259,7 +259,7 @@ class: extra-details
 
 ---
 
-## Afficher notre cluster de 2 noeuds
+## Afficher notre cluster
 
 - Retournons sur `node1` et voyons quelle tête a notre cluster
 

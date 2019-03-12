@@ -4,9 +4,9 @@
 
   https://@@GITREPO@@
 
-- Vous pouvez obtenir une version à jour de ces diapos ici (anglais):
+- Vous pouvez obtenir une version à jour de ces diapos ici:
 
-  https://container.training/
+  https://container.training/  (anglais) ou https://docker.djal.al/ (français)
 
 <!--
 .exercise[

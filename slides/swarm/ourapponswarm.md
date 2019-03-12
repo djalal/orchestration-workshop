@@ -28,10 +28,10 @@ au moment de créer nos services.
 
 class: extra-details
 
-## Build, ship, and run, for a single service
+## Builder, transférer et lancer, pour un seul service
 
-If we had only one service (built from a `Dockerfile` in the
-current directory), our workflow could look like this:
+Si nous avions seulement un service (généré à partir d'un `Dockerfile`
+dans le dossier en cours), notre processus aurait cette tête:
 
 ```
 docker build -t jpetazzo/doublerainbow:v0.1 .
@@ -39,7 +39,7 @@ docker push jpetazzo/doublerainbow:v0.1
 docker service create jpetazzo/doublerainbow:v0.1
 ```
 
-We just have to adapt this to our application, which has 4 services!
+Il nous reste juste à l'adapter à notre application, qui comporte 4 services!
 
 ---
 
@@ -47,77 +47,78 @@ We just have to adapt this to our application, which has 4 services!
 
 - Lancer un _build_ sur notre node locale (`node1`)
 
-- Étiquetter les images pour les nommer `localhost:5000/<nom-du-service>`
+- Étiquetter les images pour les nommer en `localhost:5000/<nom-du-service>`
 
-- Téléverser sur le registre
+- Téléverser dans le registre
 
 - Créer les services grâce à ces images
 
 ---
 
-## Which registry do we want to use?
+## Quel registre devons-nous utiliser?
 
 .small[
 
 - **Docker Hub**
 
-  - hosted by Docker Inc.
-  - requires an account (free, no credit card needed)
-  - images will be public (unless you pay)
-  - located in AWS EC2 us-east-1
+  - hébergé par Docker Inc.
+  - exige un compte (gratuit, sans carte bancaire)
+  - images publiques (sauf si vous payez)
+  - localisé chez AWS sur EC2 us-east-1
 
 - **Docker Trusted Registry**
 
-  - self-hosted commercial product
-  - requires a subscription (free 30-day trial available)
-  - images can be public or private
-  - located wherever you want
+  - produit commercial auto-hébergé
+  - exige un abonnement (avec essai gratuit de 30 jours)
+  - images publiques ou privées
+  - localisé où vous le souhaitez
 
 - **Docker open source registry**
 
-  - self-hosted barebones repository hosting
-  - doesn't require anything
-  - doesn't come with anything either
-  - located wherever you want
+  - stockage d'image basique en mode auto-hébergé
+  - n'exige rien du tout, aucun pré-requis
+  - n'offre pas grand-chose non plus
+  - localisé où vous voulez
 
-- **Lots of 3rd party cloud or self-hosted options**
+- **Tout plein d'autres options dans le cloud ou pas**
 
   - AWS/Azure/Google Container Registry
   - GitLab, Quay, JFrog
-  
+  - Portus, Harbor
 ]
 
 ---
 
 class: extra-details
 
-## Using Docker Hub
+## Utiliser Docker Hub
 
-*If we wanted to use the Docker Hub...*
+*Si on voulait passer par Docker Hub...*
 
-- We would log into the Docker Hub:
+- On devrait se connecter au Docker Hub
   ```bash
   docker login
   ```
 
-- And in the following slides, we would use our Docker Hub login
-  (e.g. `jpetazzo`) instead of the registry address (i.e. `127.0.0.1:5000`)
+- Et dans les diapos suivantes, on pourrait utiliser notre compte Docker Hub
+
+  (par ex., `jpetazzo` au lieu de l'adresse du registre, i.e `127.0.0.1:5000`)
 
 ---
 
 class: extra-details
 
-## Using Docker Trusted Registry
+## Utiliser Docker Trusted Registry
 
-*If we wanted to use DTR, we would...*
+*Si on voulait utiliser DTR, on devrait...*
 
-- Make sure we have a Docker Hub account
+- S'assurer d'avoir un compte Docker Hub
 
-- [Activate a Docker EE subscription](
+- [Activer un abonnement Docker EE](
   https://hub.docker.com/enterprise/trial/)
 
-- Install DTR on our machines
+- Installer DTR sur nos machines
 
-- Use `dtraddress:port/user` instead of the registry address
+- Marquer `dtraddress:port/user` au lieu de l'adresse du registre
 
-*This is out of the scope of this workshop!*
+*Tout ça est hors de notre périmètre*

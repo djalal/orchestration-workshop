@@ -1,28 +1,28 @@
 class: self-paced
 
-## Before we continue ...
+## Avant de continuer ...
 
-The following exercises assume that you have a 5-nodes Swarm cluster.
+Les prochains exercices supposent que vous avez un cluster Swarm de 5 noeuds.
 
-If you come here from a previous tutorial and still have your cluster: great!
+Si vous venez d'un tutoriel précédent, et qus vous avez encore votre cluster: super!
 
-Otherwise: check [part 1](#part-1) to learn how to set up your own cluster.
+Autrement: voyez la [partie n°1](#part-1) pour apprendre comment installer votre propre cluster.
 
-We pick up exactly where we left you, so we assume that you have:
+On reprendra exactement où on vous a laissé, en supposant que vous avez:
 
-- a Swarm cluster with at least 3 nodes,
+ - un cluster Swarm de 2 ou 3 nodes,
 
-- a self-hosted registry,
+ - un registre auto-hébergé,
 
-- DockerCoins up and running.
+ - l'appli DockerCoins qui tourne.
 
-The next slide has a cheat sheet if you need to set that up in a pinch.
+La prochaine diapo est un condensé si vous avez besoin d'un rattrapage.
 
 ---
 
 class: self-paced
 
-## Catching up
+## Cours de rattrapage
 
 Assuming you have 5 nodes provided by
 [Play-With-Docker](http://www.play-with-docker/), do this from `node1`:
