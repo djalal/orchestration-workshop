@@ -130,7 +130,7 @@ class: pic
 
 ---
 
-## Exécuter le plan de contrôle sur des _nodes_ spéciales
+## Plan de contrôle sur des _nodes_ spéciales
 
 - Il est commun de réserver une _node_ dédiée au plan de contrôle
 
@@ -144,7 +144,7 @@ class: pic
 
   (En utilisant un mécanisme appelé ["taints"](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/))
 
-- Quand on cherche de la haute disponibilité, chaque service du plan de contrôle doit être résilient
+- Pour de la haute dispo, chaque service du plan de contrôle doit être résilient
 
 - Le plan de contrôle est alors répliqué sur de multiples noeuds
 

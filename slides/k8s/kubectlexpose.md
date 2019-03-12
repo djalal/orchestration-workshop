@@ -1,99 +1,100 @@
-# Exposing containers
+# Exposer des conteneurs
 
-- `kubectl expose` creates a *service* for existing pods
+- `kubectl expose` crée un *service* pour des _pods_ existant
 
-- A *service* is a stable address for a pod (or a bunch of pods)
+- Un *service* est une adresse stable pour un (ou plusieurs) _pods_
 
-- If we want to connect to our pod(s), we need to create a *service*
+- Si on veut se connecter à nos _pods_, on doit déclarer un nouveau *service*
 
-- Once a service is created, CoreDNS will allow us to resolve it by name
+- Une fois que le service est créé, CoreDNS va nous permettre d'y accéder par son nom
 
-  (i.e. after creating service `hello`, the name `hello` will resolve to something)
+  (i.e après avoir créé le service `hello`, le nom `hello` va pointer quelque part)
 
-- There are different types of services, detailed on the following slides:
+- Il y a différents types de services, détaillé dans les diapos suivantes:
 
   `ClusterIP`, `NodePort`, `LoadBalancer`, `ExternalName`
 
 ---
 
-## Basic service types
+## Types de service de base
 
-- `ClusterIP` (default type)
+- `ClusterIP` (type par défaut)
 
-  - a virtual IP address is allocated for the service (in an internal, private range)
-  - this IP address is reachable only from within the cluster (nodes and pods)
-  - our code can connect to the service using the original port number
+  - une adresse IP virtuelle est allouée au service (dans un sous-réseau privé interne)
+  - cette adresse IP est accessible uniquement de l'intérieur du cluster (noeuds et _pods_)
+  - notre code peut se connecter au service par le numéro de port d'origine.
 
 - `NodePort`
 
-  - a port is allocated for the service (by default, in the 30000-32768 range)
-  - that port is made available *on all our nodes* and anybody can connect to it
-  - our code must be changed to connect to that new port number
+  - un port est alloué pour le service (par défaut, entre 30000 et 32768)
+  - ce port est exposé sur *toutes les nodes* et quiconque peut s'y connecter
+  - notre code doit être modifié pour pouvoir s'y connecter
 
-These service types are always available.
+Ces types de service sont toujours disponibles.
 
-Under the hood: `kube-proxy` is using a userland proxy and a bunch of `iptables` rules.
+Sous le capot: `kube-proxy` passe par un proxy utilisateur et un tas de règles `iptables`.
 
 ---
 
-## More service types
+## Autres types de service
 
 - `LoadBalancer`
 
-  - an external load balancer is allocated for the service
-  - the load balancer is configured accordingly
-    <br/>(e.g.: a `NodePort` service is created, and the load balancer sends traffic to that port)
-  - available only when the underlying infrastructure provides some "load balancer as a service"
+  - un répartiteur de charge externe est alloué pour le service
+  - le répartiteur de charge est configuré en accord
+    <br/>(par ex.: un service `NodePort` est créé, et le répartiteur y envoit le traffic vers son port)
+  - disponible seulement quand l'infrastructure sous-jacente fournit une sorte de "load balancer as a service"
     <br/>(e.g. AWS, Azure, GCE, OpenStack...)
 
 - `ExternalName`
 
-  - the DNS entry managed by CoreDNS will just be a `CNAME` to a provided record
-  - no port, no IP address, no nothing else is allocated
+  - l'entrée DNS gérée par CoreDNS est juste un  enregistrement `CNAME`
+  - ni port, ni adresse IP, ni rien d'autre n'est alloué
 
 ---
 
-## Running containers with open ports
+## Lancer des conteneurs avec ouverture de port
 
-- Since `ping` doesn't have anything to connect to, we'll have to run something else
+- Puisque `ping` n'a nulle part où se connecter, nous allons lancer quelque chose d'autre
 
-- We could use the `nginx` official image, but ...
+- On pourrait utiliser l'image officielle `nginx`, mais...
 
-  ... we wouldn't be able to tell the backends from each other!
+  ... comment distinguer un backend d'un autre!
 
-- We are going to use `jpetazzo/httpenv`, a tiny HTTP server written in Go
+- On va plutôt passer par `jpetazzo/httpenv`, un petit serveur HTTP écrit en Go
 
-- `jpetazzo/httpenv` listens on port 8888
+- `jpetazzo/httpenv` écoute sur le port 8888
 
-- It serves its environment variables in JSON format
+- Il renvoie ses variables d'environnement au format JSON
 
-- The environment variables will include `HOSTNAME`, which will be the pod name
+- Les variables d'environnement vont inclure `HOSTNAME`, qui aura pour valeur le nom du _pod_
 
-  (and therefore, will be different on each backend)
+  (et de ce fait, elle aura une valeur différente pour chaque backend)
 
 ---
 
-## Creating a deployment for our HTTP server
+## Créer un déploiement pour notre serveur HTTP
 
-- We *could* do `kubectl run httpenv --image=jpetazzo/httpenv` ...
+- On *pourrait* lancer `kubectl run httpenv --image=jpetazzo/httpenv` ...
 
-- But since `kubectl run` is being deprecated, let's see how to use `kubectl create` instead
+- Mais puisque `kubectl run` est bientôt obsolète, voyons voir comment utiliser `kubectl create` à sa place.
 
 .exercise[
 
-- In another window, watch the pods (to see when they will be created):
+- Dans une autre fenêtre, surveiller les pods (pour voir quand ils seront créés):
   ```bash
   kubectl get pods -w
   ```
 
 <!-- ```keys ^C``` -->
 
-- Create a deployment for this very lightweight HTTP server:
+- Créer un déploiement pour ce serveur HTTP super-léger:
+server:
   ```bash
   kubectl create deployment httpenv --image=jpetazzo/httpenv
   ```
 
-- Scale it to 10 replicas:
+- Escalader le déploiement à 10 replicas:
   ```bash
   kubectl scale deployment httpenv --replicas=10
   ```
@@ -102,18 +103,18 @@ Under the hood: `kube-proxy` is using a userland proxy and a bunch of `iptables`
 
 ---
 
-## Exposing our deployment
+## Exposer notre déploiement
 
-- We'll create a default `ClusterIP` service
+- Nous allons déclarer un service `ClusterIP` par défaut
 
 .exercise[
 
-- Expose the HTTP port of our server:
+- Exposer le port HTTP de notre serveur:
   ```bash
   kubectl expose deployment httpenv --port 8888
   ```
 
-- Look up which IP address was allocated:
+- Rechercher quelles adresses IP ont été alloués:
   ```bash
   kubectl get service
   ```
@@ -122,31 +123,31 @@ Under the hood: `kube-proxy` is using a userland proxy and a bunch of `iptables`
 
 ---
 
-## Services are layer 4 constructs
+## Services: constructions de 4e couche
 
-- You can assign IP addresses to services, but they are still *layer 4*
+- On peut assigner des adresses IP aux services, mais elles restent dans la *couche 4*
 
-  (i.e. a service is not an IP address; it's an IP address + protocol + port)
+  (i.e un service n'est pas une adresse IP; c'est une IP+ protocole + port)
 
-- This is caused by the current implementation of `kube-proxy`
+- La raison en est l'implémentation actuelle de `kube-proxy`
 
-  (it relies on mechanisms that don't support layer 3)
+  (qui se base sur des mécanismes qui ne supportent pas la couche n°3)
 
-- As a result: you *have to* indicate the port number for your service
-    
-- Running services with arbitrary port (or port ranges) requires hacks
+- Il en résulte que: vous *devez* indiquer le numéro de port de votre service
 
-  (e.g. host networking mode)
+- Lancer des services avec un (ou plusieurs) ports au hasard demandent des bidouilles
+
+  (comme passer le mode réseau au niveau hôte)
 
 ---
 
-## Testing our service
+## Tester notre service
 
-- We will now send a few HTTP requests to our pods
+- Nous allons maintenant envoyer quelques requêtes HTTP à nos _pods_
 
 .exercise[
 
-- Let's obtain the IP address that was allocated for our service, *programmatically:*
+- Obtenir l'adresse IP qui a été allouée à notre service, *sous forme de script*:
   ```bash
   IP=$(kubectl get svc httpenv -o go-template --template '{{ .spec.clusterIP }}')
   ```
@@ -155,12 +156,12 @@ Under the hood: `kube-proxy` is using a userland proxy and a bunch of `iptables`
 ```hide kubectl wait deploy httpenv --for condition=available```
 -->
 
-- Send a few requests:
+- Envoyer quelques requêtes:
   ```bash
   curl http://$IP:8888/
   ```
 
-- Too much output? Filter it with `jq`:
+- Trop de lignes? Filtrer avec `jq`:
   ```bash
   curl -s http://$IP:8888/ | jq .HOSTNAME
   ```
@@ -169,91 +170,89 @@ Under the hood: `kube-proxy` is using a userland proxy and a bunch of `iptables`
 
 --
 
-Try it a few times! Our requests are load balanced across multiple pods.
+Essayez-le plusieurs fois! Nos requêtes sont réparties à travers plusieurs _pods_.
 
 ---
 
 class: extra-details
 
-## If we don't need a load balancer
+## Si on n'a pas besoin d'un répartiteur de charge
 
-- Sometimes, we want to access our scaled services directly:
+- Parfois, on voudrait accéder à nos services directement:
 
-  - if we want to save a tiny little bit of latency (typically less than 1ms)
+  - si on veut économiser un petit bout de latence (typiquement < 1ms)
 
-  - if we need to connect over arbitrary ports (instead of a few fixed ones)
+  - si on a besoin de se connecter à n'importe quel port (au lieu de quelques ports fixes)
 
-  - if we need to communicate over another protocol than UDP or TCP
+  - si on a besoin de communiquer sur un autre protocole qu'UDP ou TCP
 
-  - if we want to decide how to balance the requests client-side
+  - si on veut décider comment répartir la charge depuis le client
 
   - ...
 
-- In that case, we can use a "headless service"
+- Dans ce cas, on peut utiliser un "headless service"
 
 ---
 
 class: extra-details
 
-## Headless services
+## Services Headless
 
-- A headless service is obtained by setting the `clusterIP` field to `None`
+- On obtient un service _headless_ en assignant la valeur `None` au champ `clusterIP`
 
-  (Either with `--cluster-ip=None`, or by providing a custom YAML)
+  (Soit avec `--cluster-ip=None`, ou via un bout de YAML)
 
-- As a result, the service doesn't have a virtual IP address
+- Puisqu'il n'y a pas d'adresse IP virtuelle, il n'y pas non plus de répartiteur de charge
 
-- Since there is no virtual IP address, there is no load balancer either
+- CoreDNS va retourner les adresses IP des _pods_ comme autant d'enregistrements `A`
 
-- CoreDNS will return the pods' IP addresses as multiple `A` records
-
-- This gives us an easy way to discover all the replicas for a deployment
+- C'est un moyen facile de recenser tous les réplicas d'un deploiement.
 
 ---
 
 class: extra-details
 
-## Services and endpoints
+## Services et points d'entrée
 
-- A service has a number of "endpoints"
+- Un service dispose d'un certain nombre de "points d'entrée" (_endpoint_)
 
-- Each endpoint is a host + port where the service is available
+- Chaque _endpoint_ est une combinaison "hôte + port" qui pointe vers le service
 
-- The endpoints are maintained and updated automatically by Kubernetes
+- Les points d'entrée sont maintenus et mis à jour automatiquement par Kubernetes
 
 .exercise[
 
-- Check the endpoints that Kubernetes has associated with our `httpenv` service:
+- Vérifier les _endpoints_ que Kubernetes a associé au service `httpenv`:
   ```bash
   kubectl describe service httpenv
   ```
 
 ]
 
-In the output, there will be a line starting with `Endpoints:`.
+Dans l'affichage, il y aura une ligne commençant par `Endpoints:`.
 
-That line will list a bunch of addresses in `host:port` format.
+Cette ligne liste un tas d'adresses au format `host:port`.
 
 ---
 
 class: extra-details
 
-## Viewing endpoint details
+## Afficher les détails d'un _endpoint_
 
-- When we have many endpoints, our display commands truncate the list
+- Dans le cas de nombreux _endpoints_, les commandes d'affichage tronquent la liste
   ```bash
   kubectl get endpoints
   ```
 
-- If we want to see the full list, we can use one of the following commands:
+- Pour sortir la liste complète, on peut passer par la commande suivante:
   ```bash
   kubectl describe endpoints httpenv
   kubectl get endpoints httpenv -o yaml
   ```
 
-- These commands will show us a list of IP addresses
+- Ces commandes vont nous montrer une liste d'adresses IP
 
-- These IP addresses should match the addresses of the corresponding pods:
+- On devrait retrouver ces mêmes adresses IP dans les _pods_ correspondants:
   ```bash
   kubectl get pods -l app=httpenv -o wide
   ```
@@ -262,17 +261,16 @@ class: extra-details
 
 class: extra-details
 
-## `endpoints` not `endpoint`
+## `endpoints`, pas `endpoint`
 
-- `endpoints` is the only resource that cannot be singular
-
+- `endpoints` est la seule ressource qui ne s'écrit jamais au singulier
 ```bash
 $ kubectl get endpoint
 error: the server doesn't have a resource type "endpoint"
 ```
 
-- This is because the type itself is plural (unlike every other resource)
+- C'est parce que le type lui-même est pluriel (contrairement à toutes les autres ressources)
 
-- There is no `endpoint` object: `type Endpoints struct`
+- Il n'existe aucun objet `endpoint`: `type Endpoints struct`
 
-- The type doesn't represent a single endpoint, but a list of endpoints
+- Le type ne représente pas un seul _endpoint_, mais une liste d'_endpoints_

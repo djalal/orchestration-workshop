@@ -72,7 +72,7 @@
 
 .exercise[
 
-- Montrer la capacité de toutes nos noeuds sous forme de flux d'objets JSON:
+- Montrer la capacité de tous nos noeuds sous forme de flux d'objets JSON:
   ```bash
     kubectl get nodes -o json | 
             jq ".items[] | {name:.metadata.name} + .status.capacity"
@@ -82,7 +82,7 @@
 
 ---
 
-## Qu'est-ce qui tourne?
+## Qu'est-ce qui tourne là-dessous?
 
 - `kubectl` dispose de capacité d'introspection solides
 
@@ -101,19 +101,19 @@
   kubectl explain type
   ```
 
-Chaque fois, `type` peut être singulier, pluriel ou un nom abrégé
+Chaque fois, `type` peut être un nom au singulier, au pluriel ou sous forme abrégée
 
 ---
 
 ## Services
 
-- A *service* is a stable endpoint to connect to "something"
+- Un *service* est un point d'entrée stable pour se connecter à "quelque chose"
 
-  (In the initial proposal, they were called "portals")
+  (Dans la proposition initiale, on appelait ça un "portail")
 
 .exercise[
 
-- List the services on our cluster with one of these commands:
+- Lister les services sur notre cluster avec une de ces commandes:
   ```bash
   kubectl get services
   kubectl get svc
@@ -123,48 +123,49 @@ Chaque fois, `type` peut être singulier, pluriel ou un nom abrégé
 
 --
 
-There is already one service on our cluster: the Kubernetes API itself.
+Il y a déjà un service sur notre cluster: l'API Kubernetes elle-même.
 
 ---
 
-## ClusterIP services
+## services *ClusterIP*
 
-- A `ClusterIP` service is internal, available from the cluster only
+- Un service `ClusterIP` est interne, disponible uniquement depuis le cluster
 
-- This is useful for introspection from within containers
+- C'est utile pour faire l'introspection depuis l'intérieur de conteneurs.
 
 .exercise[
 
-- Try to connect to the API:
+- Essayer de se connecter à l'API:
   ```bash
   curl -k https://`10.96.0.1`
   ```
-  
-  - `-k` is used to skip certificate verification
+  - `-k` est spécifié pour désactiver la vérification de certificat
 
-  - Make sure to replace 10.96.0.1 with the CLUSTER-IP shown by `kubectl get svc`
+  - Attention à bien remplacer 10.96.0.1 avec l'IP CLUSTER affichée par `kubectl get svc`
 
 ]
 
+NB :sur Docker for Desktop, l'API n'est accessible que sur `https://localhost:6443/`
+
 --
 
-The error that we see is expected: the Kubernetes API requires authentication.
+L'erreur que vous voyez était attendue: l'API Kubernetes exige une identification.
 
 ---
 
-## Listing running containers
+## Lister les conteneurs qui tournent
 
-- Containers are manipulated through *pods*
+- Les conteneurs existent à travers des *pods*.
 
-- A pod is a group of containers:
+- Un _pod_ est un groupe de conteneurs:
 
- - running together (on the same node)
+  - qui tournent ensemble (sur le même noeud)
 
- - sharing resources (RAM, CPU; but also network, volumes)
+  - qui partagent des ressources (RAM, CPU; mais aussi réseau et volumes)
 
 .exercise[
 
-- List pods on our cluster:
+- Lister les _pods_ de notre cluster:
   ```bash
   kubectl get pods
   ```
@@ -173,17 +174,17 @@ The error that we see is expected: the Kubernetes API requires authentication.
 
 --
 
-*These are not the pods you're looking for.* But where are they?!?
+*Ce ne sont pas là les _pods_ que nous cherchons.* Mais où sont-ils alors?!?
 
 ---
 
 ## Namespaces
 
-- Namespaces allow us to segregate resources
+- Les espaces de nommage (_namespaces_) nous permettent de cloisonner des ressources.
 
 .exercise[
 
-- List the namespaces on our cluster with one of these commands:
+- Lister les _namespaces_ de notre cluster avec une de ces commandes:
   ```bash
   kubectl get namespaces
   kubectl get namespace
@@ -194,19 +195,19 @@ The error that we see is expected: the Kubernetes API requires authentication.
 
 --
 
-*You know what ... This `kube-system` thing looks suspicious.*
+*Vous savez quoi... Ce machin `kube-system` m'a l'air suspect.*
 
 ---
 
-## Accessing namespaces
+## Accéder aux _namespaces_
 
-- By default, `kubectl` uses the `default` namespace
+- Par défaut, `kubectl` utilise le _namespace_... `default`
 
-- We can switch to a different namespace with the `-n` option
+- On peut basculer sur un _namespace_ différent avec l'option `-n`
 
 .exercise[
 
-- List the pods in the `kube-system` namespace:
+- Lister les _pods_ dans le _namespace_ `kube-system`:
   ```bash
   kubectl -n kube-system get pods
   ```
@@ -215,39 +216,40 @@ The error that we see is expected: the Kubernetes API requires authentication.
 
 --
 
-*Ding ding ding ding ding!*
+*Alerte Alerte Alerte Alerte Alerte Alerte*
 
-The `kube-system` namespace is used for the control plane.
+Le _namespace_ `kube-system` est utilisé pour le plan de contrôle.
 
 ---
 
-## What are all these control plane pods?
+## A quoi servent ces _pods_ du plan de contrôle?
 
-- `etcd` is our etcd server
+- `etcd` est notre serveur etcd
 
-- `kube-apiserver` is the API server
+- `kube-apiserver` est le serveur API
 
-- `kube-controller-manager` and `kube-scheduler` are other master components
+- `kube-controller-manager` et `kube-scheduler` sont d'autres composants maître
 
-- `coredns` provides DNS-based service discovery ([replacing kube-dns as of 1.11](https://kubernetes.io/blog/2018/07/10/coredns-ga-for-kubernetes-cluster-dns/))
+- `coredns` fournit une découverte de services basé sur le DNS ([il remplace kube-dns depuis 1.11](https://kubernetes.io/blog/2018/07/10/coredns-ga-for-kubernetes-cluster-dns/))
 
-- `kube-proxy` is the (per-node) component managing port mappings and such
+- `kube-proxy` est tourne sur chaque _node_ et gère le _mapping_ de ports etc.
 
-- `weave` is the (per-node) component managing the network overlay
+- `weave` est le composant qui gère les réseaux superposés sur chaque noeud
 
-- the `READY` column indicates the number of containers in each pod
+- la colonne `READY` indique le nombre de conteneurs dans chaque _pod_
 
-- the pods with a name ending with `-node1` are the master components
+- les _pods_ avec un nom qui finit en `-node1` sont les composants maître
   <br/>
-  (they have been specifically "pinned" to the master node)
+  ils sont spécifiquement "scotchés" au noeud maître.
+
 
 ---
 
-## What about `kube-public`?
+## Qu'en est-il de `kube-public`?
 
 .exercise[
 
-- List the pods in the `kube-public` namespace:
+- Lister les _pods_ dans le _namespace_ `kube-public`:
   ```bash
   kubectl -n kube-public get pods
   ```
@@ -256,13 +258,13 @@ The `kube-system` namespace is used for the control plane.
 
 --
 
-- Maybe it doesn't have pods, but what secrets is `kube-public` keeping?
+- Peut-être qu'il n'a pas de _pods_, mais quels secrets nous cache `kube-public`?
 
 --
 
 .exercise[
 
-- List the secrets in the `kube-public` namespace:
+- Lister les secrets dans le _namespace_ `kube-public`:
   ```bash
   kubectl -n kube-public get secrets
   ```
@@ -270,4 +272,4 @@ The `kube-system` namespace is used for the control plane.
 ]
 --
 
-- `kube-public` is created by kubeadm & [used for security bootstrapping](https://kubernetes.io/blog/2017/01/stronger-foundation-for-creating-and-managing-kubernetes-clusters)
+- `kube-public` est créé par kubeadm et [utilisé pour établir une sécurité de base](https://kubernetes.io/blog/2017/01/stronger-foundation-for-creating-and-managing-kubernetes-clusters)

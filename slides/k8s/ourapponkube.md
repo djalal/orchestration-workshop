@@ -1,30 +1,30 @@
-# Shipping images with a registry
+# Pousser des images avec un registre
 
-- Initially, our app was running on a single node
+- Au début, notre appli tournait sur un seul noeud
 
-- We could *build* and *run* in the same place
+- On pourrait *générer* et *lancer* sur le même serveur
 
-- Therefore, we did not need to *ship* anything
+- Et par conséquence, on n'aurait pas besoin de *pousser* quoique ce soit
 
-- Now that we want to run on a cluster, things are different
+- Maintenant qu'on souhaite faire la même chose sur un cluster, ça change tout
 
-- The easiest way to ship container images is to use a registry
+- Le plus simple pour échanger des images de conteneurs est d'utiliser un registre
 
 ---
 
-## How Docker registries work (a reminder)
+## Rappel sur les registres Docker
 
-- What happens when we execute `docker run alpine` ?
+- Que se passe-t-il quand on lance `docker run alpine`?
 
-- If the Engine needs to pull the `alpine` image, it expands it into `library/alpine`
+- Si le moteur de conteneurs a besoin de récupérer l'image `alpine`, il va l'interpréter en `library/alpine`
 
-- `library/alpine` is expanded into `index.docker.io/library/alpine`
+- Ce même `library/alpine` va être étendu en `index.docker.io/library/alpine`
 
-- The Engine communicates with `index.docker.io` to retrieve `library/alpine:latest`
+- Le moteur communique avec `index.docker.io` pour récupérer `library/alpine:latest`
 
-- To use something else than `index.docker.io`, we specify it in the image name
+- Pour utiliser quelque chose d'autre que `index.docker.io`, on l'indique dans le nom d'image
 
-- Examples:
+- Exemples:
   ```bash
   docker pull gcr.io/google-containers/alpine-with-bash:1.0
 

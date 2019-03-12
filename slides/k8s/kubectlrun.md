@@ -1,27 +1,26 @@
-# Running our first containers on Kubernetes
+# Lancer nos premiers conteneurs sur Kubernetes
 
-- First things first: we cannot run a container
-
---
-
-- We are going to run a pod, and in that pod there will be a single container
+- Commençons par le commencement: on ne lance pas "un" conteneur
 
 --
 
-- In that container in the pod, we are going to run a simple `ping` command
+- On va lancer un _pod_, et dans ce _pod_, on fera tourner un seul conteneur
 
-- Then we are going to start additional copies of the pod
+--
+
+- Dans ce conteneur, qui est dans le _pod_, nous allons lancer une simple commande `ping`
+
+- Puis nous allons démarrer plusieurs exemplaires du _pod_.
 
 ---
 
-## Starting a simple pod with `kubectl run`
+## Démarrer un simple pod avec `kubectl run`
 
-- We need to specify at least a *name* and the image we want to use
+- On doit spécifier au moins un *nom* et l'image qu'on veut utiliser.
 
 .exercise[
 
-- Let's ping `1.1.1.1`, Cloudflare's 
-  [public DNS resolver](https://blog.cloudflare.com/announcing-1111/):
+- Lancer un ping sur `1.1.1.1`, le [serveur DNS public](https://blog.cloudflare.com/announcing-1111/) de Cloudflare:
   ```bash
   kubectl run pingpong --image alpine ping 1.1.1.1
   ```
@@ -32,18 +31,18 @@
 
 --
 
-(Starting with Kubernetes 1.12, we get a message telling us that
-`kubectl run` is deprecated. Let's ignore it for now.)
+(A partir de Kubernetes 1.12, un message s'affiche nous indiquant que
+`kubectl run` est déprécié. Laissons ça de côté pour l'instant.)
 
 ---
 
-## Behind the scenes of `kubectl run`
+## Dans les coulisses de `kubectl run`
 
-- Let's look at the resources that were created by `kubectl run`
+- Jetons un oeil aux ressources créées par `kubectl run`
 
 .exercise[
 
-- List most resource types:
+- Lister tous types de ressources:
   ```bash
   kubectl get all
   ```
@@ -52,82 +51,83 @@
 
 --
 
-We should see the following things:
-- `deployment.apps/pingpong` (the *deployment* that we just created)
-- `replicaset.apps/pingpong-xxxxxxxxxx` (a *replica set* created by the deployment)
-- `pod/pingpong-xxxxxxxxxx-yyyyy` (a *pod* created by the replica set)
+On devrait y voir quelque chose comme:
+- `deployment.apps/pingpong` (le *deployment* que nous venons juste de déclarer)
+- `replicaset.apps/pingpong-xxxxxxxxxx` (un *replica set* généré par ce déploiement)
+- `pod/pingpong-xxxxxxxxxx-yyyyy` (un *pod* généré par le _replica set_)
 
-Note: as of 1.10.1, resource types are displayed in more detail.
-
----
-
-## What are these different things?
-
-- A *deployment* is a high-level construct
-
-  - allows scaling, rolling updates, rollbacks
-
-  - multiple deployments can be used together to implement a
-    [canary deployment](https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#canary-deployments)
-
-  - delegates pods management to *replica sets*
-
-- A *replica set* is a low-level construct
-
-  - makes sure that a given number of identical pods are running
-
-  - allows scaling
-
-  - rarely used directly
-
-- A *replication controller* is the (deprecated) predecessor of a replica set
+Note: à partir de 1.10.1, les types de ressources sont affichés plus en détail.
 
 ---
 
-## Our `pingpong` deployment
+## Que représentent ces différentes choses?
 
-- `kubectl run` created a *deployment*, `deployment.apps/pingpong`
+- Un _deployment_ est une structure de haut niveau
+
+  - permet la montée en charge, les mises à jour, les retour-arrière
+
+  - plusieurs déploiements peuvent être cumulés pour implémenter un
+    [_canary deployment_](https://kubernetes.io/docs/concepts/cluster-administration/manage-deployment/#canary-deployments)
+
+  - délègue la gestion des _pods_ aux _replica sets_
+
+- Un *replica set* est une structure de bas niveau
+
+  - s'assure qu'un nombre de _pods_ identiques est lancé
+
+  - permet la montée en chage
+
+  - est rarement utilisé directement
+
+
+- Un _replication controlller_ est l'ancêtre (déprécié) du _replica set_
+
+---
+
+## Notre déploiement `pingpong`
+
+- `kubectl run` déclare un *deployment*, `deployment.apps/pingpong`
 
 ```
 NAME                       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/pingpong   1         1         1            1           10m
 ```
 
-- That deployment created a *replica set*, `replicaset.apps/pingpong-xxxxxxxxxx`
+- Ce déploiement a généré un *replica set*, `replicaset.apps/pingpong-xxxxxxxxxx`
 
 ```
 NAME                                  DESIRED   CURRENT   READY     AGE
 replicaset.apps/pingpong-7c8bbcd9bc   1         1         1         10m
 ```
 
-- That replica set created a *pod*, `pod/pingpong-xxxxxxxxxx-yyyyy`
+- Ce _replica set_ a créé un _pod_, `pod/pingpong-xxxxxxxxxx-yyyyy`
 
 ```
 NAME                            READY     STATUS    RESTARTS   AGE
 pod/pingpong-7c8bbcd9bc-6c9qz   1/1       Running   0          10m
 ```
 
-- We'll see later how these folks play together for:
+- Nous verrons plus tard comment ces gars vivent ensemble pour:
 
-  - scaling, high availability, rolling updates
+  - la montée en charge, la haute disponibilité, les mises à jour en continu
 
 ---
 
-## Viewing container output
+## Afficher la sortie du conteneur
 
-- Let's use the `kubectl logs` command
+- Essayons la commande `kubectl logs`
 
-- We will pass either a *pod name*, or a *type/name*
+- On lui passera soit un _nom de pod_ ou un _type/name_
 
-  (E.g. if we specify a deployment or replica set, it will get the first pod in it)
+  (Par ex., si on spécifie un déploiement ou un _replica set_, il nous sortira le premier _pod_ qu'il contient)
 
-- Unless specified otherwise, it will only show logs of the first container in the pod
+- Sauf instruction expresse, la commande n'affichera que les logs du premier conteneur du _pod_
 
-  (Good thing there's only one in ours!)
+  (Heureusement qu'il n'y en a qu'un chez nous!)
 
 .exercise[
 
-- View the result of our `ping` command:
+- Afficher le résultat de notre commande `ping`:
   ```bash
   kubectl logs deploy/pingpong
   ```
@@ -136,19 +136,19 @@ pod/pingpong-7c8bbcd9bc-6c9qz   1/1       Running   0          10m
 
 ---
 
-## Streaming logs in real time
+## Suivre les logs en temps réel
 
-- Just like `docker logs`, `kubectl logs` supports convenient options:
+- Tout comme `docker logs`, `kubectl logs` supporte des options bien pratiques:
 
-  - `-f`/`--follow` to stream logs in real time (à la `tail -f`)
+  - `-f`/`--follow` pour continuer à afficher les logs en temps réel (à la `tail -f`)
 
-  - `--tail` to indicate how many lines you want to see (from the end)
+  - `--tail` pour indiquer combien de lignes on veut afficher (depuis la fin)
 
-  - `--since` to get logs only after a given timestamp
+  - `--since` pour afficher les logs après un certain _timestamp_
 
 .exercise[
 
-- View the latest logs of our `ping` command:
+- Voir les derniers logs de notre commande `ping`:
   ```bash
   kubectl logs deploy/pingpong --tail 1 --follow
   ```
@@ -162,41 +162,38 @@ pod/pingpong-7c8bbcd9bc-6c9qz   1/1       Running   0          10m
 
 ---
 
-## Scaling our application
+## Escalader notre application
 
-- We can create additional copies of our container (I mean, our pod) with `kubectl scale`
+- On peut ajouter plusieurs exemplaires de notre conteneur (notre _pod_, pour être plus précis), avec la commande `kubectl scale`
 
 .exercise[
 
-- Scale our `pingpong` deployment:
+- Escalader notre déploiement `pingpong`:
   ```bash
   kubectl scale deploy/pingpong --replicas 8
   ```
 
-- Note that this command does exactly the same thing:
-  ```bash
-  kubectl scale deployment pingpong --replicas 8
-  ```
+
 
 ]
 
-Note: what if we tried to scale `replicaset.apps/pingpong-xxxxxxxxxx`?
+Note: et si on avait essayé d'escalader `replicaset.apps/pingpong-xxxxxxxxxx`?
 
-We could! But the *deployment* would notice it right away, and scale back to the initial level.
+On pourrait! Mais le *deployment* le remarquerait tout de suite, et le baisserait au niveau initial.
 
 ---
 
-## Resilience
+## Résilience
 
-- The *deployment* `pingpong` watches its *replica set*
+- Le *déploiement* `pingpong` affiche son _replica set_
 
-- The *replica set* ensures that the right number of *pods* are running
+- Le *replica set* s'assure que le bon nombre de _pods_ sont lancés
 
-- What happens if pods disappear?
+- Que se passe-t-il en cas de disparition inattendue de _pods_?
 
 .exercise[
 
-- In a separate window, list pods, and keep watching them:
+- Dans une fenêtre séparée, lister les _pods_ en continu:
   ```bash
   kubectl get pods -w
   ```
@@ -209,7 +206,7 @@ We could! But the *deployment* would notice it right away, and scale back to the
 ```copypaste pong-..........-.....```
 -->
 
-- Destroy a pod:
+- Supprimer un _pod_
   ```
   kubectl delete pod pingpong-xxxxxxxxxx-yyyyy
   ```
@@ -217,81 +214,81 @@ We could! But the *deployment* would notice it right away, and scale back to the
 
 ---
 
-## What if we wanted something different?
+## Et si on voulait que ça se passe différemment?
 
-- What if we wanted to start a "one-shot" container that *doesn't* get restarted?
+- Et si on voulait lancer un conteneur "one-shot" qui ne va *pas* se relancer?
 
-- We could use `kubectl run --restart=OnFailure` or `kubectl run --restart=Never`
+- On pourrait utiliser `kubectl run --restart=OnFailure` or `kubectl run --restart=Never`
 
-- These commands would create *jobs* or *pods* instead of *deployments*
+- Ces commandes iraient déclarer des *jobs* ou *pods* au lieu de *deployments*.
 
-- Under the hood, `kubectl run` invokes "generators" to create resource descriptions
+- Sous le capot, `kubectl run` invoque des _"generators"_ pour déclarer les descriptions de ressources.
 
-- We could also write these resource descriptions ourselves (typically in YAML),
-  <br/>and create them on the cluster with `kubectl apply -f` (discussed later)
+- On pourrait aussi écrire ces descriptions de ressources nous-mêmes (typiquement en YAML),
+  <br/>et les créer sur le cluster avec `kubectl apply -f` (comme on verra plus loin)
 
-- With `kubectl run --schedule=...`, we can also create *cronjobs*
-
----
-
-## What about that deprecation warning?
-
-- As we can see from the previous slide, `kubectl run` can do many things
-
-- The exact type of resource created is not obvious
-
-- To make things more explicit, it is better to use `kubectl create`:
-
-  - `kubectl create deployment` to create a deployment
-
-  - `kubectl create job` to create a job
-
-- Eventually, `kubectl run` will be used only to start one-shot pods
-
-  (see https://github.com/kubernetes/kubernetes/pull/68132)
+- Avec `kubectl run --schedule=...`, on peut aussi lancer des *cronjobs*
 
 ---
 
-## Various ways of creating resources
+## Bon, et cet avertissement de déprécation?
 
-- `kubectl run` 
+- Comme nous avons vu dans les diapos précédentes, `kubectl run` peut faire bien des choses.
 
-  - easy way to get started
+- Le type exact des ressources créées n'est pas flagrant.
+
+- Pour rendre les choses plus explicites, on préfère passer par `kubectl create`:
+
+  - `kubectl create deployment` pour créer un déploiement
+
+  - `kubectl create job` pour créer un job
+
+- Finalement, `kubectl run` ne sera utilisé que pour démarrer des _pods_ à usage unique
+
+  (voir https://github.com/kubernetes/kubernetes/pull/68132)
+
+---
+
+## Divers moyens de créer des ressources
+
+- `kubectl run`
+
+  - facile pour débuter
   - versatile
 
-- `kubectl create <resource>` 
+- `kubectl create <ressource>`
 
-  - explicit, but lacks some features
-  - can't create a CronJob
-  - can't pass command-line arguments to deployments
+  - explicite, mais lui manque quelques fonctions
+  - ne peut déclarer de CronJob
+  - ne peut pas transmettre des arguments en ligne de commande aux déploiements
 
-- `kubectl create -f foo.yaml` or `kubectl apply -f foo.yaml`
+- `kubectl create -f foo.yaml` ou `kubectl apply -f foo.yaml`
 
-  - all features are available
-  - requires writing YAML
+  - 100% des fonctions disponibles
+  - exige d'écrire du YAML
 
 ---
 
-## Viewing logs of multiple pods
+## Afficher les logs de multiple _pods_
 
-- When we specify a deployment name, only one single pod's logs are shown
+- Quand on spécifie un nom de déploiement, les logs d'un seul _pod_ sont affichés
 
-- We can view the logs of multiple pods by specifying a *selector*
+- On peut afficher les logs de plusieurs pods en ajoutant un *selector*
 
-- A selector is a logic expression using *labels*
+- Un sélecteur est une expression logique basée sur des *labels*
 
-- Conveniently, when you `kubectl run somename`, the associated objects have a `run=somename` label
+- Pour faciliter les choses, quand on lance `kubectl run monpetitnom`, les objets associés ont un label `run=monpetitnom`
 
 .exercise[
 
-- View the last line of log from all pods with the `run=pingpong` label:
+- Afficher la dernière ligne de log pour tout _pod_ confondus qui a le label `run=pingpong`:
   ```bash
   kubectl logs -l run=pingpong --tail 1
   ```
 
 ]
 
-Unfortunately, `--follow` cannot (yet) be used to stream the logs from multiple containers.
+Hélas, `--follow` ne peut pas (encore) être utilisé pour suivre les logs depuis plusieurs conteneurs.
 
 ---
 
@@ -299,29 +296,29 @@ class: extra-details
 
 ## `kubectl logs -l ... --tail N`
 
-- If we run this with Kubernetes 1.12, the last command shows multiple lines
+- En exécutant cette commande dans Kubernetes 1.12, plusieurs lignes s'affichent
 
-- This is a regression when `--tail` is used together with `-l`/`--selector`
+- C'est une régression quand `--tail` et `-l`/`--selector` sont couplés.
 
-- It always shows the last 10 lines of output for each container
+- Ca affichera toujours les 10 dernières lignes de la sortie de chaque conteneur.
 
-  (instead of the number of lines specified on the command line)
+  (au lieu du nombre de lignes spécifiées en ligne de commande)
 
-- The problem was fixed in Kubernetes 1.13
+- Le problème a été résolu dans Kubernetes 1.13
 
-*See [#70554](https://github.com/kubernetes/kubernetes/issues/70554) for details.*
+*Voir [#70554](https://github.com/kubernetes/kubernetes/issues/70554) pour plus de détails.*
 
 ---
 
-## Aren't we flooding 1.1.1.1?
+## Est-ce qu'on n'est pas en train de submerger 1.1.1.1?
 
-- If you're wondering this, good question!
+- Si on y réfléchit, c'est une bonne question!
 
-- Don't worry, though:
+- Pourtant, pas d'inquiétude:
 
-  *APNIC's research group held the IP addresses 1.1.1.1 and 1.0.0.1. While the addresses were valid, so many people had entered them into various random systems that they were continuously overwhelmed by a flood of garbage traffic. APNIC wanted to study this garbage traffic but any time they'd tried to announce the IPs, the flood would overwhelm any conventional network.*
+  *Le groupe de recherche APNIC a géré les adresses 1.1.1.1 et 1.0.0.1. Alors qu'elles étaient valides, tellement de gens les ont introduit dans divers systèmes, qu'ils étaient continuellement submergés par un flot de trafic polluant. L'APNIC voulait étudier cette pollution mais à chaque fois qu'ils ont essayé d'annoncer les IPs, le flot de trafic a submergé tout réseau conventionnel. *
 
   (Source: https://blog.cloudflare.com/announcing-1111/)
 
-- It's very unlikely that our concerted pings manage to produce
-  even a modest blip at Cloudflare's NOC!
+- Il est tout à fait improbable que nos pings réunis puissent produire
+  ne serait-ce qu'un modeste truc dans le NOC chez Cloudflare!
