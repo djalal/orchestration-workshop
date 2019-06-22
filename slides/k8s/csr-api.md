@@ -293,7 +293,7 @@ The command above generates:
 
 - We want to generate short-lived certificates, so we will lower that to 1 hour
 
-- Fow now, this is configured [through an experimental controller manager flag](https://github.com/kubernetes/kubernetes/issues/67324)
+- For now, this is configured [through an experimental controller manager flag](https://github.com/kubernetes/kubernetes/issues/67324)
 
 .exercise[
 

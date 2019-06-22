@@ -472,4 +472,4 @@ class: extra-details
 - Pour plus de détails, voir [KEP-0009] ou la [doc de contrôleur de node]
 
 [KEP-0009]: https://github.com/kubernetes/enhancements/blob/master/keps/sig-node/0009-node-heartbeat.md
-[node controller documentation]: https://kubernetes.io/docs/concepts/architecture/nodes/#node-controller
+[doc de contrôleur de node]: https://kubernetes.io/docs/concepts/architecture/nodes/#node-controller

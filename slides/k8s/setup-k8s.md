@@ -55,7 +55,7 @@
 
 - Si vous êtes sur AWS:
   [EKS](https://aws.amazon.com/eks/),
-  [eksctl](https://eksctl.io/),
+  [eksctl](https://eksctl.io/)
 
 - Agnostique au cloud (AWS/DO/GCE (beta)/vSphere(alpha)):
   [kops](https://github.com/kubernetes/kops)

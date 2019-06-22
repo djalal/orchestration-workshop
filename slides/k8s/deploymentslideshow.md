@@ -1,8 +1,8 @@
-## 19,000 words
+## 19,000 mots
 
-They say, "a picture is worth one thousand words."
+On dit "qu'une image vaut mille mots".
 
-The following 19 slides show what really happens when we run:
+Les 19 diapos suivantes montrent ce qu'il se passe quand on lance:
 
 ```bash
 kubectl run web --image=nginx --replicas=3

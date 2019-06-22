@@ -80,7 +80,7 @@ class: in-person
 
 - Les VMs resterons allumées toute la durée de la formation
 
-- Vous devez avoir une petite card avec identifiant+mot de passe+adresses IP
+- Vous devez avoir une petite carte avec identifiant+mot de passe+adresses IP
 
 - Vous pouvez automatiquement SSH d'une VM à une autre
 
