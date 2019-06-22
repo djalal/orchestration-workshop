@@ -65,12 +65,6 @@ class: pic
 
 ---
 
-## Plusieurs conteneurs partageant la même image
-
-![layers](images/sharing-layers.jpg)
-
----
-
 ## Différences entre conteneurs et images
 
 * Une image est un système de fichiers en lecture seule.
@@ -84,6 +78,15 @@ une copie en lecture/écriture de ce système de fichiers.
 * `docker run` démarre un conteneur depuis une image donnée.
 
 ---
+
+class: pic
+
+## Plusieurs conteneurs partageant la même image
+
+![layers](images/sharing-layers.jpg)
+
+---
+
 
 ## Comparaison avec la programmation orientée objet
 
@@ -185,7 +188,7 @@ Ces images incluent:
 
 * Des services et composants prêts à l'emploi, comme redis, postgresql, etc.
 
-* Plus de 130 à ce jour!
+* Plus de 150 à ce jour!
 
 ---
 

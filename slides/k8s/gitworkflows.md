@@ -111,7 +111,7 @@
 
 - Display that key:
   ```
-  kubectl logs deployment flux | grep identity
+  kubectl logs deployment/flux | grep identity
   ```
 
 - Then add that key to the repository, giving it **write** access
@@ -234,6 +234,6 @@
 
   (see the [documentation](https://github.com/hasura/gitkube/blob/master/docs/remote.md) for more details)
 
-- Gitkube can also deploy Helm Charts
+- Gitkube can also deploy Helm charts
 
   (instead of raw YAML files)

@@ -203,7 +203,7 @@ Lancer les commandes à la main via SSH
 
 --
 
-  (mdr je blague)
+  (lol je blague)
 
 --
 

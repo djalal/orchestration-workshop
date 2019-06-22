@@ -412,6 +412,11 @@ besoin d'une sorte de file d'attente de messages: Redis
 si c'est léger, Kafka si vous voulez garantir aucune perte.
 Bonne chance.
 
+<<<<<<< HEAD
 Pour en savoir plus sur le pilote GELF, jetez un oeil sur
 [ce billet de blog](
+=======
+If you want to learn more about the GELF driver,
+have a look at [this blog post](
+>>>>>>> master
 https://jpetazzo.github.io/2017/01/20/docker-logging-gelf/).

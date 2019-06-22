@@ -2,7 +2,7 @@ export AWS_DEFAULT_OUTPUT=text
 
 HELP=""
 _cmd() {
-    HELP="$(printf "%s\n%-12s %s\n" "$HELP" "$1" "$2")"
+    HELP="$(printf "%s\n%-20s %s\n" "$HELP" "$1" "$2")"
 }
 
 _cmd help "Show available commands"
@@ -74,10 +74,10 @@ _cmd_deploy() {
     pssh -I sudo tee /usr/local/bin/docker-prompt <lib/docker-prompt
     pssh sudo chmod +x /usr/local/bin/docker-prompt
 
-    # If /home/docker/.ssh/id_rsa doesn't exist, copy it from node1
+    # If /home/docker/.ssh/id_rsa doesn't exist, copy it from the first node
     pssh "
     sudo -u docker [ -f /home/docker/.ssh/id_rsa ] ||
-    ssh -o StrictHostKeyChecking=no node1 sudo -u docker tar -C /home/docker -cvf- .ssh |
+    ssh -o StrictHostKeyChecking=no \$(cat /etc/name_of_first_node) sudo -u docker tar -C /home/docker -cvf- .ssh |
     sudo -u docker tar -C /home/docker -xf-"
 
     # if 'docker@' doesn't appear in /home/docker/.ssh/authorized_keys, copy it there
@@ -86,11 +86,11 @@ _cmd_deploy() {
     cat /home/docker/.ssh/id_rsa.pub |
     sudo -u docker tee -a /home/docker/.ssh/authorized_keys"
 
-    # On node1, create and deploy TLS certs using Docker Machine
+    # On the first node, create and deploy TLS certs using Docker Machine
     # (Currently disabled.)
     true || pssh "
-    if grep -q node1 /tmp/node; then
-        grep ' node' /etc/hosts | 
+    if i_am_first_node; then
+        grep '[0-9]\$' /etc/hosts |
         xargs -n2 sudo -H -u docker \
         docker-machine create -d generic --generic-ssh-user docker --generic-ip-address
     fi"
@@ -103,10 +103,61 @@ _cmd_deploy() {
     info "$0 cards $TAG"
 }
 
+_cmd disabledocker "Stop Docker Engine and don't restart it automatically"
+_cmd_disabledocker() {
+    TAG=$1
+    need_tag
+
+    pssh "sudo systemctl disable docker.service"
+    pssh "sudo systemctl disable docker.socket"
+    pssh "sudo systemctl stop docker"
+}
+
+_cmd kubebins "Install Kubernetes and CNI binaries but don't start anything"
+_cmd_kubebins() {
+    TAG=$1
+    need_tag
+
+    pssh --timeout 300 "
+    set -e
+    cd /usr/local/bin
+    if ! [ -x etcd ]; then
+        curl -L https://github.com/etcd-io/etcd/releases/download/v3.3.10/etcd-v3.3.10-linux-amd64.tar.gz \
+        | sudo tar --strip-components=1 --wildcards -zx '*/etcd' '*/etcdctl'
+    fi
+    if ! [ -x hyperkube ]; then
+        curl -L https://dl.k8s.io/v1.14.1/kubernetes-server-linux-amd64.tar.gz \
+        | sudo tar --strip-components=3 -zx kubernetes/server/bin/hyperkube
+    fi
+    if ! [ -x kubelet ]; then
+        for BINARY in kubectl kube-apiserver kube-scheduler kube-controller-manager kubelet kube-proxy;
+        do
+            sudo ln -s hyperkube \$BINARY
+        done
+    fi
+    sudo mkdir -p /opt/cni/bin
+    cd /opt/cni/bin
+    if ! [ -x bridge ]; then
+        curl -L https://github.com/containernetworking/plugins/releases/download/v0.7.5/cni-plugins-amd64-v0.7.5.tgz \
+        | sudo tar -zx
+    fi
+    "
+}
+
 _cmd kube "Setup kubernetes clusters with kubeadm (must be run AFTER deploy)"
 _cmd_kube() {
     TAG=$1
     need_tag
+
+    # Optional version, e.g. 1.13.5
+    KUBEVERSION=$2
+    if [ "$KUBEVERSION" ]; then
+        EXTRA_KUBELET="=$KUBEVERSION-00"
+        EXTRA_KUBEADM="--kubernetes-version=v$KUBEVERSION"
+    else
+        EXTRA_KUBELET=""
+        EXTRA_KUBEADM=""
+    fi
 
     # Install packages
     pssh --timeout 200 "
@@ -116,19 +167,19 @@ _cmd_kube() {
     sudo tee /etc/apt/sources.list.d/kubernetes.list"
     pssh --timeout 200 "
     sudo apt-get update -q &&
-    sudo apt-get install -qy kubelet kubeadm kubectl &&
+    sudo apt-get install -qy kubelet$EXTRA_KUBELET kubeadm kubectl &&
     kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl"
 
     # Initialize kube master
     pssh --timeout 200 "
-    if grep -q node1 /tmp/node && [ ! -f /etc/kubernetes/admin.conf ]; then
+    if i_am_first_node && [ ! -f /etc/kubernetes/admin.conf ]; then
         kubeadm token generate > /tmp/token &&
-	sudo kubeadm init --token \$(cat /tmp/token)
+	sudo kubeadm init $EXTRA_KUBEADM --token \$(cat /tmp/token) --apiserver-cert-extra-sans \$(cat /tmp/ipv4)
     fi"
 
     # Put kubeconfig in ubuntu's and docker's accounts
     pssh "
-    if grep -q node1 /tmp/node; then
+    if i_am_first_node; then
         sudo mkdir -p \$HOME/.kube /home/docker/.kube &&
         sudo cp /etc/kubernetes/admin.conf \$HOME/.kube/config &&
         sudo cp /etc/kubernetes/admin.conf /home/docker/.kube/config &&
@@ -138,16 +189,23 @@ _cmd_kube() {
 
     # Install weave as the pod network
     pssh "
-    if grep -q node1 /tmp/node; then
+    if i_am_first_node; then
         kubever=\$(kubectl version | base64 | tr -d '\n') &&
         kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=\$kubever
     fi"
 
     # Join the other nodes to the cluster
     pssh --timeout 200 "
-    if ! grep -q node1 /tmp/node && [ ! -f /etc/kubernetes/kubelet.conf ]; then
-        TOKEN=\$(ssh -o StrictHostKeyChecking=no node1 cat /tmp/token) &&
-        sudo kubeadm join --discovery-token-unsafe-skip-ca-verification --token \$TOKEN node1:6443
+    if ! i_am_first_node && [ ! -f /etc/kubernetes/kubelet.conf ]; then
+        FIRSTNODE=\$(cat /etc/name_of_first_node) &&
+        TOKEN=\$(ssh -o StrictHostKeyChecking=no \$FIRSTNODE cat /tmp/token) &&
+        sudo kubeadm join --discovery-token-unsafe-skip-ca-verification --token \$TOKEN \$FIRSTNODE:6443
+    fi"
+
+    # Install metrics server
+    pssh "
+    if i_am_first_node; then
+	kubectl apply -f https://raw.githubusercontent.com/jpetazzo/container.training/master/k8s/metrics-server.yaml
     fi"
 
     # Install kubectx and kubens
@@ -183,6 +241,21 @@ EOF"
         helm completion bash | sudo tee /etc/bash_completion.d/helm
     fi"
 
+    # Install ship
+    pssh "
+    if [ ! -x /usr/local/bin/ship ]; then
+        curl -L https://github.com/replicatedhq/ship/releases/download/v0.40.0/ship_0.40.0_linux_amd64.tar.gz |
+             sudo tar -C /usr/local/bin -zx ship
+    fi"
+
+    # Install the AWS IAM authenticator
+    pssh "
+    if [ ! -x /usr/local/bin/aws-iam-authenticator ]; then
+	##VERSION##
+        sudo curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.12.7/2019-03-27/bin/linux/amd64/aws-iam-authenticator
+	sudo chmod +x /usr/local/bin/aws-iam-authenticator
+    fi"
+
     sep "Done"
 }
 
@@ -203,10 +276,9 @@ _cmd_kubetest() {
     # Feel free to make that better ♥
     pssh "
     set -e
-    [ -f /tmp/node ]
-    if grep -q node1 /tmp/node; then
+    if i_am_first_node; then
       which kubectl
-      for NODE in \$(awk /\ node/\ {print\ \\\$2} /etc/hosts); do
+      for NODE in \$(awk /[0-9]\$/\ {print\ \\\$2} /etc/hosts); do
         echo \$NODE ; kubectl get nodes | grep -w \$NODE | grep -w Ready
       done
     fi"
@@ -277,6 +349,14 @@ _cmd_opensg() {
     infra_opensg
 }
 
+_cmd disableaddrchecks "Disable source/destination IP address checks"
+_cmd_disableaddrchecks() {
+    TAG=$1
+    need_tag
+
+    infra_disableaddrchecks
+}
+
 _cmd pssh "Run an arbitrary command on all nodes"
 _cmd_pssh() {
     TAG=$1
@@ -311,6 +391,15 @@ _cmd_retag() {
     aws_tag_instances $OLDTAG $NEWTAG
 }
 
+_cmd ssh "Open an SSH session to the first node of a tag"
+_cmd_ssh() {
+    TAG=$1
+    need_tag
+    IP=$(head -1 tags/$TAG/ips.txt)
+    info "Logging into $IP"
+    ssh docker@$IP
+}
+
 _cmd start "Start a group of VMs"
 _cmd_start() {
     while [ ! -z "$*" ]; do
@@ -322,7 +411,7 @@ _cmd_start() {
         *) die "Unrecognized parameter: $1."
         esac
     done
-    
+
     if [ -z "$INFRA" ]; then
         die "Please add --infra flag to specify which infrastructure file to use."
     fi
@@ -333,8 +422,8 @@ _cmd_start() {
         COUNT=$(awk '/^clustersize:/ {print $2}' $SETTINGS)
         warning "No --count option was specified. Using value from settings file ($COUNT)."
     fi
-    
-    # Check that the specified settings and infrastructure are valid.        
+
+    # Check that the specified settings and infrastructure are valid.
     need_settings $SETTINGS
     need_infra $INFRA
 
@@ -406,15 +495,15 @@ _cmd_helmprom() {
     TAG=$1
     need_tag
     pssh "
-    if grep -q node1 /tmp/node; then
+    if i_am_first_node; then
         kubectl -n kube-system get serviceaccount helm ||
             kubectl -n kube-system create serviceaccount helm
-        helm init --service-account helm
+        sudo -u docker -H helm init --service-account helm
         kubectl get clusterrolebinding helm-can-do-everything ||
             kubectl create clusterrolebinding helm-can-do-everything \
                 --clusterrole=cluster-admin \
                 --serviceaccount=kube-system:helm
-        helm upgrade --install prometheus stable/prometheus \
+        sudo -u docker -H helm upgrade --install prometheus stable/prometheus \
             --namespace kube-system \
             --set server.service.type=NodePort \
             --set server.service.nodePort=30090 \
@@ -496,8 +585,8 @@ test_vm() {
     for cmd in "hostname" \
         "whoami" \
         "hostname -i" \
-        "cat /tmp/node" \
-        "cat /tmp/ipv4" \
+        "ls -l /usr/local/bin/i_am_first_node" \
+        "grep . /etc/name_of_first_node /etc/ipv4_of_first_node" \
         "cat /etc/hosts" \
         "hostnamectl status" \
         "docker version | grep Version -B1" \

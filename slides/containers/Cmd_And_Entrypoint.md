@@ -222,16 +222,16 @@ la valeur de `CMD` y est ajoutée.
 Lançons un _build_:
 
 ```bash
-$ docker build -t figlet .
+$ docker build -t myfiglet .
 ...
 Successfully built 6e0b6a048a07
-Successfully tagged figlet:latest
+Successfully tagged myfiglet:latest
 ```
 
 Exécutons-là sans paramètres:
 
 ```bash
-$ docker run figlet
+$ docker run myfiglet
  _          _   _                             _        
 | |        | | | |                           | |    |  
 | |     _  | | | |  __             __   ,_   | |  __|  
@@ -246,7 +246,7 @@ $ docker run figlet
 Maintenant, passons des arguments supplémentaires à l'image.
 
 ```bash
-$ docker run figlet hola mundo
+$ docker run myfiglet hola mundo
  _           _                                               
 | |         | |                                      |       
 | |     __  | |  __,     _  _  _           _  _    __|   __  
@@ -268,7 +268,7 @@ On ne peut pas juste taper `docker run figlet bash` car
 On utilise donc le paramètre `--entrypoint`:
 
 ```bash
-$ docker run -it --entrypoint bash figlet
+$ docker run -it --entrypoint bash myfiglet
 root@6027e44e2955:/# 
 ```
 

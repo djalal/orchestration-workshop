@@ -56,6 +56,8 @@
 - Si vous êtes sur AWS:
   [EKS](https://aws.amazon.com/eks/),
   [eksctl](https://eksctl.io/),
+
+- Agnostique au cloud (AWS/DO/GCE (beta)/vSphere(alpha)):
   [kops](https://github.com/kubernetes/kops)
 
 - Sur votre machine locale:
@@ -68,6 +70,7 @@
 
   Sans doute à ce jour l'outil le plus proche  d'une solution multi-cloud/hybride, mais encore en développement.
 
+
 ---
 
 ## Encore plus d'options de déploiement
@@ -75,10 +78,8 @@
 - Si vous aimez Ansible:
   [kubespray](https://github.com/kubernetes-incubator/kubespray)
 
-
 - Si vous aimez Terraform:
   [typhoon](https://github.com/poseidon/typhoon)
-
 
 - Si vous aimez Terraform et Puppet:
   [tarmak](https://github.com/jetstack/tarmak)
@@ -92,4 +93,4 @@
 
 - Pour une liste plus complète, veuillez consulter la documentation Kubernetes:
   <br/>
-  on y trouve un super guide pour [choisir la bonne piste](https://kubernetes.io/docs/setup/pick-right-solution/)
+  on y trouve un super guide pour [choisir la bonne piste](https://kubernetes.io/docs/setup/#production-environment)

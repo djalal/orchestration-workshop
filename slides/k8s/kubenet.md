@@ -16,6 +16,8 @@
 
   - chaque _pod_ connait sa propore adresse IP (sans NAT)
 
+  - les adresses IP sont assignées par l'implémentation du réseau (le plugin)
+
 - Kubernetes ne force pas une implémentation particulière
 
 ---
@@ -30,7 +32,7 @@
 
 - Pas de nouveau protocole
 
-- Les _pods_ ne pourront se déplacer d'une _node_ à une autre et garder leur adresse IP.
+- L'implémentation réseau peut décider comment allouer les adresses
 
 - Les adresses IP n'ont pas à être "portables" d'une node à une autre.
 
@@ -52,7 +54,7 @@
 
   (Pas moins de 15 sont mentionnées dans la documentation Kubernetes)
 
-- Les _pods_ ont une connectivité de niveau 3 (IP), et les *services* de niveau 4
+- Les _pods_ ont une connectivité de niveau 3 (IP), et les *services* de niveau 4 (TCP ou UDP)
 
   (Les services sont associés à un seul port TCP ou UDP; pas de groupe de ports ou de paquets IP arbitraires)
 
@@ -61,11 +63,11 @@
 
 ---
 
-## Modèle réseau de Kubernetes: concrètement
+## Modèle réseau de Kubernetes: en pratique
 
 - Les nodes que nous avons à notre disposition utilisent [Weave](https://github.com/weaveworks/weave)
 
-- On ne recommande pas Weave plus que ça, c'est juste que Ca Marche Pour Nous
+- On ne recommande pas Weave plus que ça, c'est juste que "Ca Marche Pour Nous"
 
 - Pas d'inquiétude à propos des réserves sur la performance `kube-proxy`
 
@@ -82,11 +84,15 @@
 
 ---
 
+class: extra-details
+
 ## La CNI (_Container Network Interface_)
 
 - La CNI est une [spécification](https://github.com/containernetworking/cni/blob/master/SPEC.md#network-configuration) complète à destination des _plugins_ réseau.
 
 - Quand un nouveau _pod_ est créé, Kubernetes délègue la config réseau aux _plugins_ CNI.
+
+  (ça peut être un seul plugin, ou une combinaison de plugins, chacun spécialisé dans une tache)
 
 - Généralement, un _plugin_ CNI va:
 
@@ -96,8 +102,50 @@
 
   - configurer l'interface ainsi que les routes minimum, etc.
 
-- Exploiter plusieurs _plugins_ est possible grâce aux "meta-plugins", comme CNI-Genie ou Multus
-
 - Tous les _plugins_ CNI ne naissent pas égaux
 
   (par ex. il ne supportent pas tous les politiques de réseau, obligatoires pour isoler les _pods_)
+
+---
+
+class: extra-details
+
+## Plusieurs cibles mouvantes
+
+- Le "réseau pod-à-pod" ou "réseau pod":
+
+  - fournit la communication entre pods et nodes
+
+  - est généralement implémenté via des plugins CNI
+
+- Le "réseau pod-à-service":
+
+  - fournit la communication interne et la répartition de charge
+
+  - est généralement implémenté avec kube-proxy (ou par ex. kube-router)
+
+- _Network policies_ :
+
+  - jouent le rôle de firewall et de couche d'isolation
+
+  - peuvent être livrées avec le "réseau pod" ou fournit par un autre composant
+
+---
+
+class: extra-details
+
+## Encore plus de cibles mouvantes
+
+- Le trafic entrant peut être géré par plusieurs composants:
+
+  - quelque chose comme kube-proxy ou kube-router (pour les services NodePort)
+
+  - les _load balancers_ (idéalement, connectés au réseau _pod_)
+
+- En théorie, il est possible d'utiliser plusieurs réseaux _pods_ en parallèle
+
+  (avec des "meta-plugins" comme CNI-Genie ou Multus)
+
+- Quelques solutions peuvent remplir plusieurs de ces rôles
+
+  (par ex. kube-router peut être installé pour implémenter le réseau _pod_ et/ou les _network policies_ et/ou remplacer kube-proxy)

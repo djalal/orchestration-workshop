@@ -82,6 +82,8 @@
 
 ---
 
+class: extra-details
+
 ## Qu'est-ce qui tourne là-dessous?
 
 - `kubectl` dispose de capacité d'introspection solides
@@ -92,16 +94,95 @@
 
 - Pour détailler une ressource, c'est:
   ```bash
-  kubectl describe type/name
-  kubectl describe type name
+  kubectl explain type
   ```
 
 - La définition d'un type de ressource s'affiche avec:
   ```bash
-  kubectl explain type
+  kubectl explain node.spec
+  ```
+- ou afficher la définition complète de tous les champs et sous-champs:
+  ```bash
+  kubectl explain node --recursive
   ```
 
-Chaque fois, `type` peut être un nom au singulier, au pluriel ou sous forme abrégée
+---
+
+class: extra-details
+
+## Introspection vs. documentation
+
+- On peut accéder à la même information en lisant [la documentation d'API](https://kubernetes.io/docs/reference/#api-reference)
+
+- La doc est habituellement plus facile à lire, mais:
+
+  - elle ne montrera par les types (comme les Custom Resource Definitions)
+  - attention à bien utiliser la version correcte
+
+- `kubectl api-resources` and `kubectl explain` font de l'*introspection*
+
+ (en s'appuyant sur le serveur API, pour récupérer des définitions de types exactes)
+
+---
+
+## Nommage de types
+
+- Les ressources les plus communes ont jusqu'à 3 formes de noms:
+
+ - singulier (par ex. `node`, `service`, `deployment`)
+
+ - pluriel (par ex.  `nodes`, `services`, `deployments`)
+
+ - court (par ex. `no`, `svc`, `deploy`)
+
+- Certaines ressources n'ont pas de nom court
+
+- `Endpoints` n'ont qu'une forme au pluriel
+
+  (parce que même une seule ressource `Endpoints` est en fait une liste d'_endpoints_)
+
+---
+
+## Détailler l'affichage
+
+- On peut taper `kubectl get -o yaml` pour un détail complet d'une ressource
+
+- Toutefois, le format YAML peut être à la fois trop verbeux et incomplet
+
+- Par exemple,  `kubectl get node node1 -o yaml` est:
+
+  - trop verbeux (par ex. la liste des images disponibles sur cette node)
+
+  - incomplet (car on ne voit pas les pods qui y tournent)
+
+  - difficile à lire pour un administrateur humain
+
+- Pour une vue complète, on peut utiliser `kubectl describe` en alternative.
+
+---
+
+## `kubectl describe`
+
+- `kubectl describe` requiert un type de ressource et (en option) un nom de ressource
+
+- Il est possible de fournir un préfixe de nom de ressource 
+
+  (tous les objets contenant ce nom seront affichés)
+
+- `kubectl describe` va récupérer quelques infos de plus sur une ressource
+
+.exercise[
+
+- Jeter un oeil aux infos de `node1` avec une de ces commandes:
+
+  ```bash
+  kubectl describe node/node1
+  kubectl describe node node1
+  ```
+
+]
+
+(On devrait voir un tas de pods du plan de contrôle)
 
 ---
 
@@ -197,28 +278,32 @@ L'erreur que vous voyez était attendue: l'API Kubernetes exige une identificati
 
 *Vous savez quoi... Ce machin `kube-system` m'a l'air suspect.*
 
+*En fait, je suis plutôt sûr de l'avoir vu tout à l'heure, quand on a tapé:*
+
+`kubectl describe node node1`
+
 ---
 
 ## Accéder aux _namespaces_
 
 - Par défaut, `kubectl` utilise le _namespace_... `default`
 
-- On peut basculer sur un _namespace_ différent avec l'option `-n`
+- On peut montrer toutes les ressources avec `--all-namespaces`
 
 .exercise[
 
-- Lister les _pods_ dans le _namespace_ `kube-system`:
+- Lister les _pods_ à travers tous les _namespaces_:
+
   ```bash
-  kubectl -n kube-system get pods
+  kubectl get pods --all-namespaces
   ```
 
-]
+- Depuis Kubernetes 1.14, on peut aussi taper `-A` pour faire plus court:
+  ```bash
+  kubectl get pods -A
+  ```
 
---
-
-*Alerte Alerte Alerte Alerte Alerte Alerte*
-
-Le _namespace_ `kube-system` est utilisé pour le plan de contrôle.
+*Et voici nos pods système!*
 
 ---
 
@@ -232,7 +317,7 @@ Le _namespace_ `kube-system` est utilisé pour le plan de contrôle.
 
 - `coredns` fournit une découverte de services basé sur le DNS ([il remplace kube-dns depuis 1.11](https://kubernetes.io/blog/2018/07/10/coredns-ga-for-kubernetes-cluster-dns/))
 
-- `kube-proxy` est tourne sur chaque _node_ et gère le _mapping_ de ports etc.
+- `kube-proxy` tourne sur chaque _node_ et gère le _mapping_ de ports etc.
 
 - `weave` est le composant qui gère les réseaux superposés sur chaque noeud
 
@@ -242,10 +327,45 @@ Le _namespace_ `kube-system` est utilisé pour le plan de contrôle.
   <br/>
   ils sont spécifiquement "scotchés" au noeud maître.
 
+---
+
+## Viser un autre _namespace_
+
+- On peut aussi examiner un autre namespace (que `default`)
+
+.exercise[
+
+- Lister uniquement les pods du namespace `kube-system`:
+  ```bash
+  kubectl get pods --namespace=kube-system
+  kubectl get pods -n kube-system
+  ```
+
+]
 
 ---
 
-## Qu'en est-il de `kube-public`?
+## _Namespaces_ selon les commandes `kubectl`
+
+- On peut combiner `-n`/`--namespace` avec presque toute commande
+
+- Exemple:
+
+  - `kubectl create --namespace=X` pour créer quelque chose dans le _namespace_ X
+
+- On peut utiliser `-A`/`--all-namespaces` avec la plupart des commandes qui manipulent plein d'objets à la fois
+
+- Exemples:
+
+  - `kubectl delete` supprime des ressources à travers plusieurs _namespaces_
+
+  - `kubectl label` ajoute/supprime des labels à travers plusieurs _namespaces_
+
+---
+
+class: extra-details
+
+## Qu'en est-il de ce `kube-public`?
 
 .exercise[
 
@@ -256,20 +376,100 @@ Le _namespace_ `kube-system` est utilisé pour le plan de contrôle.
 
 ]
 
---
+Rien!
 
-- Peut-être qu'il n'a pas de _pods_, mais quels secrets nous cache `kube-public`?
+`kube-public` est créé par kubeadm et [utilisé pour établie une sécurité de base](https://kubernetes.io/blog/2017/01/stronger-foundation-for-creating-and-managing-kubernetes-clusters)
 
---
+---
+
+class: extra-details
+
+## Explorer `kube-public`
+
+- Le seul objet intéressant dans `kube-public` est un `ConfigMap` nommé `cluster-info`
 
 .exercise[
 
-- Lister les secrets dans le _namespace_ `kube-public`:
+- Lister les ConfigMaps dans le _namespace_ `kube-public`:
   ```bash
-  kubectl -n kube-public get secrets
+  kubectl -n kube-public get configmaps
+  ```
+
+- Inspecter `cluster-info`:
+  ```bash
+  kubectl -n kube-public get configmap cluster-info -o yaml
   ```
 
 ]
---
 
-- `kube-public` est créé par kubeadm et [utilisé pour établir une sécurité de base](https://kubernetes.io/blog/2017/01/stronger-foundation-for-creating-and-managing-kubernetes-clusters)
+Noter l'URI `selfLink`: `/api/v1/namespaces/kube-public/configmaps/cluster-info`
+
+On pourrait en avoir besoin!
+
+---
+
+class: extra-details
+
+## Accéder à `cluster-info`
+
+- Plus tôt, en interrogeant le serveur API, on a reçu une réponse `Forbidden`
+
+- Mais `cluster-info` est lisible par tous (y compris sans authentification)
+
+.exercise[
+
+- Récupérer `cluster-info`:
+  ```bash
+  curl -k https://10.96.0.1/api/v1/namespaces/kube-public/configmaps/cluster-info
+  ```
+
+]
+
+- Nous sommes capables d'accéder à `cluster-info` (sans auth)
+
+- Il contient un fichier `kubeconfig`
+
+---
+
+class: extra-details
+
+## Récupérer `kubeconfig`
+
+- On peut facilement extraire le conenu du fichier `kubeconfig` de cette ConfigMap
+
+.exercise[
+
+- Afficher le contenu de `kubeconfig`:
+  ```bash
+    curl -sk https://10.96.0.1/api/v1/namespaces/kube-public/configmaps/cluster-info \
+         | jq -r .data.kubeconfig
+  ```
+
+]
+
+- Ce fichier contient l'adresse canonique du serveur d'API, et la clé publique du CA.
+
+- Ce fichier *ne contient pas* les clés client ou tokens
+
+- Ce ne sont pas des infos sensibles, mais c'est essentiel pour établir une connexion sécurisée.
+
+---
+
+class: extra-details
+
+## Qu'en est-il de `kube-node-lease`?
+
+- Depuis Kubernetes 1.14, il y a un namespace `kube-node-lease`
+
+  (ou dès la version 1.13 si la fonction NodeLease était activée)
+
+- Ce namespace contient un objet Lease par node
+
+- Un *Node lease* est une nouvelle manière d'implémenter les _heartbeat_ de _node_
+
+  (c'est-à-dire qu'une node va contacter le _master_  de temps à autre et dire "Je suis vivant!")
+
+- Pour plus de détails, voir [KEP-0009] ou la [doc de contrôleur de node]
+
+[KEP-0009]: https://github.com/kubernetes/enhancements/blob/master/keps/sig-node/0009-node-heartbeat.md
+[node controller documentation]: https://kubernetes.io/docs/concepts/architecture/nodes/#node-controller

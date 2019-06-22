@@ -185,6 +185,69 @@ beaucoup moins de pré-requis.
 
 ---
 
+## Ambassadeur et maillage de service
+
+* En utilisant un _service mesh_, on passe souvent par un conteneur "sidecar" qui agit comme proxy
+
+* Nos services se connectent alors en transparence à ce conteneur "sidecar"
+
+* Ce conteneur _sidecar_ détermine où transmettre le trafic 
+
+... Ça vous rappelle quelque chose?
+
+(Cela devrait, car les _service mesh_ sont techniquement des ambassadeurs à l'échelle d'un cluster)
+
+---
+
+## Quelques _service mesh_ populaires
+
+... et des projets du domaine:
+
+* [Consul Connect](https://www.consul.io/docs/connect/index.html)
+  <br/>
+  Sécurisation transparente des connexions service-à-service par mTLS.
+
+* [Gloo](https://gloo.solo.io/)
+  <br/>
+  Passerelle d'API pour interconnecter les applications tournant sur des VMs ou des conteneurs ou en _serverless_.
+
+* [Istio](https://istio.io/)
+  <br/>
+  Un _service mesh_ populaire
+
+* [Linkerd](https://linkerd.io/)
+  <br/>
+  Un autre _service mesh_ populaire
+
+---
+
+
+## En savoir plus sur les _service mesh_
+
+Quelques billets de blog à propos des _service mesh_:
+
+* [Containers, microservices, and service meshes](http://jpetazzo.github.io/2019/05/17/containers-microservices-service-meshes/)
+  <br/>
+  Fournit du context historique: comment on faisait avant que les _service mesh_ soient inventés?
+
+* [Do I Need a Service Mesh?](https://www.nginx.com/blog/do-i-need-a-service-mesh/)
+  <br/>
+  Explique le but des _service mesh_. Prend en exemple quelques fonctions de NGiNX.
+
+* [Do you need a service mesh?](https://www.oreilly.com/ideas/do-you-need-a-service-mesh)
+  <br/>
+  Inclut une vue d'ensemble  et des définitions.
+
+* [What is Service Mesh and Why Do We Need It?](https://containerjournal.com/2018/12/12/what-is-service-mesh-and-why-do-we-need-it/)
+  <br/>
+  Comprend une démo étape-par-étape de Linkerd.
+
+Et une vidéo:
+
+* [What is a Service Mesh, and Do I Need One When Developing Microservices?](https://www.datawire.io/envoyproxy/service-mesh/)
+
+---
+
 ## Résumé de section
 
 Nous avons appris comment:
@@ -193,14 +256,5 @@ Nous avons appris comment:
 
 Pour plus d'information sur le _pattern_ ambassadeur, incluant des demos sur Swarm et ECS:
 
-* AWS re:invent 2015 [DVO317](https://www.youtube.com/watch?v=7CZFpHUPqXw)
-
 * [SwarmWeek video about Swarm+Compose](https://youtube.com/watch?v=qbIvUvwa6As)
 
-Quelques services de maillage et projets relatifs:
-
-* [Istio](https://istio.io/)
-
-* [Linkerd](https://linkerd.io/)
-
-* [Gloo](https://gloo.solo.io/)

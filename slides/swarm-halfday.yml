@@ -24,9 +24,11 @@ chapters:
 - shared/about-slides.md
 - shared/toc.md
 - - shared/prereqs.md
+  - shared/connecting.md
   - swarm/versions.md
   - shared/sampleapp.md
   - shared/composescale.md
+  - shared/hastyconclusions.md
   - shared/composedown.md
   - swarm/swarmkit.md
   - shared/declarative.md

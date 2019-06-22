@@ -39,10 +39,6 @@ Nous pouvons distinguer sans ordre de préférence:
 
 * La méthode recommandée est d'installer les paquets fournis par Docker Inc.:
 
-  https://store.docker.com
-
-* La méthode générale est:
-
   - ajouter les dépôts de paquet de Docker Inc. à votre configuration de système.
 
   - installer le Docker Engine
@@ -54,6 +50,12 @@ Nous pouvons distinguer sans ordre de préférence:
 * Vous pouvez aussi l'installer à partir d'exécutables (si votre distribution n'est pas supportée):
 
   https://docs.docker.com/engine/installation/linux/docker-ce/binaries/
+
+* Pour installer rapidement un environnement de dév, Docker fournit un script d'installation pratique:
+
+  ```bash
+  curl -fsSL get.docker.com | sh
+  ```
 
 ---
 
@@ -93,7 +95,7 @@ class: extra-details
 
   https://docs.docker.com/toolbox/toolbox_install_windows/
 
-* Sur Windows 2016, vous pouvez aussi le moteur natif:
+* Sur Windows 2016, vous pouvez aussi installer le moteur natif:
 
   https://docs.docker.com/install/windows/docker-ee/
 

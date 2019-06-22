@@ -155,31 +155,31 @@ A notre connaissance, personne ne l'utilise directement (i.e. hors Kubernetes).
 
 ## Kata containers
 
-* OCI-compliant runtime.
+* Moteur de conteneurs compatible OCI.
 
-* Fusion of two projects: Intel Clear Containers and Hyper runV.
+* Fusion de deux projets : Intel Clear Containers et Hyper runV
 
-* Run each container in a lightweight virtual machine.
+* Lance chaque conteneur dans une machine virtuelle minimaliste
 
-* Requires to run on bare metal *or* with nested virtualization.
+* Exige de le lancer sur un serveur physique ou dans une virtualisation encapsulée.
 
 ---
 
 ## gVisor
 
-* OCI-compliant runtime.
+* Moteur de conteneurs compatible OCI.
 
-* Implements a subset of the Linux kernel system calls.
+* Implémente un sous-ensemble des appels systèmes du noyau Linux.
 
-* Written in go, uses a smaller subset of system calls.
+* Ecrit en Go, exploite un sous-ensemble plus restreint des appels systèmes.
 
-* Can be heavily sandboxed.
+* Peut être lourdement isolé dans une sandbox.
 
-* Can run in two modes:
+* Peut tourner en 2 modes:
 
-  * KVM (requires bare metal or nested virtualization),
+  * KVM (requiert un serveur physique ou une pré-virtualisation)
 
-  * ptrace (no requirement, but slower).
+  * ptrace (aucun pré-requis, mais plus lent)
 
 ---
 

@@ -7,7 +7,7 @@
 
 - Vous pouvez aussi le parcourir à votre propre rythme.
 
-- Nous avons inclus autant d'information que possibles dans les diapositives.
+- Nous avons inclus autant d'information que possible dans ces diapositives.
 
 - Nous vous recommandons d'avoir un instructeur pour vous aider...
 

@@ -88,7 +88,7 @@
 
   - the control loop watches over ingress resources, and configures the LB accordingly
 
-- Step 2: setup DNS
+- Step 2: set up DNS
 
   - associate DNS entries with the load balancer address
 
@@ -126,7 +126,7 @@
 
 - We could use pods specifying `hostPort: 80` 
 
-  ... but with most CNI plugins, this [doesn't work or require additional setup](https://github.com/kubernetes/kubernetes/issues/23920)
+  ... but with most CNI plugins, this [doesn't work or requires additional setup](https://github.com/kubernetes/kubernetes/issues/23920)
 
 - We could use a `NodePort` service
 
@@ -142,7 +142,7 @@
 
   (sometimes called sandbox or network sandbox)
 
-- An IP address is associated to the pod
+- An IP address is assigned to the pod
 
 - This IP address is routed/connected to the cluster network
 
@@ -176,7 +176,7 @@
 
 - We are going to use a Daemon Set so that each node can accept connections
 
-- We will do two minor changes to the [YAML provided by Traefik](https://github.com/containous/traefik/blob/master/examples/k8s/traefik-ds.yaml):
+- We will do two minor changes to the [YAML provided by Traefik](https://github.com/containous/traefik/blob/v1.7/examples/k8s/traefik-ds.yaml):
 
   - enable `hostNetwork`
 
@@ -194,7 +194,7 @@
 
 - When deploying with `kubeadm`:
 
-  - a taint is placed on the node dedicated the control plane
+  - a taint is placed on the node dedicated to the control plane
 
   - the pods running the control plane have a matching toleration
 
@@ -239,7 +239,7 @@ class: extra-details
 
   - an error condition on the node
     <br/>
-    (for instance: "disk full", do not start new pods here!)
+    (for instance: "disk full," do not start new pods here!)
 
 - The `effect` can be:
 
@@ -306,9 +306,9 @@ This one is a special case that means "ignore all taints and run anyway."
 
 - We provide a YAML file (`k8s/traefik.yaml`) which is essentially the sum of:
 
-  - [Traefik's Daemon Set resources](https://github.com/containous/traefik/blob/master/examples/k8s/traefik-ds.yaml) (patched with `hostNetwork` and tolerations)
+  - [Traefik's Daemon Set resources](https://github.com/containous/traefik/blob/v1.7/examples/k8s/traefik-ds.yaml) (patched with `hostNetwork` and tolerations)
 
-  - [Traefik's RBAC rules](https://github.com/containous/traefik/blob/master/examples/k8s/traefik-rbac.yaml) allowing it to watch necessary API objects
+  - [Traefik's RBAC rules](https://github.com/containous/traefik/blob/v1.7/examples/k8s/traefik-rbac.yaml) allowing it to watch necessary API objects
 
 .exercise[
 
@@ -363,6 +363,8 @@ This is normal: we haven't provided any ingress rule yet.
 .exercise[
 
 - Go to `http://node1:8080` (replacing `node1` with its IP address)
+
+<!-- ```open http://node1:8080``` -->
 
 ]
 
@@ -499,11 +501,11 @@ spec:
 
   (as long as it has access to the cluster subnet)
 
-- This allows to use external (hardware, physical machines...) load balancers
+- This allows the use of external (hardware, physical machines...) load balancers
 
 - Annotations can encode special features
 
-  (rate-limiting, A/B testing, session stickiness, etc.) 
+  (rate-limiting, A/B testing, session stickiness, etc.)
 
 ---
 

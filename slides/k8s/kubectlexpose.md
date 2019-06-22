@@ -274,3 +274,21 @@ error: the server doesn't have a resource type "endpoint"
 - Il n'existe aucun objet `endpoint`: `type Endpoints struct`
 
 - Le type ne représente pas un seul _endpoint_, mais une liste d'_endpoints_
+
+---
+
+## Exposer des services au monde extérieur
+
+- Le type par défaut (ClusterIP) ne fonctionne que pour le trafic interne
+
+- Si nous voulons accepter du trafic depuis l'extene, on devra utiliser soit:
+
+  - NodePort (exposer un service sur un port TCP entre 30000 et 32768)
+
+  - LoadBalancer (si notre fournisseur de cloud est compatible)
+
+  - ExternalIP (passer par l'adresse IP externe d'une node)
+
+  - Ingress (mécanisme spécial pour les services HTTP)
+
+*Nous détaillerons l'usage des NodePorts et Ingresses plus loin.*

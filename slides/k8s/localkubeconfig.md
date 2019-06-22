@@ -6,6 +6,24 @@
 
 ---
 
+## Requirements
+
+.warning[The exercises in this chapter should be done *on your local machine*.]
+
+- `kubectl` is officially available on Linux, macOS, Windows
+
+  (and unofficially anywhere we can build and run Go binaries)
+
+- You may skip these exercises if you are following along from:
+
+  - a tablet or phone
+
+  - a web-based terminal
+
+  - an environment where you can't install and run new binaries
+
+---
+
 ## Installing `kubectl`
 
 - If you already have `kubectl` on your local machine, you can skip this
@@ -16,11 +34,11 @@
 
 - Download the `kubectl` binary from one of these links:
 
-  [Linux](https://storage.googleapis.com/kubernetes-release/release/v1.13.2/bin/linux/amd64/kubectl)
+  [Linux](https://storage.googleapis.com/kubernetes-release/release/v1.14.2/bin/linux/amd64/kubectl)
   |
-  [macOS](https://storage.googleapis.com/kubernetes-release/release/v1.13.2/bin/darwin/amd64/kubectl)
+  [macOS](https://storage.googleapis.com/kubernetes-release/release/v1.14.2/bin/darwin/amd64/kubectl)
   |
-  [Windows](https://storage.googleapis.com/kubernetes-release/release/v1.13.2/bin/windows/amd64/kubectl.exe)
+  [Windows](https://storage.googleapis.com/kubernetes-release/release/v1.14.2/bin/windows/amd64/kubectl.exe)
 
 - On Linux and macOS, make the binary executable with `chmod +x kubectl`
 
@@ -49,25 +67,32 @@ Note: if you are following along with a different platform (e.g. Linux on an arc
 
 The output should look like this:
 ```
-Client Version: version.Info{Major:"1", Minor:"11", GitVersion:"v1.11.2",
-GitCommit:"bb9ffb1654d4a729bb4cec18ff088eacc153c239", GitTreeState:"clean",
-BuildDate:"2018-08-07T23:17:28Z", GoVersion:"go1.10.3", Compiler:"gc",
+Client Version: version.Info{Major:"1", Minor:"14", GitVersion:"v1.14.0",
+GitCommit:"641856db18352033a0d96dbc99153fa3b27298e5", GitTreeState:"clean",
+BuildDate:"2019-03-25T15:53:57Z", GoVersion:"go1.12.1", Compiler:"gc",
 Platform:"linux/amd64"}
 ```
 
 ---
 
-## Moving away the existing `~/.kube/config`
+## Preserving the existing `~/.kube/config`
 
-- If you already have a `~/.kube/config` file, move it away
+- If you already have a `~/.kube/config` file, rename it
 
   (we are going to overwrite it in the following slides!)
 
 - If you never used `kubectl` on your machine before: nothing to do!
 
-- If you already used `kubectl` to control a Kubernetes cluster before:
+.exercise[
 
-  - rename `~/.kube/config` to e.g. `~/.kube/config.bak`
+- Make a copy of `~/.kube/config`; if you are using macOS or Linux, you can do:
+  ```bash
+  cp ~/.kube/config ~/.kube/config.before.training
+  ```
+
+- If you are using Windows, you will need to adapt this command
+
+]
 
 ---
 
@@ -107,7 +132,6 @@ Platform:"linux/amd64"}
 - To update the server address, run:
   ```bash
   kubectl config set-cluster kubernetes --server=https://`X.X.X.X`:6443
-  kubectl config set-cluster kubernetes --insecure-skip-tls-verify
   # Make sure to replace X.X.X.X with the IP address of node1!
   ```
 
@@ -115,7 +139,7 @@ Platform:"linux/amd64"}
 
 class: extra-details
 
-## Why do we skip TLS verification?
+## What if we get a certificate error?
 
 - Generally, the Kubernetes API uses a certificate that is valid for:
 
@@ -133,7 +157,20 @@ class: extra-details
 
 - ... And that external IP address was not used when creating the certificate!
 
-.warning[It's better to NOT skip TLS verification; this is for educational purposes only!]
+---
+
+class: extra-details
+
+## Working around the certificate error
+
+- We need to tell `kubectl` to skip TLS verification
+
+  (only do this with testing clusters, never in production!)
+
+- The following command will do the trick:
+  ```bash
+  kubectl config set-cluster kubernetes --insecure-skip-tls-verify
+  ```
 
 ---
 
@@ -155,4 +192,4 @@ class: extra-details
 
 ]
 
-We can now utilize the cluster exactly as we did before, ignoring that it's remote.
+We can now utilize the cluster exactly as we did before, except that it's remote.

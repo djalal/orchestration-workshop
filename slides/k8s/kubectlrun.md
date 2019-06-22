@@ -170,10 +170,13 @@ pod/pingpong-7c8bbcd9bc-6c9qz   1/1       Running   0          10m
 
 - Escalader notre déploiement `pingpong`:
   ```bash
-  kubectl scale deploy/pingpong --replicas 8
+  kubectl scale deploy/pingpong --replicas 3
   ```
 
-
+- Noter que cette autre commande fait exactement pareil:
+  ```bash
+  kubectl scale deployment pingpong --replicas 3
+  ```
 
 ]
 
@@ -243,6 +246,9 @@ On pourrait! Mais le *deployment* le remarquerait tout de suite, et le baisserai
 
   - `kubectl create job` pour créer un job
 
+  - `kubectl create cronjob` pour lancer un _job_ à intervalle régulier
+    <br/>(depuis Kubernetes 1.14)
+
 - Finalement, `kubectl run` ne sera utilisé que pour démarrer des _pods_ à usage unique
 
   (voir https://github.com/kubernetes/kubernetes/pull/68132)
@@ -259,7 +265,7 @@ On pourrait! Mais le *deployment* le remarquerait tout de suite, et le baisserai
 - `kubectl create <ressource>`
 
   - explicite, mais lui manque quelques fonctions
-  - ne peut déclarer de CronJob
+  - ne peut déclarer de CronJob avant Kubernetes 1.14
   - ne peut pas transmettre des arguments en ligne de commande aux déploiements
 
 - `kubectl create -f foo.yaml` ou `kubectl apply -f foo.yaml`
@@ -288,7 +294,97 @@ On pourrait! Mais le *deployment* le remarquerait tout de suite, et le baisserai
 
 ]
 
-Hélas, `--follow` ne peut pas (encore) être utilisé pour suivre les logs depuis plusieurs conteneurs.
+---
+
+### Suivre les logs de plusieurs pods
+
+- Est-ce qu'on peut suivre les logs de tous nos _pods_ `pingpong`?
+
+.exercise[
+
+- Combiner les options `-l` and `-f`:
+  ```bash
+  kubectl logs -l run=pingpong --tail 1 -f
+  ```
+
+<!--
+```wait seq=```
+```keys ^C```
+-->
+
+]
+
+*Note: combiner les options `-l` et `-f` est possible depuis Kubernetes 1.14!*
+
+*Essayons de comprendre pourquoi ...*
+
+---
+
+class: extra-details
+
+### Suivre les logs de plusieurs pods
+
+- Voyons ce qu'il se passe si on essaie de sortir les logs de plus de 5 _pods_
+
+.exercise[
+
+- Escalader notre déploiement:
+  ```bash
+  kubectl scale deployment pingpong --replicas=8
+  ```
+
+- Afficher les logs en continu:
+  ```bash
+  kubectl logs -l run=pingpong --tail 1 -f
+  ```
+
+]
+
+On devrait voir un message du type:
+```
+error: you are attempting to follow 8 log streams,
+but maximum allowed concurency is 5,
+use --max-log-requests to increase the limit
+```
+
+---
+
+class: extra-details
+
+## Pourquoi ne peut-on pas suivre les logs de plein de pods?
+
+- `kubectl` ouvre une connection vers le serveur API par _pod_
+
+- Pour chaque _pod_, le serveur API ouvre une autre connexion vers le kubelet correspondant.
+
+- S'il y a 1000 pods dans notre déploiement, cela fait 1000 connexions entrantes + 1000 connexions au serveur API.
+
+- Cela peut facilement surcharger le serveur API.
+
+- Avant la version 1.14 de K8S, il a été décidé de ne pas autoriser les multiple connexions.
+
+- A partir de 1.14, c'est autorisé, mais plafonné à 5 connexions.
+
+  (paramétrable via `--max-log-requests`)
+
+- Pour plus de détails sur les tenants et aboutissants, voir
+  [PR #67573](https://github.com/kubernetes/kubernetes/pull/67573)
+
+---
+
+## Limitations de `kubectl logs`
+
+- On ne voit pas quel _pod_ envoie quelle ligne
+
+- Si les _pods_ sont redémarrés / remplacés, le flux de log se fige.
+
+- Si de nouveaux _pods_ arrivent, on ne verra pas leurs logs.
+
+- Pour suivre les logs de plusieur pods, il nous faut écrire un sélecteur
+
+- Certains outils externes corrigent ces limitations:
+
+  (par ex.: [Stern](https://github.com/wercker/stern))
 
 ---
 

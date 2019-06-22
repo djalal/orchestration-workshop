@@ -176,7 +176,7 @@ $ docker run -d -v $(pwd):/src -P namer
 
 * `namer` est le nom de l'image à exécuter.
 
-* Nous n'ajoutons pas la commande à lancer car elle est déjà dans le Dockerfile.
+* Nous n'ajoutons pas la commande à lancer car elle est déjà dans le Dockerfile avec `CMD`.
 
 Note: sur Windows, remplacer `$(pwd)`par `%cd%` (ou `${pwd}` avec PowerShell).
 

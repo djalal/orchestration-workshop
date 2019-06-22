@@ -202,4 +202,91 @@ bash: figlet: command not found
 
 * Dans l'image de base Ubuntu utilisée ci-dessus, `figlet` est absent.
 
+---
+
+## Où est mon conteneur?
+
+* Pouvons nous réutiliser ce conteneur que nous avons pris le soin de personnaliser?
+
+  *On pourrait, mais ce n'est pas le mode de production par défaut avec Docker.*
+
+* Quel est le processus général, alos?
+
+  *Toujours démarrer avec un conteneur tout nouveau.*
+  <br/>
+  *Si on a besoin d'installer quoique ce soit dans notre conteneur, générer une nouvelle image.*
+
+* Ça a l'air compliqué!
+
+  *Nous allons voir que c'est en fait assez simple!*
+
+* Et tout ça pour quoi?
+
+  *Tout ça pour appuyer sur l'automatisation et la répétabilité. Voyons voir pourquoi ...*
+
+---
+
+## Animaux de compagnie et bétail
+
+* Dans la métaphore *"pets vs cattle"*, il existe deux genres de serveurs.
+
+* Les animaux de compagnie (*Pets*):
+
+  * ont un petit nom et une configuration unique
+
+  * quand ils défaillent, on fait tout ce qu'on peut pour les soigner.
+
+* Le bétail (*Cattle*):
+
+  * ont des noms génériques (par ex. contenant des numéros) et une configuration générique
+
+  * leur configuration est générée par une couche de gestion de configuration, et des templates ...
+
+  * quand une panne advient, on peut les remplacer immédiatement par un nouveau serveur
+
+* Quelle est la relation avec Docker et les conteneurs?
+
+---
+
+## Environnement de développement locaux
+
+* Avec l'usage de VMs locales (comme par ex. Virtualbox ou VMware), notre flux de travail ressemble à ce qui suit:
+
+  * créer une VM à partir d'un gabarit de base (Ubuntu, CentOS...)
+
+  * installer les paquets, configurer l'environnement
+
+  * travail sur le projet en tant que tel
+
+  * finalement, éteindre la VM
+
+  * la prochaine fois qu'on aborde ce projet, redémarrer la VM dans l'état où on l'a laissée
+
+  * si on a besoin de retoucher l'environnement, on le fait en direct.
+
+* Au fil du temps, la configuration de la VM évolue et diverge.
+
+* Il nous manque une procédure propre, fiable et déterministe de provisionner cet environnement.
+
+---
+
+## Développement local avec Docker
+
+* Avec Docker, la démarche est la suivante:
+
+  * créer une image de conteneur représentant notre environnement de dév.
+
+  * lancer un conteneur basé sur cette image
+
+  * travailler sur notre projet proprement dit
+
+  * finalement, stopper le conteneur
+
+  * la prochaine fois qu'on aborde le projet, démarrer un nouveau contneeur
+
+  * en cas de changement de l'environnement, on créé une nouvelle image.
+
+* Nous avons une définition claire de notre environnement, qu'on peut partager de manière fiable avec les autres.
+
 * Nous verrons dans les chapitres suivants comment préparer une image personnalisée avec `figlet`.
+

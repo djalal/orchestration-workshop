@@ -530,7 +530,9 @@ Instructions très rapides:
 - `docker network create mynet --driver overlay`
 - `docker service create --network mynet myimage`
 
-Voir https://container.training pour tous les détails sur les _clusters_!
+Pour en savoir plus sur le mode Swarm, jetez un oeil à 
+[cette vidéo](https://www.youtube.com/watch?v=EuzoEaE6Cqs)
+ou [ces diapos](https://container.training/swarm-selfpaced.yml.html).
 
 ---
 

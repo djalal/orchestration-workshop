@@ -130,6 +130,14 @@ class: pic
 
 ---
 
+class: pic
+
+![One of the best Kubernetes architecture diagrams available](images/k8s-arch4-thanks-luxas.png)
+
+---
+
+class: extra-details
+
 ## Plan de contrôle sur des _nodes_ spéciales
 
 - Il est commun de réserver une _node_ dédiée au plan de contrôle
@@ -152,6 +160,8 @@ class: pic
 
 ---
 
+class: extra-details
+
 ## Lancer le plan de contrôle sans conteneurs
 
 - Les services du plan de contrôle peuvent tourner avec ou sans conteneurs
@@ -167,9 +177,11 @@ class: pic
 
 - Dans ce cas, il n'y a pas de _node_ "master"
 
-*Pour cette version, il est plus précis de parler de "plan de contrôle" plutôt que de "master".*
+*Pour cette raison, il est plus précis de parler de "plan de contrôle" plutôt que de "master".*
 
 ---
+
+class: extra-details
 
 ## Docker est-il obligatoire à tout prix?
 
@@ -186,6 +198,8 @@ Non!
   (comme CRI-O, ou containerd)
 
 ---
+
+class: extra-details
 
 ## Devrait-on utiliser Docker?
 
@@ -209,6 +223,8 @@ Oui!
 
 ---
 
+class: extra-details
+
 ## Devrait-on utiliser Docker?
 
 - Sur nos environnements de développement, les pipelines CI ... :
@@ -225,25 +241,25 @@ Oui!
 
 ---
 
-## Ressources sur Kubernetes
+## Interagir avec Kubernetes
+
+- Le dialogue avec Kubernetes s'effectue via une API RESTful, la plupart du temps.
 
 - L'API Kubernetes définit un tas d'objets appelés *resources*
 
 - Ces ressources sont organisées par type, ou `Kind` (dans l'API)
+
+- Elle permet de déclarer, lire, modifier et supprimer les *resources*
 
 - Quelques types de ressources communs:
 
   - _node_ (une machine - physique ou virtuelle - de notre cluster)
   - _pod_ (groupe de conteneurs lancés ensemble sur une _node_)
   - _service_ (point d'entrée stable du réseau pour se connecter à un ou plusieurs conteneurs)
-  - _namespace_ (groupe de choses plus-ou-moins isolée)
-  - _secret_ (ensemble de données sensibles transmis à un conteneur)
 
   Et bien plus!
 
 - On peut afficher la liste complète avec `kubectl api-resources`
-
-  (Dans Kubernetes 1.10 et avant, la commande pour lister les ressources API étaient `kubectl get`)
 
 ---
 
@@ -253,22 +269,16 @@ class: pic
 
 ---
 
-class: pic
-
-![Un des meilleurs diagrammes d'archi Kubernetes disponibles](images/k8s-arch4-thanks-luxas.png)
-
----
-
 ## Crédits
 
-- Le premier diagramme est une grâcieuseté de Weave Works
+- Le premier diagramme est une grâcieuseté de Lucas Käldström, dans [cette présentation](https://speakerdeck.com/luxas/kubeadm-cluster-creation-internals-from-self-hosting-to-upgradability-and-ha)
+
+  - c'est l'un des meilleurs diagrammes d'architecture Kubernetes disponibles!
+
+- Le second diagramme est une grâcieuseté de Weave Works
 
   - un *pod* peut avoir plusieurs conteneurs qui travaillent ensemble
 
   - les adresses IP sont associées aux *pods*, pas aux conteneurs eux-mêmes
-
-- Le second diagramme est une grâcieuseté de Lucas Käldström, dans [cette présentation](https://speakerdeck.com/luxas/kubeadm-cluster-creation-internals-from-self-hosting-to-upgradability-and-ha)
-
-  - c'est l'un des meilleurs diagrammes d'architecture Kubernetes disponibles!
 
 Les deux diagrammes sont utilisés avec la permission de leurs auteurs.

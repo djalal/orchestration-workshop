@@ -1,38 +1,79 @@
 # Namespaces
 
+- We would like to deploy another copy of DockerCoins on our cluster
+
+- We could rename all our deployments and services:
+
+  hasher → hasher2, redis → redis2, rng → rng2, etc.
+
+- That would require updating the code
+
+- There has to be a better way!
+
+--
+
+- As hinted by the title of this section, we will use *namespaces*
+
+---
+
+## Identifying a resource
+
 - We cannot have two resources with the same name
 
-  (Or can we...?)
+  (or can we...?)
 
 --
 
-- We cannot have two resources *of the same type* with the same name
+- We cannot have two resources *of the same kind* with the same name
 
-  (But it's OK to have a `rng` service, a `rng` deployment, and a `rng` daemon set!)
-
---
-
-- We cannot have two resources of the same type with the same name *in the same namespace*
-
-  (But it's OK to have e.g. two `rng` services in different namespaces!)
+  (but it's OK to have an `rng` service, an `rng` deployment, and an `rng` daemon set)
 
 --
 
-- In other words: **the tuple *(type, name, namespace)* needs to be unique**
+- We cannot have two resources of the same kind with the same name *in the same namespace*
 
-  (In the resource YAML, the type is called `Kind`)
+  (but it's OK to have e.g. two `rng` services in different namespaces)
+
+--
+
+- Except for resources that exist at the *cluster scope*
+
+  (these do not belong to a namespace)
+
+---
+
+## Uniquely identifying a resource
+
+- For *namespaced* resources:
+
+  the tuple *(kind, name, namespace)* needs to be unique
+
+- For resources at the *cluster scope*:
+
+  the tuple *(kind, name)* needs to be unique
+
+.exercise[
+
+- List resource types again, and check the NAMESPACED column:
+  ```bash
+  kubectl api-resources
+  ```
+
+]
 
 ---
 
 ## Pre-existing namespaces
 
-- If we deploy a cluster with `kubeadm`, we have three namespaces:
+- If we deploy a cluster with `kubeadm`, we have three or four namespaces:
 
   - `default` (for our applications)
 
   - `kube-system` (for the control plane)
 
-  - `kube-public` (contains one secret used for cluster discovery)
+  - `kube-public` (contains one ConfigMap for cluster discovery)
+
+  - `kube-node-lease` (in Kubernetes 1.14 and later; contains Lease objects)
 
 - If we deploy differently, we may have different namespaces
 
@@ -40,12 +81,16 @@
 
 ## Creating namespaces
 
-- Creating a namespace is done with the `kubectl create namespace` command:
+- Let's see two identical methods to create a namespace
+
+.exercise[
+
+- We can use `kubectl create namespace`:
   ```bash
   kubectl create namespace blue
   ```
 
-- We can also get fancy and use a very minimal YAML snippet, e.g.:
+- Or we can construct a very minimal YAML snippet:
   ```bash
 	kubectl apply -f- <<EOF
 	apiVersion: v1
@@ -55,9 +100,9 @@
 	EOF
   ```
 
-- The two methods above are identical
+]
 
-- If we are using a tool like Helm, it will create namespaces automatically
+- Some tools like Helm will create namespaces automatically when needed
 
 ---
 
@@ -153,7 +198,7 @@
 
 ## Using our new namespace
 
-- Let's check that we are in our new namespace, then deploy the DockerCoins chart
+- Let's check that we are in our new namespace, then deploy a new copy of Dockercoins
 
 .exercise[
 
@@ -162,21 +207,38 @@
   kubectl get all
   ```
 
-- Deploy DockerCoins:
+]
+
+---
+
+## Deploying DockerCoins with YAML files
+
+- The GitHub repository `jpetazzo/kubercoins` contains everything we need!
+
+.exercise[
+
+- Clone the kubercoins repository:
   ```bash
-  helm install dockercoins
+  cd ~
+  git clone https://github.com/jpetazzo/kubercoins
+  ```
+
+- Create all the DockerCoins resources:
+  ```bash
+  kubectl create -f kubercoins
   ```
 
 ]
 
-In the last command line, `dockercoins` is just the local path where
-we created our Helm chart before.
+If the argument behind `-f` is a directory, all the files in that directory are processed. 
+
+The subdirectories are *not* processed, unless we also add the `-R` flag.
 
 ---
 
 ## Viewing the deployed app
 
-- Let's see if our Helm chart worked correctly!
+- Let's see if this worked correctly!
 
 .exercise[
 
@@ -189,7 +251,7 @@ we created our Helm chart before.
 
 ]
 
-Note: it might take a minute or two for the app to be up and running.
+If the graph shows up but stays at zero, give it a minute or two!
 
 ---
 

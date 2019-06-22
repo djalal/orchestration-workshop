@@ -84,7 +84,7 @@ agrégés.
 
 - DockerCoins n'est *pas* une crypto-monnaie
 
-  (les seuls points communs sont "aléatoire", "hachage", et "coins" dans le nom)
+  (les seuls points communs étant "aléatoire", "hachage", et "coins" dans le nom) </lol>
 
 ---
 

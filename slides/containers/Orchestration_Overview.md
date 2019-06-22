@@ -5,9 +5,6 @@ Dans ce chapitre, nous allons:
 * Expliquer ce qu'est l'orchestration et quand est-ce qu'on en a besoin.
 
 * Quelques orchestrateurs modernes (d'une perspective générale)
-
-* Faire la démonstration d'un orchestrateur en action.
-
 ---
 
 class: pic
@@ -246,7 +243,7 @@ Ordonnancement = décider quel hyperviseur utiliser pour chaque VM.
 
 .center[![Not-so-good bin packing](images/binpacking-1d-1.gif)]
 
-Peut-on faire mieux?
+## On ne peut pas lancer une appli de taille 6 :(
 
 ---
 
@@ -254,7 +251,7 @@ Peut-on faire mieux?
 
 .center[![Better bin packing](images/binpacking-1d-2.gif)]
 
-Ouais!
+## ... Maintenant on peut!
 
 ---
 
